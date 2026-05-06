@@ -255,7 +255,14 @@
             el(
               'td',
               { class: 'actions' },
-              el('span', { class: 'tag tag-success' }, 'Publicado')
+              el(
+                'a',
+                {
+                  class: 'btn btn-primary btn-small',
+                  href: `edital.html?id=${item.id}`,
+                },
+                '👁 Visualizar'
+              )
             )
           );
           tbody.appendChild(tr);
