@@ -12,7 +12,13 @@ export function el(tag, attrs = {}, ...children) {
   }
   for (const c of children.flat()) {
     if (c == null || c === false) continue;
-    node.appendChild(typeof c === 'string' ? document.createTextNode(c) : c);
+    if (typeof c === 'string' || typeof c === 'number' || typeof c === 'boolean') {
+      node.appendChild(document.createTextNode(String(c)));
+    } else if (c instanceof Node) {
+      node.appendChild(c);
+    } else {
+      node.appendChild(document.createTextNode(String(c)));
+    }
   }
   return node;
 }
