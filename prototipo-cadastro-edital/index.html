@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Uni+ · Protótipo · Configuração de Edital</title>
+
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/@govbr-ds/core@3.7.1/dist/core.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Rawline:wght@300;400;500;600;700&display=swap"
+    />
+    <link rel="stylesheet" href="css/prototipo.css" />
+  </head>
+  <body>
+    <header class="br-header" data-sticky="true">
+      <div class="container-lg">
+        <div class="header-top">
+          <div class="header-logo">
+            <span class="header-sign">Uni+</span>
+            <span class="header-title">Sistema Unificado Unifesspa</span>
+          </div>
+          <div class="header-actions">
+            <span class="badge-prototipo">Protótipo · validação P.O.</span>
+          </div>
+        </div>
+        <div class="header-bottom">
+          <div class="header-menu">
+            <div class="header-info">
+              <div class="header-subtitle">Configuração de Edital</div>
+              <div class="header-help">
+                Catálogos, modelos e wizard para cadastro de edital de processo
+                seletivo.
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <main class="container-lg br-main" id="main-content">
+      <nav class="br-breadcrumb" aria-label="Breadcrumb">
+        <ol class="crumb-list">
+          <li class="crumb home">
+            <a href="index.html">Início</a>
+          </li>
+        </ol>
+      </nav>
+
+      <section class="br-section">
+        <h2 class="section-title">O que você quer fazer?</h2>
+        <p class="section-description">
+          Este protótipo demonstra o fluxo de cadastro de edital com 13 passos,
+          alimentado por catálogos editáveis (incluindo
+          <strong>obrigatoriedades legais</strong> que substituem regras
+          hardcoded).
+          Os dados ficam no <code>localStorage</code> do navegador.
+        </p>
+
+        <div class="card-grid">
+          <a class="br-card card-link" href="editais.html">
+            <div class="card-content">
+              <h3 class="card-title">Editais</h3>
+              <p class="card-text">
+                Criar novo edital pelo wizard, ver rascunhos e editais
+                publicados.
+              </p>
+              <span class="card-stats" data-stats="editais">—</span>
+            </div>
+          </a>
+
+          <a class="br-card card-link" href="modelos.html">
+            <div class="card-content">
+              <h3 class="card-title">Modelos de edital</h3>
+              <p class="card-text">
+                Templates reutilizáveis. Crie um edital, salve como modelo, e
+                use-o como ponto de partida para outros do mesmo tipo.
+              </p>
+              <span class="card-stats" data-stats="modelos">—</span>
+            </div>
+          </a>
+
+          <a class="br-card card-link" href="catalogos.html">
+            <div class="card-content">
+              <h3 class="card-title">Catálogos</h3>
+              <p class="card-text">
+                Tipos de edital, modalidades, tipos de etapa, locais, documentos,
+                critérios de desempate e <strong>obrigatoriedades legais</strong>.
+              </p>
+              <span class="card-stats" data-stats="catalogos">—</span>
+            </div>
+          </a>
+
+          <button
+            class="br-card card-link card-action"
+            type="button"
+            id="btn-resetar"
+          >
+            <div class="card-content">
+              <h3 class="card-title">Resetar dados</h3>
+              <p class="card-text">
+                Limpa <code>localStorage</code> e repopula os catálogos com
+                seeds realistas. Útil entre demos.
+              </p>
+              <span class="card-stats">⟳</span>
+            </div>
+          </button>
+        </div>
+      </section>
+
+      <section class="br-section">
+        <h2 class="section-title">Sobre o protótipo</h2>
+        <ul class="prototipo-info">
+          <li>
+            <strong>Sem backend.</strong> Todo o estado vive no
+            <code>localStorage</code> do navegador.
+          </li>
+          <li>
+            <strong>Tema gov.br DS.</strong> Acessibilidade WCAG 2.1 AA / e-MAG
+            3.1 obrigatória (autarquia federal).
+          </li>
+          <li>
+            <strong>Validação dinâmica.</strong> Regras de obrigatoriedade são
+            <em>dado</em>, não código — atualizáveis sem deploy.
+          </li>
+          <li>
+            <strong>RN08.</strong> Ao publicar, o edital congela um snapshot
+            JSON com hash sha256.
+          </li>
+        </ul>
+      </section>
+    </main>
+
+    <footer class="br-footer">
+      <div class="container-lg">
+        <div class="footer-content">
+          <p>
+            Uni+ · Universidade Federal do Sul e Sudeste do Pará ·
+            <span class="footer-version">Protótipo de cadastro de edital</span>
+          </p>
+        </div>
+      </div>
+    </footer>
+
+    <div id="toast-container" class="toast-container" aria-live="polite"></div>
+
+    <script type="module" src="js/app.js"></script>
+  </body>
+</html>

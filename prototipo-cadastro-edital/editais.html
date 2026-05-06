@@ -1,0 +1,272 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Uni+ · Editais</title>
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/@govbr-ds/core@3.7.1/dist/core.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Rawline:wght@300;400;500;600;700&display=swap"
+    />
+    <link rel="stylesheet" href="css/prototipo.css" />
+  </head>
+  <body>
+    <header class="br-header" data-sticky="true">
+      <div class="container-lg">
+        <div class="header-top">
+          <div class="header-logo">
+            <a href="index.html" style="text-decoration: none">
+              <span class="header-sign">Uni+</span>
+              <span class="header-title">Sistema Unificado Unifesspa</span>
+            </a>
+          </div>
+          <div class="header-actions">
+            <span class="badge-prototipo">Protótipo · validação P.O.</span>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <main class="container-lg br-main">
+      <nav class="br-breadcrumb" aria-label="Breadcrumb">
+        <ol class="crumb-list">
+          <li class="crumb home"><a href="index.html">Início</a></li>
+          <li class="crumb">Editais</li>
+        </ol>
+      </nav>
+
+      <section class="br-section">
+        <div class="flex-between mb-4">
+          <div>
+            <h1 class="section-title">Editais</h1>
+            <p class="section-description">
+              Rascunhos em andamento e editais publicados (snapshot RN08).
+            </p>
+          </div>
+          <a class="btn btn-primary" href="editais-novo.html">+ Novo edital</a>
+        </div>
+
+        <h2 class="section-title" style="font-size: 1.125rem">Rascunhos</h2>
+        <div id="lista-rascunhos"></div>
+
+        <h2 class="section-title mt-4" style="font-size: 1.125rem">Publicados</h2>
+        <div id="lista-publicados"></div>
+      </section>
+    </main>
+
+    <footer class="br-footer">
+      <div class="container-lg">
+        <div class="footer-content">
+          <p>Uni+ · Protótipo · <a href="index.html" style="color: white">Início</a></p>
+        </div>
+      </div>
+    </footer>
+
+    <div id="toast-container" class="toast-container" aria-live="polite"></div>
+
+    <script type="module">
+      import { Collection, Keys } from './js/storage.js';
+      import { Toast } from './js/toast.js';
+      import { STEPS } from './js/wizard-steps.js';
+
+      function el(tag, attrs = {}, ...children) {
+        const node = document.createElement(tag);
+        for (const [k, v] of Object.entries(attrs)) {
+          if (k === 'class') node.className = v;
+          else if (k === 'on') {
+            for (const [evt, h] of Object.entries(v)) node.addEventListener(evt, h);
+          } else if (v === true) node.setAttribute(k, '');
+          else if (v !== false && v != null) node.setAttribute(k, v);
+        }
+        for (const c of children.flat()) {
+          if (c == null) continue;
+          node.appendChild(typeof c === 'string' ? document.createTextNode(c) : c);
+        }
+        return node;
+      }
+
+      function progresso(state) {
+        const total = STEPS.length;
+        const completos = Object.values(state.statusPorPasso || {}).filter(
+          (s) => s === 'completed'
+        ).length;
+        return { completos, total };
+      }
+
+      function renderListaRascunhos() {
+        const wrap = document.getElementById('lista-rascunhos');
+        const items = new Collection(Keys.EDITAIS_RASCUNHO).list({ includeInactive: true });
+        wrap.innerHTML = '';
+
+        if (items.length === 0) {
+          wrap.appendChild(
+            el(
+              'div',
+              { class: 'empty-state' },
+              el('div', { class: 'empty-state-icon' }, '📭'),
+              el('p', {}, 'Nenhum rascunho. Comece um agora.')
+            )
+          );
+          return;
+        }
+
+        const tableEl = el('table', { class: 'data-table' });
+        const thead = el(
+          'thead',
+          {},
+          el(
+            'tr',
+            {},
+            el('th', {}, 'Identificação'),
+            el('th', {}, 'Tipo'),
+            el('th', {}, 'Progresso'),
+            el('th', {}, 'Atualizado'),
+            el('th', { class: 'actions' }, 'Ações')
+          )
+        );
+        const tbody = el('tbody');
+
+        for (const item of items) {
+          const ident = item.edital.identificacao || {};
+          const tipo = item.edital.tipo || {};
+          const { completos, total } = progresso(item);
+          const tr = el(
+            'tr',
+            {},
+            el(
+              'td',
+              {},
+              ident.numero
+                ? `${ident.numero}/${ident.ano || ''} — ${ident.nomeProcesso || '(sem nome)'}`
+                : el('span', { class: 'text-muted' }, '(sem identificação)')
+            ),
+            el('td', {}, tipo.codigo || el('span', { class: 'text-muted' }, '—')),
+            el(
+              'td',
+              {},
+              el(
+                'span',
+                { class: 'tag tag-info' },
+                `${completos}/${total}`
+              )
+            ),
+            el(
+              'td',
+              {},
+              new Date(item.atualizadoEm).toLocaleString('pt-BR')
+            ),
+            el(
+              'td',
+              { class: 'actions' },
+              el(
+                'a',
+                {
+                  class: 'btn btn-secondary btn-small',
+                  href: `editais-novo.html?id=${item.id}`,
+                },
+                '✏️ Continuar'
+              ),
+              el(
+                'button',
+                {
+                  type: 'button',
+                  class: 'btn btn-ghost btn-small',
+                  on: {
+                    click: () => {
+                      if (!confirm('Excluir este rascunho?')) return;
+                      new Collection(Keys.EDITAIS_RASCUNHO).hardDelete(item.id);
+                      Toast.warning('Rascunho excluído.');
+                      renderListaRascunhos();
+                    },
+                  },
+                },
+                '🗑 Excluir'
+              )
+            )
+          );
+          tbody.appendChild(tr);
+        }
+        tableEl.appendChild(thead);
+        tableEl.appendChild(tbody);
+        wrap.appendChild(el('div', { class: 'table-wrapper' }, tableEl));
+      }
+
+      function renderListaPublicados() {
+        const wrap = document.getElementById('lista-publicados');
+        const items = new Collection(Keys.EDITAIS_PUBLICADO).list({ includeInactive: true });
+        wrap.innerHTML = '';
+
+        if (items.length === 0) {
+          wrap.appendChild(
+            el(
+              'div',
+              { class: 'empty-state' },
+              el('div', { class: 'empty-state-icon' }, '📦'),
+              el('p', {}, 'Nenhum edital publicado.')
+            )
+          );
+          return;
+        }
+
+        const tableEl = el('table', { class: 'data-table' });
+        const thead = el(
+          'thead',
+          {},
+          el(
+            'tr',
+            {},
+            el('th', {}, 'Identificação'),
+            el('th', {}, 'Tipo'),
+            el('th', {}, 'Hash'),
+            el('th', {}, 'Publicado em'),
+            el('th', { class: 'actions' }, 'Ações')
+          )
+        );
+        const tbody = el('tbody');
+        for (const item of items) {
+          const ident = item.snapshot?.identificacao || {};
+          const tr = el(
+            'tr',
+            {},
+            el(
+              'td',
+              {},
+              `${ident.numero || '?'}/${ident.ano || '?'} — ${ident.nomeProcesso || '(sem nome)'}`
+            ),
+            el('td', {}, item.snapshot?.tipo?.codigo || '—'),
+            el(
+              'td',
+              {},
+              el(
+                'code',
+                { style: 'font-size: 0.7rem' },
+                (item.hash || '').substring(0, 12) + '…'
+              )
+            ),
+            el(
+              'td',
+              {},
+              new Date(item.publicadoEm).toLocaleString('pt-BR')
+            ),
+            el(
+              'td',
+              { class: 'actions' },
+              el('span', { class: 'tag tag-success' }, 'Publicado')
+            )
+          );
+          tbody.appendChild(tr);
+        }
+        tableEl.appendChild(thead);
+        tableEl.appendChild(tbody);
+        wrap.appendChild(el('div', { class: 'table-wrapper' }, tableEl));
+      }
+
+      renderListaRascunhos();
+      renderListaPublicados();
+    </script>
+  </body>
+</html>

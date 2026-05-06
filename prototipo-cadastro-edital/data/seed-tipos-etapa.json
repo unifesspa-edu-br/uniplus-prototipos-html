@@ -1,0 +1,90 @@
+[
+  {
+    "codigo": "PROVA_OBJETIVA",
+    "nome": "Prova Objetiva",
+    "descricao": "Prova com questões de múltipla escolha. Correção por leitura óptica.",
+    "escala": "ESC_0_10",
+    "tipo_correcao": "LEITURA_OPTICA",
+    "modalidade_aplicacao": "PRESENCIAL",
+    "exige_anonimizacao": false,
+    "num_corretores_default": 0,
+    "permite_recurso_default": true
+  },
+  {
+    "codigo": "REDACAO",
+    "nome": "Redação",
+    "descricao": "Redação dissertativa argumentativa. Avaliada por banca de corretores anônimos.",
+    "escala": "ESC_0_10",
+    "tipo_correcao": "BANCA_CORRETOR",
+    "modalidade_aplicacao": "PRESENCIAL",
+    "exige_anonimizacao": true,
+    "num_corretores_default": 2,
+    "permite_recurso_default": true
+  },
+  {
+    "codigo": "ENTREVISTA",
+    "nome": "Entrevista",
+    "descricao": "Entrevista presencial com banca avaliadora. Não permite recurso por natureza subjetiva.",
+    "escala": "ESC_0_10",
+    "tipo_correcao": "AVALIACAO_SUBJETIVA",
+    "modalidade_aplicacao": "PRESENCIAL",
+    "exige_anonimizacao": false,
+    "num_corretores_default": 3,
+    "permite_recurso_default": false
+  },
+  {
+    "codigo": "ANALISE_HISTORICO",
+    "nome": "Análise de Histórico Escolar",
+    "descricao": "Análise documental do histórico escolar (notas e disciplinas cursadas).",
+    "escala": "ESC_0_10",
+    "tipo_correcao": "AVALIACAO_SUBJETIVA",
+    "modalidade_aplicacao": "ANALISE_DOCUMENTAL",
+    "exige_anonimizacao": false,
+    "num_corretores_default": 2,
+    "permite_recurso_default": true
+  },
+  {
+    "codigo": "CARTA_INTENCAO",
+    "nome": "Carta de Intenção",
+    "descricao": "Carta argumentativa onde o candidato apresenta motivação para o curso.",
+    "escala": "ESC_0_10",
+    "tipo_correcao": "BANCA_CORRETOR",
+    "modalidade_aplicacao": "ANALISE_DOCUMENTAL",
+    "exige_anonimizacao": true,
+    "num_corretores_default": 2,
+    "permite_recurso_default": true
+  },
+  {
+    "codigo": "BANCA_HETEROIDENTIFICACAO",
+    "nome": "Banca de Heteroidentificação",
+    "descricao": "Verificação presencial ou virtual de autodeclaração étnico-racial. Composição mínima de 5 membros.",
+    "escala": "ESC_0_10",
+    "tipo_correcao": "AVALIACAO_SUBJETIVA",
+    "modalidade_aplicacao": "PRESENCIAL",
+    "exige_anonimizacao": false,
+    "num_corretores_default": 5,
+    "permite_recurso_default": true
+  },
+  {
+    "codigo": "BANCA_BIOPSICOSSOCIAL",
+    "nome": "Banca Biopsicossocial",
+    "descricao": "Avaliação multiprofissional para validação de laudo PcD (médico + psicólogo + assistente social).",
+    "escala": "ESC_0_10",
+    "tipo_correcao": "AVALIACAO_SUBJETIVA",
+    "modalidade_aplicacao": "PRESENCIAL",
+    "exige_anonimizacao": false,
+    "num_corretores_default": 3,
+    "permite_recurso_default": true
+  },
+  {
+    "codigo": "ANALISE_DOCUMENTAL",
+    "nome": "Análise Documental",
+    "descricao": "Análise genérica de documentos (declarações, comprovantes, laudos).",
+    "escala": "ESC_0_10",
+    "tipo_correcao": "AVALIACAO_SUBJETIVA",
+    "modalidade_aplicacao": "ANALISE_DOCUMENTAL",
+    "exige_anonimizacao": false,
+    "num_corretores_default": 1,
+    "permite_recurso_default": true
+  }
+]

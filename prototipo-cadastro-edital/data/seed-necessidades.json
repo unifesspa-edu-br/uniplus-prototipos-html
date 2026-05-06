@@ -1,0 +1,110 @@
+[
+  {
+    "codigo": "GRAVIDEZ",
+    "nome": "Gravidez",
+    "descricao": "Gestante. Pode requerer sala térrea, mobiliário adequado e tempo adicional para deslocamento ao banheiro.",
+    "exige_laudo": false,
+    "validade_laudo_dias": null,
+    "recursos_requeridos": ["SALA_TERREA", "MOBILIARIO_ADEQUADO"],
+    "base_legal": "Constituição Federal art. 6º; Lei 8.069/1990 (ECA)"
+  },
+  {
+    "codigo": "AMAMENTACAO",
+    "nome": "Amamentação",
+    "descricao": "Lactante que precisa amamentar durante a prova. Requer berçário ou sala reservada com acompanhante para o lactente.",
+    "exige_laudo": false,
+    "validade_laudo_dias": null,
+    "recursos_requeridos": ["BERCARIO", "TEMPO_ADICIONAL"],
+    "base_legal": "Lei 13.872/2019 (Lei do amamenta)"
+  },
+  {
+    "codigo": "LACTANTE",
+    "nome": "Lactante (mãe que amamenta)",
+    "descricao": "Mãe em período de amamentação que não está com o lactente no momento da prova.",
+    "exige_laudo": false,
+    "validade_laudo_dias": null,
+    "recursos_requeridos": ["INTERVALO_AMAMENTACAO"],
+    "base_legal": "Lei 13.872/2019"
+  },
+  {
+    "codigo": "CADEIRANTE",
+    "nome": "Cadeirante",
+    "descricao": "Pessoa que utiliza cadeira de rodas. Requer sala térrea, mobiliário adaptado e acessibilidade física.",
+    "exige_laudo": true,
+    "validade_laudo_dias": 365,
+    "recursos_requeridos": ["SALA_TERREA", "MOBILIARIO_ADAPTADO", "BANHEIRO_ACESSIVEL"],
+    "base_legal": "Lei 13.146/2015 (LBI); Decreto 5.296/2004"
+  },
+  {
+    "codigo": "BAIXA_VISAO",
+    "nome": "Baixa visão",
+    "descricao": "Acuidade visual reduzida. Requer prova ampliada em fonte 18-24pt e iluminação adequada.",
+    "exige_laudo": true,
+    "validade_laudo_dias": 365,
+    "recursos_requeridos": ["PROVA_AMPLIADA", "ILUMINACAO_REFORCADA", "TEMPO_ADICIONAL"],
+    "base_legal": "Lei 13.146/2015"
+  },
+  {
+    "codigo": "CEGUEIRA",
+    "nome": "Cegueira (visão reduzida ou ausente)",
+    "descricao": "Cegueira total ou parcial. Requer ledor (transcritor) ou prova em braile, conforme preferência do candidato.",
+    "exige_laudo": true,
+    "validade_laudo_dias": 365,
+    "recursos_requeridos": ["LEDOR", "PROVA_BRAILE", "TEMPO_ADICIONAL"],
+    "base_legal": "Lei 13.146/2015"
+  },
+  {
+    "codigo": "MOBILIDADE_REDUZIDA",
+    "nome": "Mobilidade reduzida (não-cadeirante)",
+    "descricao": "Limitação de mobilidade que não exige cadeira de rodas (ex.: muleta, prótese, idoso com dificuldade).",
+    "exige_laudo": true,
+    "validade_laudo_dias": 365,
+    "recursos_requeridos": ["SALA_TERREA", "MOBILIARIO_ADEQUADO"],
+    "base_legal": "Lei 13.146/2015; Lei 10.741/2003"
+  },
+  {
+    "codigo": "SURDEZ",
+    "nome": "Surdez (auditiva)",
+    "descricao": "Surdez total ou parcial. Pode requerer intérprete de LIBRAS para questões orais ou comunicação no local.",
+    "exige_laudo": true,
+    "validade_laudo_dias": 365,
+    "recursos_requeridos": ["INTERPRETE_LIBRAS"],
+    "base_legal": "Lei 13.146/2015; Lei 10.436/2002"
+  },
+  {
+    "codigo": "BAIXA_AUDICAO",
+    "nome": "Baixa audição",
+    "descricao": "Audição reduzida com uso de aparelho auditivo. Requer sala com baixo ruído.",
+    "exige_laudo": true,
+    "validade_laudo_dias": 365,
+    "recursos_requeridos": ["SALA_BAIXO_RUIDO"],
+    "base_legal": "Lei 13.146/2015"
+  },
+  {
+    "codigo": "AUTISMO",
+    "nome": "Transtorno do espectro autista (TEA)",
+    "descricao": "Pode requerer sala individual ou com poucos candidatos, redução de estímulos sensoriais.",
+    "exige_laudo": true,
+    "validade_laudo_dias": 365,
+    "recursos_requeridos": ["SALA_INDIVIDUAL", "TEMPO_ADICIONAL", "REDUCAO_ESTIMULOS"],
+    "base_legal": "Lei 12.764/2012 (Berenice Piana); Lei 13.146/2015"
+  },
+  {
+    "codigo": "TDAH",
+    "nome": "Transtorno de déficit de atenção (TDAH)",
+    "descricao": "Dificuldade de concentração. Pode requerer sala com poucos candidatos e tempo adicional.",
+    "exige_laudo": true,
+    "validade_laudo_dias": 365,
+    "recursos_requeridos": ["SALA_INDIVIDUAL", "TEMPO_ADICIONAL"],
+    "base_legal": "Lei 13.146/2015"
+  },
+  {
+    "codigo": "OUTROS",
+    "nome": "Outras necessidades (não catalogadas)",
+    "descricao": "Necessidade especial não prevista. Candidato descreve em campo livre e o CEPS avalia caso a caso.",
+    "exige_laudo": true,
+    "validade_laudo_dias": 365,
+    "recursos_requeridos": [],
+    "base_legal": "Lei 13.146/2015"
+  }
+]

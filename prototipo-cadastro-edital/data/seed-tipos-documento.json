@@ -1,0 +1,200 @@
+[
+  {
+    "codigo": "RG",
+    "nome": "Documento de identidade (RG, CNH, CTPS)",
+    "descricao": "Documento oficial com foto.",
+    "formatos_aceitos": ["PDF", "JPG", "PNG"],
+    "tamanho_maximo_mb": 5,
+    "validade_dias": null,
+    "exige_assinatura_digital": false,
+    "exige_liderancas": 0,
+    "categoria": "IDENTIFICACAO"
+  },
+  {
+    "codigo": "CPF",
+    "nome": "CPF",
+    "descricao": "Cadastro de Pessoa Física.",
+    "formatos_aceitos": ["PDF", "JPG", "PNG"],
+    "tamanho_maximo_mb": 5,
+    "validade_dias": null,
+    "exige_assinatura_digital": false,
+    "exige_liderancas": 0,
+    "categoria": "IDENTIFICACAO"
+  },
+  {
+    "codigo": "HISTORICO_MEDIO",
+    "nome": "Histórico do Ensino Médio",
+    "descricao": "Histórico escolar completo do ensino médio, com todas as disciplinas e notas.",
+    "formatos_aceitos": ["PDF"],
+    "tamanho_maximo_mb": 10,
+    "validade_dias": null,
+    "exige_assinatura_digital": true,
+    "exige_liderancas": 0,
+    "categoria": "ESCOLARIDADE"
+  },
+  {
+    "codigo": "CERTIFICADO_CONCLUSAO_EM",
+    "nome": "Certificado de Conclusão do Ensino Médio",
+    "descricao": "Certificado oficial de conclusão.",
+    "formatos_aceitos": ["PDF"],
+    "tamanho_maximo_mb": 5,
+    "validade_dias": null,
+    "exige_assinatura_digital": true,
+    "exige_liderancas": 0,
+    "categoria": "ESCOLARIDADE"
+  },
+  {
+    "codigo": "HISTORICO_GRADUACAO",
+    "nome": "Histórico de Graduação",
+    "descricao": "Histórico de curso superior anterior (transferência, portador de diploma).",
+    "formatos_aceitos": ["PDF"],
+    "tamanho_maximo_mb": 10,
+    "validade_dias": null,
+    "exige_assinatura_digital": true,
+    "exige_liderancas": 0,
+    "categoria": "ESCOLARIDADE"
+  },
+  {
+    "codigo": "DIPLOMA_GRADUACAO",
+    "nome": "Diploma de Graduação",
+    "descricao": "Diploma de curso superior.",
+    "formatos_aceitos": ["PDF"],
+    "tamanho_maximo_mb": 5,
+    "validade_dias": null,
+    "exige_assinatura_digital": true,
+    "exige_liderancas": 0,
+    "categoria": "ESCOLARIDADE"
+  },
+  {
+    "codigo": "COMPROVANTE_RENDA",
+    "nome": "Comprovantes de renda familiar",
+    "descricao": "Comprovantes dos últimos 3 meses de todos os membros da família.",
+    "formatos_aceitos": ["PDF"],
+    "tamanho_maximo_mb": 20,
+    "validade_dias": 90,
+    "exige_assinatura_digital": false,
+    "exige_liderancas": 0,
+    "categoria": "RENDA"
+  },
+  {
+    "codigo": "DECLARACAO_INFORMAL_RENDA",
+    "nome": "Declaração de renda informal",
+    "descricao": "Declaração de renda para trabalhadores informais ou autônomos.",
+    "formatos_aceitos": ["PDF"],
+    "tamanho_maximo_mb": 5,
+    "validade_dias": 90,
+    "exige_assinatura_digital": false,
+    "exige_liderancas": 0,
+    "categoria": "RENDA"
+  },
+  {
+    "codigo": "DECLARACAO_AUTORRECONHECIMENTO",
+    "nome": "Declaração de autorreconhecimento étnico-racial",
+    "descricao": "Autodeclaração assinada de identidade étnico-racial (preto, pardo, indígena).",
+    "formatos_aceitos": ["PDF"],
+    "tamanho_maximo_mb": 5,
+    "validade_dias": null,
+    "exige_assinatura_digital": false,
+    "exige_liderancas": 0,
+    "categoria": "RACA_ETNIA"
+  },
+  {
+    "codigo": "DECLARACAO_PERTENCIMENTO_INDIGENA",
+    "nome": "Declaração de Pertencimento Indígena",
+    "descricao": "Declaração de pertencimento a comunidade indígena, assinada por 3 lideranças.",
+    "formatos_aceitos": ["PDF"],
+    "tamanho_maximo_mb": 5,
+    "validade_dias": null,
+    "exige_assinatura_digital": false,
+    "exige_liderancas": 3,
+    "categoria": "RACA_ETNIA"
+  },
+  {
+    "codigo": "DECLARACAO_QUILOMBOLA",
+    "nome": "Declaração de Pertencimento Quilombola",
+    "descricao": "Declaração de pertencimento a comunidade quilombola, assinada por 3 lideranças.",
+    "formatos_aceitos": ["PDF"],
+    "tamanho_maximo_mb": 5,
+    "validade_dias": null,
+    "exige_assinatura_digital": false,
+    "exige_liderancas": 3,
+    "categoria": "RACA_ETNIA"
+  },
+  {
+    "codigo": "DECLARACAO_PERTENCIMENTO_TERRITORIAL",
+    "nome": "Declaração de Pertencimento Territorial (PSE Ed. Campo)",
+    "descricao": "Declaração de pertencimento a povo do campo, comunidade tradicional ou movimento social.",
+    "formatos_aceitos": ["PDF"],
+    "tamanho_maximo_mb": 5,
+    "validade_dias": null,
+    "exige_assinatura_digital": false,
+    "exige_liderancas": 2,
+    "categoria": "RACA_ETNIA"
+  },
+  {
+    "codigo": "LAUDO_MEDICO_PCD",
+    "nome": "Laudo médico para PcD",
+    "descricao": "Laudo médico com CID, conforme critério Grupo de Washington (Portaria MEC 2.027/2023).",
+    "formatos_aceitos": ["PDF"],
+    "tamanho_maximo_mb": 10,
+    "validade_dias": 365,
+    "exige_assinatura_digital": true,
+    "exige_liderancas": 0,
+    "categoria": "SAUDE"
+  },
+  {
+    "codigo": "COMPROVANTE_RESIDENCIA",
+    "nome": "Comprovante de residência",
+    "descricao": "Conta de luz, água, telefone ou contrato de aluguel dos últimos 3 meses.",
+    "formatos_aceitos": ["PDF", "JPG", "PNG"],
+    "tamanho_maximo_mb": 5,
+    "validade_dias": 90,
+    "exige_assinatura_digital": false,
+    "exige_liderancas": 0,
+    "categoria": "RESIDENCIA"
+  },
+  {
+    "codigo": "CARTA_INTENCAO_DOC",
+    "nome": "Carta de Intenção (documento de inscrição)",
+    "descricao": "Texto argumentativo onde o candidato apresenta motivação para o curso. Avaliada como etapa, mas anexada na inscrição.",
+    "formatos_aceitos": ["PDF"],
+    "tamanho_maximo_mb": 5,
+    "validade_dias": null,
+    "exige_assinatura_digital": false,
+    "exige_liderancas": 0,
+    "categoria": "OUTROS"
+  },
+  {
+    "codigo": "FOTO_3X4",
+    "nome": "Foto 3x4 (digital)",
+    "descricao": "Foto recente de identificação, fundo claro.",
+    "formatos_aceitos": ["JPG", "PNG"],
+    "tamanho_maximo_mb": 2,
+    "validade_dias": 180,
+    "exige_assinatura_digital": false,
+    "exige_liderancas": 0,
+    "categoria": "IDENTIFICACAO"
+  },
+  {
+    "codigo": "TERMO_AUTODECLARACAO_PCD",
+    "nome": "Termo de autodeclaração PcD",
+    "descricao": "Termo onde o candidato se declara pessoa com deficiência, complementar ao laudo.",
+    "formatos_aceitos": ["PDF"],
+    "tamanho_maximo_mb": 2,
+    "validade_dias": null,
+    "exige_assinatura_digital": false,
+    "exige_liderancas": 0,
+    "categoria": "SAUDE"
+  },
+  {
+    "codigo": "COMPROVANTE_PROFESSOR_RURAL",
+    "nome": "Comprovante de atuação como professor rural",
+    "descricao": "Declaração de exercício da docência em escola pública rural (PSE Ed. Campo).",
+    "formatos_aceitos": ["PDF"],
+    "tamanho_maximo_mb": 5,
+    "validade_dias": null,
+    "exige_assinatura_digital": true,
+    "exige_liderancas": 0,
+    "categoria": "OUTROS"
+  }
+]

@@ -1,0 +1,135 @@
+[
+  {
+    "codigo": "SISU",
+    "nome": "SiSU",
+    "descricao": "Sistema de Seleção Unificada — utiliza notas do ENEM para classificação. Notas obtidas via integração com INEP, sem prova local.",
+    "permite_duas_opcoes_curso": true,
+    "exige_prova_presencial": false,
+    "vagas_suplementares": false,
+    "defaults": {
+      "etapas_sugeridas": [],
+      "formula_sugerida": "MEDIA_PONDERADA_ENEM",
+      "modalidades_sugeridas": ["AC", "V", "LB_PPI", "LB_Q", "LB_PcD", "LB_EP", "LI_PPI", "LI_Q", "LI_PcD", "LI_EP"],
+      "desempate_sugerido": ["IDOSO_60", "MAIOR_NOTA_REDACAO", "MAIOR_IDADE"],
+      "concorrencia_dupla": true
+    },
+    "base_legal_referencia": "Portaria MEC 21/2012; Lei 12.711/2012 atualizada pela Lei 14.723/2023"
+  },
+  {
+    "codigo": "PSIQ",
+    "nome": "PSIQ — Indígena e Quilombola",
+    "descricao": "Processo Seletivo Especial para candidatos indígenas e quilombolas, com vagas suplementares e prova presencial em 3 polos.",
+    "permite_duas_opcoes_curso": true,
+    "exige_prova_presencial": true,
+    "vagas_suplementares": true,
+    "defaults": {
+      "etapas_sugeridas": ["PROVA_OBJETIVA", "REDACAO", "ENTREVISTA", "BANCA_HETEROIDENTIFICACAO"],
+      "formula_sugerida": "SOMA_PONDERADA_COM_FATOR",
+      "modalidades_sugeridas": ["PSIQ_I", "PSIQ_Q"],
+      "desempate_sugerido": ["IDOSO_60", "MAIOR_NOTA_ENTREVISTA", "MAIOR_IDADE"],
+      "concorrencia_dupla": false
+    },
+    "base_legal_referencia": "Resolução Unifesspa 532/2021"
+  },
+  {
+    "codigo": "PSE_EC",
+    "nome": "PSE — Educação do Campo",
+    "descricao": "Processo Seletivo Especial para Licenciatura em Educação do Campo. Exige declaração de pertencimento territorial e entrevista.",
+    "permite_duas_opcoes_curso": false,
+    "exige_prova_presencial": true,
+    "vagas_suplementares": false,
+    "defaults": {
+      "etapas_sugeridas": ["REDACAO", "ENTREVISTA", "ANALISE_HISTORICO"],
+      "formula_sugerida": "SOMA_PONDERADA_COM_FATOR",
+      "modalidades_sugeridas": ["AC", "V"],
+      "desempate_sugerido": ["MAIOR_NOTA_ENTREVISTA", "MAIOR_NOTA_REDACAO", "PROFESSOR_RURAL", "MAIOR_IDADE"],
+      "concorrencia_dupla": false
+    },
+    "base_legal_referencia": "Resolução Unifesspa 805/2024"
+  },
+  {
+    "codigo": "PSVR",
+    "nome": "PSVR — Vestibular Remanescente",
+    "descricao": "Processo Seletivo para vagas remanescentes após SiSU. Utiliza prova presencial objetiva + redação.",
+    "permite_duas_opcoes_curso": false,
+    "exige_prova_presencial": true,
+    "vagas_suplementares": false,
+    "defaults": {
+      "etapas_sugeridas": ["PROVA_OBJETIVA", "REDACAO"],
+      "formula_sugerida": "MEDIA_SIMPLES",
+      "modalidades_sugeridas": ["AC", "V", "LB_PPI", "LB_Q", "LB_PcD", "LB_EP", "LI_PPI", "LI_Q", "LI_PcD", "LI_EP"],
+      "desempate_sugerido": ["MAIOR_IDADE", "MAIOR_NOTA_OBJETIVA", "MAIOR_NOTA_REDACAO"],
+      "concorrencia_dupla": true
+    },
+    "base_legal_referencia": "Portaria MEC 18/2012; Resolução CONSEPE Unifesspa"
+  },
+  {
+    "codigo": "PS_CONVENIOS",
+    "nome": "PS Convênios",
+    "descricao": "Processo Seletivo de cursos por convênio com municípios. Aplica bônus regional configurável (padrão 20% sobre AC).",
+    "permite_duas_opcoes_curso": false,
+    "exige_prova_presencial": true,
+    "vagas_suplementares": false,
+    "defaults": {
+      "etapas_sugeridas": ["PROVA_OBJETIVA", "REDACAO"],
+      "formula_sugerida": "MEDIA_SIMPLES",
+      "modalidades_sugeridas": ["AC", "V", "LB_PPI", "LB_Q", "LB_PcD", "LB_EP", "LI_PPI", "LI_Q", "LI_PcD", "LI_EP"],
+      "desempate_sugerido": ["IDOSO_60", "MAIOR_NOTA_REDACAO", "MAIOR_NOTA_OBJETIVA", "MAIOR_IDADE"],
+      "concorrencia_dupla": true,
+      "bonus": {
+        "tipo": "ADITIVO",
+        "valor": 0.2,
+        "modalidades_aplicaveis": ["AC"]
+      }
+    },
+    "base_legal_referencia": "PN MEC 2.027/2023; Resolução Unifesspa do convênio específico"
+  },
+  {
+    "codigo": "TRANSF_INT",
+    "nome": "Transferência Interna (MOBIN)",
+    "descricao": "Mobilidade interna entre cursos da Unifesspa. Análise de histórico e carta de intenção.",
+    "permite_duas_opcoes_curso": false,
+    "exige_prova_presencial": false,
+    "vagas_suplementares": false,
+    "defaults": {
+      "etapas_sugeridas": ["ANALISE_HISTORICO", "CARTA_INTENCAO"],
+      "formula_sugerida": "MEDIA_PONDERADA",
+      "modalidades_sugeridas": ["AC"],
+      "desempate_sugerido": ["MAIOR_NOTA_ANALISE_HISTORICO", "MAIOR_IDADE"],
+      "concorrencia_dupla": false
+    },
+    "base_legal_referencia": "Resolução Unifesspa 414/2020"
+  },
+  {
+    "codigo": "TRANSF_EXT",
+    "nome": "Transferência Externa (MOBEX)",
+    "descricao": "Mobilidade externa de outras IFES para a Unifesspa. Análise de histórico e carta de intenção.",
+    "permite_duas_opcoes_curso": false,
+    "exige_prova_presencial": false,
+    "vagas_suplementares": false,
+    "defaults": {
+      "etapas_sugeridas": ["ANALISE_HISTORICO", "CARTA_INTENCAO"],
+      "formula_sugerida": "MEDIA_PONDERADA",
+      "modalidades_sugeridas": ["AC"],
+      "desempate_sugerido": ["MAIOR_NOTA_ANALISE_HISTORICO", "MAIOR_IDADE"],
+      "concorrencia_dupla": false
+    },
+    "base_legal_referencia": "Resolução Unifesspa 414/2020"
+  },
+  {
+    "codigo": "PORTADOR_DIPLOMA",
+    "nome": "Portador de Diploma",
+    "descricao": "Ingresso para portadores de diploma de curso superior. Análise de histórico de graduação anterior.",
+    "permite_duas_opcoes_curso": false,
+    "exige_prova_presencial": false,
+    "vagas_suplementares": false,
+    "defaults": {
+      "etapas_sugeridas": ["ANALISE_HISTORICO", "CARTA_INTENCAO"],
+      "formula_sugerida": "MEDIA_PONDERADA",
+      "modalidades_sugeridas": ["AC"],
+      "desempate_sugerido": ["MAIOR_NOTA_ANALISE_HISTORICO", "MAIOR_IDADE"],
+      "concorrencia_dupla": false
+    },
+    "base_legal_referencia": "Resolução Unifesspa 414/2020"
+  }
+]

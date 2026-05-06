@@ -1,0 +1,74 @@
+[
+  {
+    "codigo": "IDOSO_60",
+    "nome": "Candidato idoso (60+ anos)",
+    "descricao": "Candidato com idade igual ou superior a 60 anos na data da inscrição. Estatuto do Idoso prevê prioridade em concursos públicos.",
+    "requer_etapa_referencia": false,
+    "versao": "v1",
+    "base_legal": "Lei 10.741/2003 art. 27"
+  },
+  {
+    "codigo": "MAIOR_NOTA_ETAPA",
+    "nome": "Maior nota em etapa específica",
+    "descricao": "Maior nota obtida em uma etapa do edital. Etapa específica é configurada por edital.",
+    "requer_etapa_referencia": true,
+    "versao": "v1",
+    "base_legal": "Definido por cada edital"
+  },
+  {
+    "codigo": "MAIOR_NOTA_OBJETIVA",
+    "nome": "Maior nota na Prova Objetiva",
+    "descricao": "Atalho para MAIOR_NOTA_ETAPA com etapa fixa = PROVA_OBJETIVA.",
+    "requer_etapa_referencia": false,
+    "versao": "v1",
+    "base_legal": "Definido por cada edital"
+  },
+  {
+    "codigo": "MAIOR_NOTA_REDACAO",
+    "nome": "Maior nota na Redação",
+    "descricao": "Atalho para MAIOR_NOTA_ETAPA com etapa fixa = REDACAO.",
+    "requer_etapa_referencia": false,
+    "versao": "v1",
+    "base_legal": "Definido por cada edital"
+  },
+  {
+    "codigo": "MAIOR_NOTA_ENTREVISTA",
+    "nome": "Maior nota na Entrevista",
+    "descricao": "Atalho para MAIOR_NOTA_ETAPA com etapa fixa = ENTREVISTA.",
+    "requer_etapa_referencia": false,
+    "versao": "v1",
+    "base_legal": "Definido por cada edital"
+  },
+  {
+    "codigo": "MAIOR_NOTA_ANALISE_HISTORICO",
+    "nome": "Maior nota na Análise de Histórico",
+    "descricao": "Atalho para MAIOR_NOTA_ETAPA com etapa fixa = ANALISE_HISTORICO.",
+    "requer_etapa_referencia": false,
+    "versao": "v1",
+    "base_legal": "Definido por cada edital"
+  },
+  {
+    "codigo": "MAIOR_IDADE",
+    "nome": "Maior idade cronológica",
+    "descricao": "Candidato de maior idade cronológica (data de nascimento — dia/mês/ano).",
+    "requer_etapa_referencia": false,
+    "versao": "v1",
+    "base_legal": "Costume administrativo"
+  },
+  {
+    "codigo": "PROFESSOR_RURAL",
+    "nome": "Professor da educação básica em zona rural",
+    "descricao": "Candidato que comprove atuação como professor de escola pública rural (específico para PSE Educação do Campo).",
+    "requer_etapa_referencia": false,
+    "versao": "v1",
+    "base_legal": "Resolução Unifesspa 805/2024"
+  },
+  {
+    "codigo": "MENOR_RENDA",
+    "nome": "Menor renda familiar per capita",
+    "descricao": "Candidato com menor renda per capita declarada (apenas para modalidades com comprovação de renda).",
+    "requer_etapa_referencia": false,
+    "versao": "v1",
+    "base_legal": "Decreto 11.781/2023"
+  }
+]

@@ -1,0 +1,28 @@
+# OS / editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Servidor local
+*.log
+*.pid
+
+# Node (caso futuro protótipo use npx serve, eslint, etc.)
+node_modules/
+.npm/
+package-lock.json
+
+# Cache do navegador / build artifacts
+.cache/
+dist/
+build/
+
+# Snapshots/exports gerados em demo (se forem salvos localmente)
+*.export.json
+
+# Específico Claude Code
+.claude/

@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Uni+ · Catálogo</title>
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/@govbr-ds/core@3.7.1/dist/core.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Rawline:wght@300;400;500;600;700&display=swap"
+    />
+    <link rel="stylesheet" href="css/prototipo.css" />
+  </head>
+  <body>
+    <header class="br-header" data-sticky="true">
+      <div class="container-lg">
+        <div class="header-top">
+          <div class="header-logo">
+            <a href="index.html" style="text-decoration: none">
+              <span class="header-sign">Uni+</span>
+              <span class="header-title">Sistema Unificado Unifesspa</span>
+            </a>
+          </div>
+          <div class="header-actions">
+            <span class="badge-prototipo">Protótipo · validação P.O.</span>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <main class="container-lg br-main" id="main-content">
+      <nav class="br-breadcrumb" aria-label="Breadcrumb">
+        <ol class="crumb-list">
+          <li class="crumb home"><a href="index.html">Início</a></li>
+          <li class="crumb"><a href="catalogos.html">Catálogos</a></li>
+          <li class="crumb" id="crumb-current">…</li>
+        </ol>
+      </nav>
+
+      <section class="br-section">
+        <div id="catalogo-header"></div>
+        <div id="catalogo-table" class="mt-4"></div>
+      </section>
+    </main>
+
+    <footer class="br-footer">
+      <div class="container-lg">
+        <div class="footer-content">
+          <p>Uni+ · Protótipo · <a href="catalogos.html" style="color: white">Catálogos</a></p>
+        </div>
+      </div>
+    </footer>
+
+    <div id="toast-container" class="toast-container" aria-live="polite"></div>
+
+    <script type="module">
+      import { renderCatalogo } from './js/catalog.js';
+      import { getCatalogo } from './js/catalog-schemas.js';
+
+      const params = new URLSearchParams(window.location.search);
+      const slug = params.get('slug') || 'tipos-edital';
+      const def = getCatalogo(slug);
+      if (def) {
+        document.getElementById('crumb-current').textContent = def.titulo;
+      }
+      renderCatalogo(slug);
+    </script>
+  </body>
+</html>
