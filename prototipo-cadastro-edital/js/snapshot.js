@@ -61,19 +61,25 @@ export function buildSnapshot(state) {
 
     etapas: (ed.etapas || []).map((e) => {
       const tipoSnap = denormSingle(Keys.TIPOS_ETAPA, (t) => t.codigo === e.tipoEtapaCodigo);
+      const isAvaliativa = tipoSnap?.categoria === 'AVALIATIVA';
       return {
         ordem: e.ordem,
         tipo: tipoSnap,
         nome_customizado: e.nomeCustomizado || null,
-        peso: e.peso,
-        nota_minima: e.notaMinima,
-        eliminatoria: e.eliminatoria,
-        pertence_calculo: e.pertenceCalculo,
-        data_aplicacao: e.dataAplicacao,
-        janela_recurso: {
-          inicio: e.janelaRecursoInicio,
-          fim: e.janelaRecursoFim,
+        janela: {
+          inicio: e.janelaInicio,
+          fim: e.janelaFim,
         },
+        recurso: e.recurso ? { inicio: e.recurso.inicio, fim: e.recurso.fim } : null,
+        // Campos avaliativos só fazem sentido para etapas avaliativas
+        peso: isAvaliativa ? e.peso : null,
+        nota_minima: isAvaliativa ? e.notaMinima : null,
+        eliminatoria: isAvaliativa ? !!e.eliminatoria : false,
+        pertence_calculo:
+          tipoSnap?.categoria === 'AVALIATIVA' ||
+          tipoSnap?.categoria === 'IMPORTACAO_AUTOMATICA'
+            ? e.pertenceCalculo !== false
+            : false,
       };
     }),
 

@@ -316,35 +316,52 @@ function renderEtapas(snapshot) {
     ),
     tabela(
       [
-        { label: 'Ordem', key: 'ordem', width: '60px' },
+        { label: '#', key: 'ordem', width: '50px' },
+        {
+          label: 'Categoria',
+          render: (e) => {
+            const cat = e.tipo?.categoria;
+            if (cat === 'ADMINISTRATIVA') return badge('Adm', 'info');
+            if (cat === 'AVALIATIVA') return badge('Aval', 'success');
+            if (cat === 'IMPORTACAO_AUTOMATICA') return badge('Imp', 'warning');
+            return '—';
+          },
+          width: '90px',
+        },
         {
           label: 'Etapa',
           render: (e) => e.nome_customizado || e.tipo?.nome || e.tipo?.codigo || '?',
         },
         {
-          label: 'Tipo',
-          render: (e) => el('span', { class: 'tag tag-info' }, e.tipo?.codigo || '?'),
+          label: 'Janela',
+          render: (e) => {
+            const jIni = fmtDate(e.janela?.inicio);
+            const jFim = fmtDate(e.janela?.fim);
+            return jIni === jFim ? jIni : `${jIni} a ${jFim}`;
+          },
           width: '180px',
         },
-        { label: 'Peso', key: 'peso', width: '70px' },
         {
-          label: 'Nota mínima',
+          label: 'Recurso',
+          render: (e) =>
+            e.recurso && e.recurso.inicio
+              ? `${fmtDate(e.recurso.inicio)} a ${fmtDate(e.recurso.fim)}`
+              : '—',
+          width: '180px',
+        },
+        {
+          label: 'Peso',
+          render: (e) => (e.peso != null ? e.peso : '—'),
+          width: '60px',
+        },
+        {
+          label: 'Nota mín.',
           render: (e) => (e.nota_minima != null ? e.nota_minima : '—'),
-          width: '110px',
+          width: '90px',
         },
         {
           label: 'Eliminatória?',
-          render: (e) => (e.eliminatoria ? badge('Sim', 'warning') : badge('Não')),
-          width: '100px',
-        },
-        {
-          label: 'Cálculo?',
-          render: (e) => (e.pertence_calculo ? badge('Sim', 'success') : badge('Não')),
-          width: '100px',
-        },
-        {
-          label: 'Aplicação',
-          render: (e) => fmtDate(e.data_aplicacao),
+          render: (e) => (e.eliminatoria ? badge('Sim', 'warning') : '—'),
           width: '110px',
         },
       ],

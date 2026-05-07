@@ -44,14 +44,19 @@ export function snapshotToWizardState(snapshot, options = {}) {
       etapas: (snapshot.etapas || []).map((e) => ({
         tipoEtapaCodigo: e.tipo?.codigo || null,
         nomeCustomizado: e.nome_customizado,
-        peso: e.peso,
         ordem: e.ordem,
+        // Datas só preservadas se manterCronograma === true
+        janelaInicio: options.manterCronograma ? e.janela?.inicio || null : null,
+        janelaFim: options.manterCronograma ? e.janela?.fim || null : null,
+        recurso:
+          options.manterCronograma && e.recurso
+            ? { inicio: e.recurso.inicio, fim: e.recurso.fim }
+            : null,
+        // Campos avaliativos
+        peso: e.peso,
         pertenceCalculo: e.pertence_calculo,
         eliminatoria: e.eliminatoria,
         notaMinima: e.nota_minima,
-        dataAplicacao: options.manterCronograma ? e.data_aplicacao : null,
-        janelaRecursoInicio: options.manterCronograma ? e.janela_recurso?.inicio : null,
-        janelaRecursoFim: options.manterCronograma ? e.janela_recurso?.fim : null,
       })),
       formula: { ...snapshot.formula },
       bonus: snapshot.bonus ? { ...snapshot.bonus } : null,
