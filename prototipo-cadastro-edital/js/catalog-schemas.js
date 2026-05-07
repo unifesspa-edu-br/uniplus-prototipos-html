@@ -99,20 +99,32 @@ export const CATALOGOS = {
 
   'tipos-etapa': {
     titulo: 'Tipos de etapa',
-    descricao: 'Atributos invariantes (escala, tipo de correção, anonimização). Peso e ordem ficam no edital, não aqui.',
+    descricao: '<strong>Toda janela do edital é uma etapa</strong> — administrativas (inscrição, homologação, divulgação), avaliativas (provas, redação, banca, entrevista) ou de importação automática (notas ENEM). Atributos invariantes ficam aqui; peso, datas e nota mínima vivem no edital.',
     icone: '📝',
     key: Keys.TIPOS_ETAPA,
     colunas: [
       { campo: 'codigo', label: 'Código' },
       { campo: 'nome', label: 'Nome' },
+      { campo: 'categoria', label: 'Categoria' },
       { campo: 'escala', label: 'Escala' },
-      { campo: 'tipo_correcao', label: 'Correção' },
-      { campo: 'modalidade_aplicacao', label: 'Aplicação' },
+      { campo: 'permite_recurso_default', label: 'Recurso?', tipo: 'bool' },
     ],
     campos: [
       { campo: 'codigo', label: 'Código', tipo: 'text', required: true },
       { campo: 'nome', label: 'Nome', tipo: 'text', required: true },
       { campo: 'descricao', label: 'Descrição', tipo: 'textarea' },
+      {
+        campo: 'categoria',
+        label: 'Categoria',
+        tipo: 'select',
+        required: true,
+        options: [
+          { value: 'ADMINISTRATIVA', label: 'Administrativa (inscrição, homologação, divulgação…)' },
+          { value: 'AVALIATIVA', label: 'Avaliativa (prova, redação, banca, entrevista…)' },
+          { value: 'IMPORTACAO_AUTOMATICA', label: 'Importação automática (notas ENEM via INEP)' },
+        ],
+        hint: 'Avaliativa expõe peso, nota mínima e eliminatória no cadastro do edital. Administrativa esconde esses campos. Importação automática é tratada como avaliativa, sem peso configurável.',
+      },
       {
         campo: 'escala',
         label: 'Escala de nota',
@@ -121,6 +133,7 @@ export const CATALOGOS = {
           { value: 'ESC_0_10', label: '0 a 10' },
           { value: 'ESC_0_1000', label: '0 a 1000 (ENEM)' },
         ],
+        hint: 'Aplicável apenas a etapas avaliativas ou de importação.',
       },
       {
         campo: 'tipo_correcao',
@@ -131,6 +144,7 @@ export const CATALOGOS = {
           { value: 'BANCA_CORRETOR', label: 'Banca de corretores' },
           { value: 'AUTOMATICO', label: 'Automático' },
           { value: 'AVALIACAO_SUBJETIVA', label: 'Avaliação subjetiva' },
+          { value: 'AVALIACAO_DOCUMENTAL', label: 'Avaliação documental' },
         ],
       },
       {
