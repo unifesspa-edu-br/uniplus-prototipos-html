@@ -28,7 +28,6 @@ function novoEstadoEdital() {
     edital: {
       tipo: null, // { tipoEditalId, codigo, nome }
       identificacao: {},
-      cronograma: {},
       vagasModalidades: { cursos: [], modalidades: [], concorrenciaDupla: false, cascata: [] },
       etapas: [],
       formula: {},

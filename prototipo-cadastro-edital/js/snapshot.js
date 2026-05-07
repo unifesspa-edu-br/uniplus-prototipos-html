@@ -47,8 +47,6 @@ export function buildSnapshot(state) {
 
     identificacao: { ...ed.identificacao },
 
-    cronograma: { ...ed.cronograma },
-
     vagas: ed.vagasModalidades?.cursos || [],
 
     modalidades: denormMany(Keys.MODALIDADES, (m) =>
@@ -191,14 +189,18 @@ export async function publish(state) {
 
 export async function saveAsModel(state, nome) {
   const snapshot = buildSnapshot(state);
-  // Sanitiza: limpa identificação, datas, vagas
+  // Sanitiza: limpa identificação, datas das etapas, vagas
   const sanitized = {
     ...snapshot,
     identificacao: {
       sigla: snapshot.identificacao?.sigla || 'CEPS/UNIFESSPA',
     },
-    cronograma: {},
     vagas: [],
+    etapas: (snapshot.etapas || []).map((e) => ({
+      ...e,
+      janela: { inicio: null, fim: null },
+      recurso: e.recurso ? { inicio: null, fim: null } : null,
+    })),
   };
   delete sanitized.edital_uuid;
 

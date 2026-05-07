@@ -209,36 +209,6 @@ function renderIdentificacao(snapshot) {
   );
 }
 
-function renderCronograma(snapshot) {
-  const c = snapshot.cronograma || {};
-  const labels = {
-    inscricao: 'Inscrição',
-    cartao: 'Cartão de inscrição',
-    prova: 'Prova',
-    homologacao: 'Homologação',
-    recursoHomologacao: 'Recurso de homologação',
-    classificacao: 'Classificação',
-    recursoClassificacao: 'Recurso de classificação',
-    habilitacao: 'Habilitação',
-    recursoHabilitacao: 'Recurso de habilitação',
-    confirmacaoInteresse: 'Confirmação de interesse',
-  };
-  const rows = Object.entries(labels)
-    .filter(([key]) => c[key] && (c[key].inicio || c[key].fim))
-    .map(([key, label]) => ({ janela: label, periodo: fmtRange(c[key]) }));
-
-  return section(
-    '📅 Cronograma',
-    tabela(
-      [
-        { label: 'Janela', key: 'janela' },
-        { label: 'Período', key: 'periodo' },
-      ],
-      rows,
-      { empty: 'Nenhuma data informada.' }
-    )
-  );
-}
 
 function renderVagasModalidades(snapshot) {
   const vagas = snapshot.vagas || [];
@@ -582,7 +552,6 @@ function renderEdital(item) {
   root.appendChild(renderHeaderEdital(snapshot, item.hash, item.publicadoEm));
   root.appendChild(renderActions(item, snapshot));
   root.appendChild(renderIdentificacao(snapshot));
-  root.appendChild(renderCronograma(snapshot));
   root.appendChild(renderVagasModalidades(snapshot));
   root.appendChild(renderEtapas(snapshot));
   root.appendChild(renderBonus(snapshot));

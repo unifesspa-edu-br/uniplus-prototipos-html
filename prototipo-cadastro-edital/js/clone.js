@@ -34,7 +34,6 @@ export function snapshotToWizardState(snapshot, options = {}) {
       identificacao: options.manterIdentificacao
         ? { ...snapshot.identificacao }
         : { sigla: snapshot.identificacao?.sigla || 'CEPS/UNIFESSPA' },
-      cronograma: options.manterCronograma ? { ...snapshot.cronograma } : {},
       vagasModalidades: {
         cursos: options.manterVagas ? [...(snapshot.vagas || [])] : [],
         modalidades: (snapshot.modalidades || []).map((m) => m.codigo),

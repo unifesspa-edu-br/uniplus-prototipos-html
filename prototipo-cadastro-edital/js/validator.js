@@ -73,15 +73,15 @@ const AVALIADORES = {
   },
 };
 
-// Mapeia código da regra para o número do passo onde corrigir
+// Mapeia código da regra para o número do passo onde corrigir (12 passos)
 const PASSO_POR_CATEGORIA = {
-  ETAPA: 5,
-  MODALIDADE: 4,
-  DESEMPATE: 8,
-  DOCUMENTO: 10,
-  BONUS: 7,
-  ATENDIMENTO: 12,
-  OUTROS: 4,
+  ETAPA: 4,
+  MODALIDADE: 3,
+  DESEMPATE: 7,
+  DOCUMENTO: 9,
+  BONUS: 6,
+  ATENDIMENTO: 11,
+  OUTROS: 3,
 };
 
 /**
