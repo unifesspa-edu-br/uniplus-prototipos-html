@@ -1,5 +1,41 @@
 [
   {
+    "tipo_edital_codigo": "*",
+    "categoria": "ETAPA",
+    "regra_codigo": "ETAPA_OBRIGATORIA",
+    "parametros": {
+      "tipo_etapa": "INSCRICAO_CANDIDATOS"
+    },
+    "descricao_humana": "Todo edital deve ter etapa de Inscrição de candidatos com janela definida.",
+    "base_legal": "Lei 14.129/2021 (Governo Digital) art. 3º; Constituição Federal art. 37",
+    "data_vigencia_inicio": "2021-03-30",
+    "data_vigencia_fim": null
+  },
+  {
+    "tipo_edital_codigo": "*",
+    "categoria": "ETAPA",
+    "regra_codigo": "ETAPA_OBRIGATORIA",
+    "parametros": {
+      "tipo_etapa": "HOMOLOGACAO_INSCRICOES"
+    },
+    "descricao_humana": "Todo edital deve ter etapa de Homologação das inscrições para análise dos documentos enviados.",
+    "base_legal": "Lei 13.709/2018 (LGPD) art. 7º; transparência administrativa",
+    "data_vigencia_inicio": "2020-08-01",
+    "data_vigencia_fim": null
+  },
+  {
+    "tipo_edital_codigo": "*",
+    "categoria": "ETAPA",
+    "regra_codigo": "ETAPA_OBRIGATORIA",
+    "parametros": {
+      "tipo_etapa": "DIVULGACAO_RESULTADO_FINAL"
+    },
+    "descricao_humana": "Todo edital deve ter etapa de Divulgação do resultado final para encerramento oficial.",
+    "base_legal": "Lei 12.527/2011 (LAI) art. 8º; princípio da publicidade",
+    "data_vigencia_inicio": "2012-05-16",
+    "data_vigencia_fim": null
+  },
+  {
     "tipo_edital_codigo": "PSIQ",
     "categoria": "ETAPA",
     "regra_codigo": "ETAPA_OBRIGATORIA",
