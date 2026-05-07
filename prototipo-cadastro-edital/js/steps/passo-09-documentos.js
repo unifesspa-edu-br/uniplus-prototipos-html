@@ -56,7 +56,7 @@ export async function render(container, ctx) {
 
   for (const [categoria, tipos] of porCategoria) {
     const wrap = el('div', { class: 'mb-4' });
-    wrap.appendChild(el('h3', { style: 'font-size: 0.875rem; text-transform: uppercase; letter-spacing: 1px; color: var(--color-text-secondary); margin: 1rem 0 0.5rem' }, categoria));
+    wrap.appendChild(el('h3', { style: 'font-size: 0.875rem; text-transform: uppercase; letter-spacing: 1px; color: var(--text-secondary); margin: 1rem 0 0.5rem' }, categoria));
 
     const tableWrap = el('div', { class: 'table-wrapper' });
     const table = el('table', { class: 'data-table' });

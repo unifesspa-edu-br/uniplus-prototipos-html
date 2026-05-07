@@ -153,7 +153,7 @@ export async function renderValidationPanel(container, ctx) {
     panel.appendChild(
       el(
         'div',
-        { style: 'padding: 1.5rem; text-align: center; color: var(--color-text-secondary)' },
+        { style: 'padding: 1.5rem; text-align: center; color: var(--text-secondary)' },
         el('p', {}, 'Nenhuma obrigatoriedade legal cadastrada para este tipo de edital.'),
         el(
           'a',

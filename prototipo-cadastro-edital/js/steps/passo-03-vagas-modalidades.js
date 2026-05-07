@@ -141,7 +141,7 @@ export async function render(container, ctx) {
   container.appendChild(
     el(
       'div',
-      { class: 'mt-4', style: 'background: var(--color-primary-pastel-02); padding: 0.75rem; border-radius: 4px' },
+      { class: 'mt-4', style: 'background: var(--primary-pastel-02); padding: 0.75rem; border-radius: 4px' },
       el('strong', {}, `Total de vagas: ${totalVagas}`)
     )
   );

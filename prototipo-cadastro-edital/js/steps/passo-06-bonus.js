@@ -46,7 +46,7 @@ export async function render(container, ctx) {
     container.appendChild(
       el(
         'div',
-        { class: 'mt-4', style: 'background: var(--color-secondary-01, #f8f8f8); padding: 1rem; border-radius: 4px' },
+        { class: 'mt-4', style: 'background: var(--bg-base); padding: 1rem; border-radius: 4px' },
         el('p', { style: 'margin: 0', class: 'text-muted' }, 'Bônus desabilitado — passo será marcado como concluído sem ação adicional.')
       )
     );

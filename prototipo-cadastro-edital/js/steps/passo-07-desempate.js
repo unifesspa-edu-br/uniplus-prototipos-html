@@ -33,7 +33,7 @@ export async function render(container, ctx) {
       const li = el(
         'li',
         {
-          style: 'background: white; border: 1px solid var(--color-secondary-04, #ccc); border-radius: 8px; padding: 0.75rem 1rem; margin-bottom: 0.5rem; counter-increment: desempate',
+          style: 'background: var(--bg-surface); border: 1px solid var(--border-default); border-radius: 8px; padding: 0.75rem 1rem; margin-bottom: 0.5rem; counter-increment: desempate',
         },
         el(
           'div',

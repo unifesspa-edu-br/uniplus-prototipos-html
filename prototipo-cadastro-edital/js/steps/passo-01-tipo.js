@@ -36,7 +36,7 @@ export async function render(container, ctx) {
       {
         type: 'button',
         class: `br-card card-link ${isSelected ? 'is-selected' : ''}`,
-        style: isSelected ? 'border: 2px solid var(--color-primary-default); background: var(--color-primary-pastel-02);' : '',
+        style: isSelected ? 'border: 2px solid var(--primary); background: var(--primary-pastel-02);' : '',
         on: {
           click: () => selectTipo(tipo, state, updateState, setStepStatus, ctx),
         },
@@ -72,7 +72,7 @@ export async function render(container, ctx) {
     container.appendChild(
       el(
         'div',
-        { class: 'mt-4', style: 'background: var(--color-primary-pastel-02); padding: 1rem; border-radius: 4px;' },
+        { class: 'mt-4', style: 'background: var(--primary-pastel-02); padding: 1rem; border-radius: 4px;' },
         el(
           'p',
           { style: 'margin: 0' },

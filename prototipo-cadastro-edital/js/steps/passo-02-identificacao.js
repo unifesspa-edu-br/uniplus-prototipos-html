@@ -59,7 +59,7 @@ export async function render(container, ctx) {
   const pdfInfo = ident.pdf
     ? el(
         'div',
-        { style: 'background: var(--color-primary-pastel-02); padding: 0.75rem; border-radius: 4px;' },
+        { style: 'background: var(--primary-pastel-02); padding: 0.75rem; border-radius: 4px;' },
         el('strong', {}, '📎 ' + (ident.pdf.nome || 'arquivo.pdf')),
         el(
           'p',

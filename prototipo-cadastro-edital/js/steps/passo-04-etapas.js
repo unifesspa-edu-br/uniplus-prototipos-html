@@ -164,7 +164,7 @@ function renderEtapa(etapa, idx, todas, updateEtapas, tipoOpts, tiposEtapa) {
     'div',
     {
       style:
-        'background: white; border: 1px solid var(--color-secondary-04, #ccc); border-radius: 8px; padding: 1rem; margin-bottom: 1rem',
+        'background: var(--bg-surface); border: 1px solid var(--border-default); border-radius: 8px; padding: 1rem; margin-bottom: 1rem',
     },
     el(
       'div',
@@ -240,7 +240,7 @@ function renderEtapa(etapa, idx, todas, updateEtapas, tipoOpts, tiposEtapa) {
           {
             class: 'form-grid mt-2',
             style:
-              'padding: 0.75rem; background: var(--color-primary-pastel-02, #f0f6ff); border-radius: 4px',
+              'padding: 0.75rem; background: var(--info-bg); border-radius: 4px',
           },
           field(
             'Peso *',
@@ -275,7 +275,7 @@ function renderEtapa(etapa, idx, todas, updateEtapas, tipoOpts, tiposEtapa) {
           {
             class: 'mt-2',
             style:
-              'padding: 0.75rem; background: var(--color-secondary-01, #f8f8f8); border-radius: 4px; font-size: 0.875rem',
+              'padding: 0.75rem; background: var(--bg-base); border-radius: 4px; font-size: 0.875rem',
           },
           el(
             'div',
@@ -301,7 +301,7 @@ function renderEtapa(etapa, idx, todas, updateEtapas, tipoOpts, tiposEtapa) {
                 {
                   class: 'form-grid mt-2',
                   style:
-                    'padding: 0.75rem; background: var(--color-secondary-01, #f8f8f8); border-radius: 4px',
+                    'padding: 0.75rem; background: var(--bg-base); border-radius: 4px',
                 },
                 field(
                   'Recurso — início',

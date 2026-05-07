@@ -174,7 +174,7 @@ function renderSidebar() {
   sidebar.appendChild(
     el(
       'div',
-      { style: 'padding: 1rem 1.5rem; border-top: 1px solid var(--color-secondary-04, #ccc); margin-top: 1rem; font-size: 0.75rem;' },
+      { style: 'padding: 1rem 1.5rem; border-top: 1px solid var(--border-default); margin-top: 1rem; font-size: 0.75rem;' },
       el('div', { class: 'text-muted' }, 'Rascunho'),
       el('div', { style: 'font-family: monospace; font-size: 0.7rem;' }, state.id.substring(0, 8))
     )

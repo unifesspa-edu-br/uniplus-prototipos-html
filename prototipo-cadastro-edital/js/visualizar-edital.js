@@ -42,13 +42,13 @@ function section(titulo, ...children) {
     'section',
     {
       style:
-        'background: white; border: 1px solid var(--color-secondary-04, #ccc); border-radius: 8px; padding: 1.5rem; margin-bottom: 1.5rem',
+        'background: var(--bg-surface); border: 1px solid var(--border-default); border-radius: 8px; padding: 1.5rem; margin-bottom: 1.5rem',
     },
     el(
       'h2',
       {
         style:
-          'font-size: 1.125rem; font-weight: 600; color: var(--color-primary-default); margin: 0 0 1rem; padding-bottom: 0.5rem; border-bottom: 1px solid var(--color-secondary-02)',
+          'font-size: 1.125rem; font-weight: 600; color: var(--primary); margin: 0 0 1rem; padding-bottom: 0.5rem; border-bottom: 1px solid var(--color-secondary-02)',
       },
       titulo
     ),
@@ -109,7 +109,7 @@ function renderHeaderEdital(snapshot, hash, publicadoEm) {
     'div',
     {
       style:
-        'background: linear-gradient(135deg, #1351b4 0%, #0c4194 100%); color: white; border-radius: 8px; padding: 2rem; margin-bottom: 1.5rem',
+        'background: linear-gradient(135deg, var(--primary) 0%, var(--primary-darken) 100%); color: var(--text-on-dark, #fff); border-radius: 8px; padding: 2rem; margin-bottom: 1.5rem',
     },
     el(
       'div',
@@ -370,7 +370,7 @@ function renderDesempate(snapshot) {
               'li',
               {
                 style:
-                  'background: var(--color-secondary-01); border-left: 4px solid var(--color-primary-default); padding: 0.75rem 1rem; margin-bottom: 0.5rem; border-radius: 0 4px 4px 0',
+                  'background: var(--color-secondary-01); border-left: 4px solid var(--primary); padding: 0.75rem 1rem; margin-bottom: 0.5rem; border-radius: 0 4px 4px 0',
               },
               el(
                 'div',
@@ -493,7 +493,7 @@ function renderAtendimento(snapshot) {
               'div',
               {
                 style:
-                  'background: var(--color-secondary-01); padding: 0.75rem 1rem; border-radius: 4px; border-left: 3px solid var(--color-primary-default)',
+                  'background: var(--color-secondary-01); padding: 0.75rem 1rem; border-radius: 4px; border-left: 3px solid var(--primary)',
               },
               el('strong', {}, a.necessidade?.nome || a.necessidade?.codigo),
               a.recursos_disponibilizados?.length

@@ -63,7 +63,7 @@ export async function render(container, ctx) {
     const card = el(
       'div',
       {
-        style: `background: white; border: 1px solid ${selected ? 'var(--color-primary-default)' : 'var(--color-secondary-04, #ccc)'}; border-radius: 8px; padding: 1rem; margin-bottom: 1rem`,
+        style: `background: var(--bg-surface); border: 1px solid ${selected ? 'var(--primary)' : 'var(--border-default)'}; border-radius: 8px; padding: 1rem; margin-bottom: 1rem`,
       }
     );
 

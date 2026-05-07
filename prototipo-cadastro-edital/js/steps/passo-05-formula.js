@@ -73,7 +73,7 @@ export async function render(container, ctx) {
     container.appendChild(
       el(
         'div',
-        { class: 'mt-4', style: 'background: #1e1e1e; color: #dcdcdc; padding: 1rem; border-radius: 8px; font-family: monospace' },
+        { class: 'mt-4', style: 'background: var(--bg-code); color: #dcdcdc; padding: 1rem; border-radius: 8px; font-family: monospace' },
         el('div', { class: 'text-small', style: 'opacity: 0.7; margin-bottom: 0.5rem' }, 'Preview da fórmula'),
         el('div', { style: 'font-size: 0.95rem' }, `NOTA_FINAL = (${preview || '...'}) / ${denom}`)
       )

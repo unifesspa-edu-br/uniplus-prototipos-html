@@ -246,7 +246,7 @@ export async function renderPublishPanel(container, ctx) {
     'div',
     {
       style:
-        'background: white; border: 1px solid var(--color-secondary-04, #ccc); border-radius: 8px; margin-top: 1rem',
+        'background: var(--bg-surface); border: 1px solid var(--border-default); border-radius: 8px; margin-top: 1rem',
     }
   );
 
@@ -255,7 +255,7 @@ export async function renderPublishPanel(container, ctx) {
       'div',
       {
         style:
-          'padding: 1rem 1.25rem; border-bottom: 1px solid var(--color-secondary-04, #ccc); display: flex; justify-content: space-between; align-items: center',
+          'padding: 1rem 1.25rem; border-bottom: 1px solid var(--border-default); display: flex; justify-content: space-between; align-items: center',
       },
       el('h3', { style: 'margin: 0; font-size: 1rem; font-weight: 600' }, '📦 Snapshot e publicação'),
       el(
@@ -270,7 +270,7 @@ export async function renderPublishPanel(container, ctx) {
   panel.appendChild(
     el(
       'div',
-      { style: 'padding: 1rem 1.25rem; border-bottom: 1px solid var(--color-secondary-02, #e8e8e8)' },
+      { style: 'padding: 1rem 1.25rem; border-bottom: 1px solid var(--border-subtle)' },
       el('div', { class: 'text-small text-muted mb-2' }, 'Hash sha256 do snapshot (content-addressable):'),
       el('div', { class: 'hash-display' }, hash)
     )
@@ -296,7 +296,7 @@ export async function renderPublishPanel(container, ctx) {
     'div',
     {
       style:
-        'padding: 1rem 1.25rem; border-top: 1px solid var(--color-secondary-02, #e8e8e8); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem',
+        'padding: 1rem 1.25rem; border-top: 1px solid var(--border-subtle); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem',
     }
   );
   actions.appendChild(
