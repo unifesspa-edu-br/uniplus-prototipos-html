@@ -123,6 +123,22 @@ function selectTipo(tipo, state, updateState, setStepStatus, ctx) {
     patch.desempate = defaults.desempate_sugerido.map((codigo) => ({ codigo, ordem: 0 }));
   }
 
+  // Etapas sugeridas — só pré-preenche se admin ainda não adicionou nenhuma etapa
+  if (defaults.etapas_sugeridas && (!state.edital.etapas || state.edital.etapas.length === 0)) {
+    patch.etapas = defaults.etapas_sugeridas.map((codigo, idx) => ({
+      tipoEtapaCodigo: codigo,
+      nomeCustomizado: '',
+      ordem: idx + 1,
+      janelaInicio: null,
+      janelaFim: null,
+      recurso: null,
+      peso: 1,
+      pertenceCalculo: true,
+      eliminatoria: false,
+      notaMinima: null,
+    }));
+  }
+
   if (defaults.formula_sugerida && !state.edital.formula?.agregacao) {
     patch.formula = {
       ...state.edital.formula,

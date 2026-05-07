@@ -7,7 +7,13 @@
     "exige_prova_presencial": false,
     "vagas_suplementares": false,
     "defaults": {
-      "etapas_sugeridas": [],
+      "etapas_sugeridas": [
+        "INSCRICAO_CANDIDATOS",
+        "HOMOLOGACAO_INSCRICOES",
+        "IMPORTACAO_NOTAS_ENEM",
+        "DIVULGACAO_RESULTADO_PARCIAL",
+        "DIVULGACAO_RESULTADO_FINAL"
+      ],
       "formula_sugerida": "MEDIA_PONDERADA_ENEM",
       "modalidades_sugeridas": ["AC", "V", "LB_PPI", "LB_Q", "LB_PcD", "LB_EP", "LI_PPI", "LI_Q", "LI_PcD", "LI_EP"],
       "desempate_sugerido": ["IDOSO_60", "MAIOR_NOTA_REDACAO", "MAIOR_IDADE"],
@@ -23,7 +29,16 @@
     "exige_prova_presencial": true,
     "vagas_suplementares": true,
     "defaults": {
-      "etapas_sugeridas": ["PROVA_OBJETIVA", "REDACAO", "ENTREVISTA", "BANCA_HETEROIDENTIFICACAO"],
+      "etapas_sugeridas": [
+        "INSCRICAO_CANDIDATOS",
+        "HOMOLOGACAO_INSCRICOES",
+        "PROVA_OBJETIVA",
+        "REDACAO",
+        "ENTREVISTA",
+        "BANCA_HETEROIDENTIFICACAO",
+        "DIVULGACAO_RESULTADO_PARCIAL",
+        "DIVULGACAO_RESULTADO_FINAL"
+      ],
       "formula_sugerida": "SOMA_PONDERADA_COM_FATOR",
       "modalidades_sugeridas": ["PSIQ_I", "PSIQ_Q"],
       "desempate_sugerido": ["IDOSO_60", "MAIOR_NOTA_ENTREVISTA", "MAIOR_IDADE"],
@@ -39,7 +54,15 @@
     "exige_prova_presencial": true,
     "vagas_suplementares": false,
     "defaults": {
-      "etapas_sugeridas": ["REDACAO", "ENTREVISTA", "ANALISE_HISTORICO"],
+      "etapas_sugeridas": [
+        "INSCRICAO_CANDIDATOS",
+        "HOMOLOGACAO_INSCRICOES",
+        "REDACAO",
+        "ENTREVISTA",
+        "ANALISE_HISTORICO",
+        "DIVULGACAO_RESULTADO_PARCIAL",
+        "DIVULGACAO_RESULTADO_FINAL"
+      ],
       "formula_sugerida": "SOMA_PONDERADA_COM_FATOR",
       "modalidades_sugeridas": ["AC", "V"],
       "desempate_sugerido": ["MAIOR_NOTA_ENTREVISTA", "MAIOR_NOTA_REDACAO", "PROFESSOR_RURAL", "MAIOR_IDADE"],
@@ -55,7 +78,14 @@
     "exige_prova_presencial": true,
     "vagas_suplementares": false,
     "defaults": {
-      "etapas_sugeridas": ["PROVA_OBJETIVA", "REDACAO"],
+      "etapas_sugeridas": [
+        "INSCRICAO_CANDIDATOS",
+        "HOMOLOGACAO_INSCRICOES",
+        "PROVA_OBJETIVA",
+        "REDACAO",
+        "DIVULGACAO_RESULTADO_PARCIAL",
+        "DIVULGACAO_RESULTADO_FINAL"
+      ],
       "formula_sugerida": "MEDIA_SIMPLES",
       "modalidades_sugeridas": ["AC", "V", "LB_PPI", "LB_Q", "LB_PcD", "LB_EP", "LI_PPI", "LI_Q", "LI_PcD", "LI_EP"],
       "desempate_sugerido": ["MAIOR_IDADE", "MAIOR_NOTA_OBJETIVA", "MAIOR_NOTA_REDACAO"],
@@ -71,7 +101,15 @@
     "exige_prova_presencial": true,
     "vagas_suplementares": false,
     "defaults": {
-      "etapas_sugeridas": ["PROVA_OBJETIVA", "REDACAO"],
+      "etapas_sugeridas": [
+        "INSCRICAO_CANDIDATOS",
+        "HOMOLOGACAO_INSCRICOES",
+        "PROVA_OBJETIVA",
+        "REDACAO",
+        "DIVULGACAO_BONIFICACAO",
+        "DIVULGACAO_RESULTADO_PARCIAL",
+        "DIVULGACAO_RESULTADO_FINAL"
+      ],
       "formula_sugerida": "MEDIA_SIMPLES",
       "modalidades_sugeridas": ["AC", "V", "LB_PPI", "LB_Q", "LB_PcD", "LB_EP", "LI_PPI", "LI_Q", "LI_PcD", "LI_EP"],
       "desempate_sugerido": ["IDOSO_60", "MAIOR_NOTA_REDACAO", "MAIOR_NOTA_OBJETIVA", "MAIOR_IDADE"],
@@ -92,7 +130,12 @@
     "exige_prova_presencial": false,
     "vagas_suplementares": false,
     "defaults": {
-      "etapas_sugeridas": ["ANALISE_HISTORICO", "CARTA_INTENCAO"],
+      "etapas_sugeridas": [
+        "INSCRICAO_CANDIDATOS",
+        "ANALISE_HISTORICO",
+        "CARTA_INTENCAO",
+        "DIVULGACAO_RESULTADO_FINAL"
+      ],
       "formula_sugerida": "MEDIA_PONDERADA",
       "modalidades_sugeridas": ["AC"],
       "desempate_sugerido": ["MAIOR_NOTA_ANALISE_HISTORICO", "MAIOR_IDADE"],
@@ -108,7 +151,12 @@
     "exige_prova_presencial": false,
     "vagas_suplementares": false,
     "defaults": {
-      "etapas_sugeridas": ["ANALISE_HISTORICO", "CARTA_INTENCAO"],
+      "etapas_sugeridas": [
+        "INSCRICAO_CANDIDATOS",
+        "ANALISE_HISTORICO",
+        "CARTA_INTENCAO",
+        "DIVULGACAO_RESULTADO_FINAL"
+      ],
       "formula_sugerida": "MEDIA_PONDERADA",
       "modalidades_sugeridas": ["AC"],
       "desempate_sugerido": ["MAIOR_NOTA_ANALISE_HISTORICO", "MAIOR_IDADE"],
@@ -124,7 +172,12 @@
     "exige_prova_presencial": false,
     "vagas_suplementares": false,
     "defaults": {
-      "etapas_sugeridas": ["ANALISE_HISTORICO", "CARTA_INTENCAO"],
+      "etapas_sugeridas": [
+        "INSCRICAO_CANDIDATOS",
+        "ANALISE_HISTORICO",
+        "CARTA_INTENCAO",
+        "DIVULGACAO_RESULTADO_FINAL"
+      ],
       "formula_sugerida": "MEDIA_PONDERADA",
       "modalidades_sugeridas": ["AC"],
       "desempate_sugerido": ["MAIOR_NOTA_ANALISE_HISTORICO", "MAIOR_IDADE"],
