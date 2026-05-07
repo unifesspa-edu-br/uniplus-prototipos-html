@@ -1,5 +1,10 @@
 // demo-editais.js — gera rascunhos completos pré-preenchidos para demonstração.
 // Carregado após os seeds dos catálogos (precisa dos ids para resolver as referências).
+//
+// Modelo de etapa unificado (toda janela do edital é uma etapa):
+//   - administrativa (inscrição, homologação, divulgações)
+//   - avaliativa (provas, redação, banca, entrevista)
+//   - importação automática (notas ENEM)
 
 import { Collection, Keys } from './storage.js';
 
@@ -10,7 +15,7 @@ function tipoEditalIdPorCodigo(codigo) {
 
 function todosOsPassosCompletos(quaisIncompletos = []) {
   const status = {};
-  for (let i = 1; i <= 13; i++) {
+  for (let i = 1; i <= 12; i++) {
     status[i] = quaisIncompletos.includes(i) ? 'in-progress' : 'completed';
   }
   return status;
@@ -18,6 +23,35 @@ function todosOsPassosCompletos(quaisIncompletos = []) {
 
 function nowIso() {
   return new Date().toISOString();
+}
+
+/**
+ * Constrói uma etapa com os campos no novo formato.
+ * Para etapas administrativas, peso/notaMinima/eliminatoria são ignorados pelo snapshot.
+ */
+function etapa({
+  ordem,
+  tipoEtapaCodigo,
+  janelaInicio,
+  janelaFim = null,
+  recurso = null,
+  peso = 1,
+  pertenceCalculo = true,
+  eliminatoria = false,
+  notaMinima = null,
+}) {
+  return {
+    tipoEtapaCodigo,
+    nomeCustomizado: '',
+    ordem,
+    janelaInicio,
+    janelaFim: janelaFim || janelaInicio,
+    recurso,
+    peso,
+    pertenceCalculo,
+    eliminatoria,
+    notaMinima,
+  };
 }
 
 // =====================================================
@@ -32,8 +66,8 @@ function montarPseEducacaoCampo() {
     status: 'rascunho',
     criadoEm: nowIso(),
     atualizadoEm: nowIso(),
-    passoAtual: 13,
-    statusPorPasso: todosOsPassosCompletos([13]),
+    passoAtual: 12,
+    statusPorPasso: todosOsPassosCompletos([12]),
     edital: {
       tipo,
       identificacao: {
@@ -41,17 +75,10 @@ function montarPseEducacaoCampo() {
         ano: 2026,
         dataEdital: '2026-04-01',
         sigla: 'CEPS/UNIFESSPA',
-        nomeProcesso: 'Processo Seletivo Especial — Licenciatura em Educação do Campo 2026',
+        nomeProcesso:
+          'Processo Seletivo Especial — Licenciatura em Educação do Campo 2026',
         anoIngresso: 2026,
         periodoIngresso: '2S',
-      },
-      cronograma: {
-        inscricao: { inicio: '2026-05-01', fim: '2026-05-31' },
-        homologacao: { inicio: '2026-06-01', fim: '2026-06-07' },
-        recursoHomologacao: { inicio: '2026-06-08', fim: '2026-06-10' },
-        prova: { inicio: '2026-06-15', fim: '2026-06-15' },
-        classificacao: { inicio: '2026-07-15', fim: '2026-07-20' },
-        recursoClassificacao: { inicio: '2026-07-21', fim: '2026-07-23' },
       },
       vagasModalidades: {
         cursos: [
@@ -63,42 +90,56 @@ function montarPseEducacaoCampo() {
         cascata: [],
       },
       etapas: [
-        {
-          tipoEtapaCodigo: 'REDACAO',
-          nomeCustomizado: '',
-          peso: 1,
+        etapa({
           ordem: 1,
-          pertenceCalculo: true,
+          tipoEtapaCodigo: 'INSCRICAO_CANDIDATOS',
+          janelaInicio: '2026-05-01',
+          janelaFim: '2026-05-31',
+          pertenceCalculo: false,
+        }),
+        etapa({
+          ordem: 2,
+          tipoEtapaCodigo: 'HOMOLOGACAO_INSCRICOES',
+          janelaInicio: '2026-06-01',
+          janelaFim: '2026-06-07',
+          recurso: { inicio: '2026-06-08', fim: '2026-06-10' },
+          pertenceCalculo: false,
+        }),
+        etapa({
+          ordem: 3,
+          tipoEtapaCodigo: 'REDACAO',
+          janelaInicio: '2026-06-15',
+          recurso: { inicio: '2026-06-22', fim: '2026-06-24' },
+          peso: 1,
           eliminatoria: true,
           notaMinima: 4.0,
-          dataAplicacao: '2026-06-15',
-          janelaRecursoInicio: '2026-06-22',
-          janelaRecursoFim: '2026-06-24',
-        },
-        {
+        }),
+        etapa({
+          ordem: 4,
           tipoEtapaCodigo: 'ENTREVISTA',
-          nomeCustomizado: '',
+          janelaInicio: '2026-06-29',
           peso: 2,
-          ordem: 2,
-          pertenceCalculo: true,
-          eliminatoria: false,
-          notaMinima: null,
-          dataAplicacao: '2026-06-29',
-          janelaRecursoInicio: null,
-          janelaRecursoFim: null,
-        },
-        {
+        }),
+        etapa({
+          ordem: 5,
           tipoEtapaCodigo: 'ANALISE_HISTORICO',
-          nomeCustomizado: '',
+          janelaInicio: '2026-07-06',
+          janelaFim: '2026-07-08',
           peso: 1,
-          ordem: 3,
-          pertenceCalculo: true,
-          eliminatoria: false,
-          notaMinima: null,
-          dataAplicacao: null,
-          janelaRecursoInicio: '2026-07-06',
-          janelaRecursoFim: '2026-07-08',
-        },
+        }),
+        etapa({
+          ordem: 6,
+          tipoEtapaCodigo: 'DIVULGACAO_RESULTADO_PARCIAL',
+          janelaInicio: '2026-07-15',
+          recurso: { inicio: '2026-07-16', fim: '2026-07-18' },
+          pertenceCalculo: false,
+        }),
+        etapa({
+          ordem: 7,
+          tipoEtapaCodigo: 'DIVULGACAO_RESULTADO_FINAL',
+          janelaInicio: '2026-07-25',
+          pertenceCalculo: false,
+        }),
       ],
       formula: {
         agregacao: 'SOMA_PONDERADA_COM_FATOR',
@@ -196,8 +237,8 @@ function montarPsConveniosCanaa() {
     status: 'rascunho',
     criadoEm: nowIso(),
     atualizadoEm: nowIso(),
-    passoAtual: 13,
-    statusPorPasso: todosOsPassosCompletos([13]),
+    passoAtual: 12,
+    statusPorPasso: todosOsPassosCompletos([12]),
     edital: {
       tipo,
       identificacao: {
@@ -208,17 +249,6 @@ function montarPsConveniosCanaa() {
         nomeProcesso: 'Processo Seletivo Convênio Canaã dos Carajás 2026',
         anoIngresso: 2026,
         periodoIngresso: '1S',
-      },
-      cronograma: {
-        inscricao: { inicio: '2026-04-01', fim: '2026-04-30' },
-        cartao: { inicio: '2026-05-15', fim: '2026-05-20' },
-        prova: { inicio: '2026-05-20', fim: '2026-05-20' },
-        homologacao: { inicio: '2026-04-25', fim: '2026-05-10' },
-        recursoHomologacao: { inicio: '2026-05-11', fim: '2026-05-13' },
-        classificacao: { inicio: '2026-06-15', fim: '2026-06-20' },
-        recursoClassificacao: { inicio: '2026-06-21', fim: '2026-06-23' },
-        habilitacao: { inicio: '2026-07-01', fim: '2026-07-15' },
-        confirmacaoInteresse: { inicio: '2026-07-16', fim: '2026-07-31' },
       },
       vagasModalidades: {
         cursos: [
@@ -235,30 +265,60 @@ function montarPsConveniosCanaa() {
         cascata: [],
       },
       etapas: [
-        {
-          tipoEtapaCodigo: 'PROVA_OBJETIVA',
-          nomeCustomizado: '',
-          peso: 1,
+        etapa({
           ordem: 1,
-          pertenceCalculo: true,
-          eliminatoria: true,
-          notaMinima: 4.0,
-          dataAplicacao: '2026-05-20',
-          janelaRecursoInicio: '2026-05-25',
-          janelaRecursoFim: '2026-05-27',
-        },
-        {
-          tipoEtapaCodigo: 'REDACAO',
-          nomeCustomizado: '',
-          peso: 1,
+          tipoEtapaCodigo: 'INSCRICAO_CANDIDATOS',
+          janelaInicio: '2026-04-01',
+          janelaFim: '2026-04-30',
+          pertenceCalculo: false,
+        }),
+        etapa({
           ordem: 2,
-          pertenceCalculo: true,
+          tipoEtapaCodigo: 'HOMOLOGACAO_INSCRICOES',
+          janelaInicio: '2026-05-02',
+          janelaFim: '2026-05-10',
+          recurso: { inicio: '2026-05-11', fim: '2026-05-13' },
+          pertenceCalculo: false,
+        }),
+        etapa({
+          ordem: 3,
+          tipoEtapaCodigo: 'PROVA_OBJETIVA',
+          janelaInicio: '2026-05-20',
+          recurso: { inicio: '2026-05-25', fim: '2026-05-27' },
+          peso: 1,
           eliminatoria: true,
           notaMinima: 4.0,
-          dataAplicacao: '2026-05-20',
-          janelaRecursoInicio: '2026-05-25',
-          janelaRecursoFim: '2026-05-27',
-        },
+        }),
+        etapa({
+          ordem: 4,
+          tipoEtapaCodigo: 'REDACAO',
+          janelaInicio: '2026-05-20',
+          recurso: { inicio: '2026-05-25', fim: '2026-05-27' },
+          peso: 1,
+          eliminatoria: true,
+          notaMinima: 4.0,
+        }),
+        etapa({
+          ordem: 5,
+          tipoEtapaCodigo: 'DIVULGACAO_BONIFICACAO',
+          janelaInicio: '2026-06-10',
+          recurso: { inicio: '2026-06-11', fim: '2026-06-13' },
+          pertenceCalculo: false,
+        }),
+        etapa({
+          ordem: 6,
+          tipoEtapaCodigo: 'DIVULGACAO_RESULTADO_PARCIAL',
+          janelaInicio: '2026-06-15',
+          janelaFim: '2026-06-20',
+          recurso: { inicio: '2026-06-21', fim: '2026-06-23' },
+          pertenceCalculo: false,
+        }),
+        etapa({
+          ordem: 7,
+          tipoEtapaCodigo: 'DIVULGACAO_RESULTADO_FINAL',
+          janelaInicio: '2026-06-30',
+          pertenceCalculo: false,
+        }),
       ],
       formula: {
         agregacao: 'MEDIA_SIMPLES',
@@ -339,7 +399,6 @@ function gerarDocumentosPsConvenios() {
   const todasModalidades = ['AC', 'V', 'LB_PPI', 'LB_Q', 'LB_PcD', 'LB_EP', 'LI_PPI', 'LI_Q', 'LI_PcD', 'LI_EP'];
   const docs = [];
 
-  // Documentos básicos para todas as modalidades
   for (const mod of todasModalidades) {
     docs.push({ tipoDocumentoCodigo: 'RG', modalidade: mod, obrigatorio: true });
     docs.push({ tipoDocumentoCodigo: 'CPF', modalidade: mod, obrigatorio: true });
@@ -349,23 +408,19 @@ function gerarDocumentosPsConvenios() {
     docs.push({ tipoDocumentoCodigo: 'FOTO_3X4', modalidade: mod, obrigatorio: true });
   }
 
-  // PcD: laudo médico para V e modalidades PcD
   for (const mod of ['V', 'LB_PcD', 'LI_PcD']) {
     docs.push({ tipoDocumentoCodigo: 'LAUDO_MEDICO_PCD', modalidade: mod, obrigatorio: true });
     docs.push({ tipoDocumentoCodigo: 'TERMO_AUTODECLARACAO_PCD', modalidade: mod, obrigatorio: true });
   }
 
-  // PPI: autodeclaração para LB_PPI e LI_PPI
   for (const mod of ['LB_PPI', 'LI_PPI']) {
     docs.push({ tipoDocumentoCodigo: 'DECLARACAO_AUTORRECONHECIMENTO', modalidade: mod, obrigatorio: true });
   }
 
-  // Quilombola: declaração com lideranças para LB_Q e LI_Q
   for (const mod of ['LB_Q', 'LI_Q']) {
     docs.push({ tipoDocumentoCodigo: 'DECLARACAO_QUILOMBOLA', modalidade: mod, obrigatorio: true });
   }
 
-  // Renda: comprovante para todas LB_*
   for (const mod of ['LB_PPI', 'LB_Q', 'LB_PcD', 'LB_EP']) {
     docs.push({ tipoDocumentoCodigo: 'COMPROVANTE_RENDA', modalidade: mod, obrigatorio: true });
   }
@@ -374,7 +429,7 @@ function gerarDocumentosPsConvenios() {
 }
 
 // =====================================================
-// Loader — rascunhos
+// Loaders
 // =====================================================
 export function loadDemoEditais() {
   const rascunhos = new Collection(Keys.EDITAIS_RASCUNHO);
@@ -385,9 +440,6 @@ export function loadDemoEditais() {
   return demos.length;
 }
 
-// =====================================================
-// Loader — modelos
-// =====================================================
 export async function loadDemoModelos() {
   const { buildSnapshot } = await import('./snapshot.js');
   const modelosCol = new Collection(Keys.MODELOS);
@@ -399,16 +451,15 @@ export async function loadDemoModelos() {
 
   for (const { nome, state } of fontes) {
     const snapshot = buildSnapshot(state);
-    // Sanitiza: limpa identificação (exceto sigla), datas, vagas, datas das etapas
+    // Sanitiza: limpa identificação, datas das etapas, vagas
     const sanitized = {
       ...snapshot,
       identificacao: { sigla: snapshot.identificacao?.sigla || 'CEPS/UNIFESSPA' },
-      cronograma: {},
       vagas: [],
       etapas: (snapshot.etapas || []).map((e) => ({
         ...e,
-        data_aplicacao: null,
-        janela_recurso: { inicio: null, fim: null },
+        janela: { inicio: null, fim: null },
+        recurso: e.recurso ? { inicio: null, fim: null } : null,
       })),
       locais: (snapshot.locais || []).map((l) => ({ ...l, sessoes: [] })),
     };
