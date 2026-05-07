@@ -28,7 +28,8 @@ Abrir no navegador: <http://localhost:8080/>
 prototipo-cadastro-edital/
 ├── index.html              ← dashboard (4 cards)
 ├── editais.html            ← lista de editais (rascunhos + publicados)
-├── editais-novo.html       ← wizard split view (13 passos)
+├── editais-novo.html       ← wizard split view (12 passos)
+├── edital.html             ← visualização readable do edital publicado
 ├── modelos.html            ← lista de modelos clonáveis
 ├── catalogos.html          ← hub dos 8 catálogos
 ├── catalogo.html           ← CRUD genérico (?slug=...)
@@ -38,18 +39,32 @@ prototipo-cadastro-edital/
 │   ├── app.js              ← bootstrap do dashboard
 │   ├── storage.js          ← wrapper localStorage + Collection (CRUD)
 │   ├── seeds.js            ← carrega data/*.json nos catálogos
+│   ├── demo-editais.js     ← rascunhos e modelos demo (PSE-EC, PS-Convênios)
 │   ├── catalog-schemas.js  ← definição declarativa dos 8 catálogos
 │   ├── catalog.js          ← render genérico de CRUD
-│   ├── wizard-steps.js     ← metadata dos 13 passos
+│   ├── wizard-steps.js     ← metadata dos 12 passos
 │   ├── wizard.js           ← controlador (estado, navegação, autosave)
 │   ├── validator.js        ← engine de validação dinâmica (ObrigatoriedadeLegal)
 │   ├── snapshot.js         ← gera snapshot consolidado + hash sha256
 │   ├── clone.js            ← snapshot → estado do wizard (modelos / clone)
+│   ├── visualizar-edital.js ← render do edital publicado
 │   ├── dom.js              ← helpers de DOM compartilhados
 │   ├── toast.js            ← feedback visual
-│   └── steps/              ← passo-01-tipo.js a passo-13-revisao.js
+│   └── steps/              ← passo-01-tipo.js a passo-12-revisao.js
 └── data/                   ← seeds JSON dos 8 catálogos
 ```
+
+## Modelo de etapa unificado
+
+**Toda janela do edital é uma etapa**, em ordem cronológica. O catálogo `TipoEtapa` distingue por categoria:
+
+| Categoria | Exemplos | Pertence ao cálculo? | Tem peso/nota? | Tem recurso? |
+|---|---|---|---|---|
+| **ADMINISTRATIVA** | Inscrição, Homologação, Divulgação parcial, Divulgação final, Divulgação bonificação | Não | Não | Sim/Não (varia) |
+| **AVALIATIVA** | Prova objetiva, Redação, Entrevista, Análise histórico, Carta intenção, Banca de heteroid., Banca biopsicossocial | Sim (default) | Sim | Sim/Não (varia) |
+| **IMPORTACAO_AUTOMATICA** | Importação de notas ENEM (SiSU) | Sim | Não | Não |
+
+Cada etapa tem janela início/fim (pode ser igual a 1 dia) e recurso opcional (`{inicio, fim}` ou `null`). Não existe "passo de cronograma" separado — tudo vive na lista única do passo Etapas.
 
 ## Catálogos (8)
 
@@ -57,42 +72,42 @@ prototipo-cadastro-edital/
 |---|---|---|
 | **Tipos de edital** | 8 | SISU, PSIQ, PSE_EC, PSVR, PS_CONVENIOS, TRANSF_INT, TRANSF_EXT, PORTADOR_DIPLOMA |
 | **Modalidades** | 12 | AC, V, LB_PPI, LB_Q, LB_PcD, LB_EP, LI_PPI, LI_Q, LI_PcD, LI_EP, PSIQ_I, PSIQ_Q |
-| **Tipos de etapa** | 8 | PROVA_OBJETIVA, REDACAO, ENTREVISTA, ANALISE_HISTORICO, CARTA_INTENCAO, BANCA_HETEROIDENTIFICACAO, BANCA_BIOPSICOSSOCIAL, ANALISE_DOCUMENTAL |
+| **Tipos de etapa** | 14 | 6 administrativas + 7 avaliativas + 1 importação automática |
 | **Locais de prova** | 6 | Marabá, Santana do Araguaia, São Félix do Xingu, Canaã dos Carajás, Rondon do Pará, Xinguara |
 | **Necessidades especiais** | 12 | Gravidez, amamentação, cadeirante, baixa visão, cegueira, mobilidade reduzida, surdez, autismo, TDAH, etc. |
 | **Tipos de documento** | 18 | RG, CPF, histórico, declarações de pertencimento, laudos, comprovantes |
 | **Critérios de desempate** | 9 | IDOSO_60, MAIOR_NOTA_ETAPA, MAIOR_IDADE, PROFESSOR_RURAL, MENOR_RENDA |
-| **Obrigatoriedades legais** | 11 | Regras automatizáveis por tipo de edital + base legal |
+| **Obrigatoriedades legais** | 14 | 3 universais (INSCRICAO, HOMOLOGACAO, DIVULGACAO_FINAL) + regras por tipo |
 
-## Wizard (13 passos)
+## Wizard (12 passos)
 
 ```
-[1] Tipo do edital
-[2] Identificação (com PDF)
-[3] Cronograma
-[4] Vagas e modalidades
-[5] Etapas
-[6] Fórmula e precisão
-[7] Bônus (opcional)
-[8] Desempate
-[9] Eliminação
-[10] Documentos por modalidade
-[11] Locais de prova
-[12] Atendimento especial
-[13] Revisão e publicação ← validação dinâmica + snapshot + hash
+[1]  Tipo do edital
+[2]  Identificação (com PDF)
+[3]  Vagas e modalidades
+[4]  Etapas (todas — administrativas, avaliativas, importação)
+[5]  Fórmula e precisão
+[6]  Bônus (opcional)
+[7]  Desempate
+[8]  Eliminação
+[9]  Documentos por modalidade
+[10] Locais de prova
+[11] Atendimento especial
+[12] Revisão e publicação ← validação dinâmica + snapshot + hash
 ```
 
 ## Roteiro de demo (~30 min)
 
 1. **Abertura (3 min)** — `index.html`. Premissa: catálogos editáveis + obrigatoriedades como dado.
-2. **Catálogos (8 min)** — passar pelos 8, dar destaque ao **ObrigatoriedadeLegal** ("muda a lei → edita o catálogo, sem deploy").
-3. **Cadastro do zero (10 min)** — PSE Educação do Campo: `Editais → + Novo edital → Em branco`. Passar pelos 13 passos. Mostrar painel de validações em [13]. Publicar. Exportar JSON.
+2. **Catálogos (8 min)** — passar pelos 8, dar destaque ao **ObrigatoriedadeLegal** ("muda a lei → edita o catálogo, sem deploy") e ao **TipoEtapa.categoria** (administrativa vs avaliativa).
+3. **Cadastro do zero (10 min)** — PSE Educação do Campo: `Editais → + Novo edital → Em branco`. Passar pelos 12 passos. No passo Etapas, mostrar como inscrição/homologação/divulgação são etapas como qualquer outra. Mostrar painel de validações em [12]. Publicar. Exportar JSON.
 4. **Modelos (5 min)** — `Salvar como modelo` → ir em `Modelos` → `Usar este modelo` → criar segundo edital com hash diferente.
 5. **Discussão (4 min)** — checklist de feedback (passos, campos, terminologia, obrigatoriedades, edição pós-publicação).
 
 ## Pontos a validar com o P.O.
 
-- Os 13 passos cobrem o que o CEPS faz hoje? Falta algum?
+- Os 12 passos cobrem o que o CEPS faz hoje? Falta algum?
+- O modelo de "tudo é etapa" faz sentido? Ou cronograma como tabela separada é mais natural pro CEPS?
 - Os campos de cada passo batem com a realidade?
 - O catálogo `ObrigatoriedadeLegal` cobre as regras que o jurídico costuma sinalizar?
 - Modelos por tipo de edital fariam sentido pra equipe do CEPS?
