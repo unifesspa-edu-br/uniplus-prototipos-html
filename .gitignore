@@ -21,6 +21,12 @@ package-lock.json
 dist/
 build/
 
+# Playwright — relatórios e diagnósticos (regen sob demanda via `npx playwright test`).
+# screenshots/ é mantido como referência visual da entrega.
+test-results/
+playwright-report/
+a11y-reports/
+
 # Snapshots/exports gerados em demo (se forem salvos localmente)
 *.export.json
 
