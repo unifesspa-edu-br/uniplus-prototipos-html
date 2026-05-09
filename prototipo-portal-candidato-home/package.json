@@ -1,0 +1,20 @@
+{
+  "name": "uniplus-proto-portal-candidato-home",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Bancada de inspeção visual e a11y da home autenticada do Portal do Candidato Uni+",
+  "type": "module",
+  "scripts": {
+    "start": "node scripts/start.js",
+    "start:portal": "node scripts/start.js",
+    "test": "playwright test",
+    "test:visual": "playwright test e2e/visual.spec.ts",
+    "test:a11y": "playwright test e2e/a11y.spec.ts",
+    "test:report": "playwright show-report",
+    "serve": "python3 -m http.server 8765"
+  },
+  "devDependencies": {
+    "@axe-core/playwright": "^4.10.1",
+    "@playwright/test": "^1.50.0"
+  }
+}

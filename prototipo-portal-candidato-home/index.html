@@ -1,0 +1,307 @@
+<!doctype html>
+<html lang="pt-BR" data-design="briefing">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="Bancada de inspeção visual da home autenticada do Portal do Candidato Uni+ — comparativo Figma vs briefing UX, com toggles de acessibilidade." />
+    <title>Uni+ · Protótipo · Home Portal do Candidato (primeiro acesso)</title>
+
+    <!-- Famílias usadas pelos dois modos: Inter (Figma original) e Rawline + Public Sans (briefing) + Atkinson Hyperlegible (toggle) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Rawline:wght@400;500;600;700&family=Public+Sans:wght@400;500;600;700&family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400;1,700&display=swap"
+    />
+
+    <link rel="stylesheet" href="css/tokens.css" />
+    <link rel="stylesheet" href="css/components.css" />
+    <link rel="stylesheet" href="css/inspector.css" />
+  </head>
+
+  <body>
+    <a href="#conteudo" class="skip-link">Pular para o conteúdo principal</a>
+
+    <div class="inspector-shell">
+      <!-- =================================================================
+           PAGE FRAME — área onde a tela do portal é renderizada
+           ================================================================= -->
+      <div class="viewport-frame" data-viewport="desktop">
+        <div class="page-frame" data-design="briefing">
+          <!-- GovBrBar -->
+          <div class="govbr-bar" role="region" aria-label="Identificação do Governo Federal">
+            <span class="govbr-bar__brand">gov.br</span>
+            <span class="govbr-bar__sep" aria-hidden="true">|</span>
+            <span class="govbr-bar__org">Universidade Federal do Sul e Sudeste do Pará</span>
+          </div>
+
+          <!-- AccessibilityBar — em ≥768px aparece inline; em mobile <768px só
+               o trigger compacto fica visível e abre os controles num popover. -->
+          <div class="a11y-bar" role="toolbar" aria-label="Preferências de acessibilidade">
+            <span class="a11y-bar__label">Acessibilidade</span>
+
+            <!-- Trigger compacto (mobile) — esconde o conjunto inline -->
+            <button
+              type="button"
+              class="a11y-bar__trigger"
+              aria-haspopup="true"
+              aria-expanded="false"
+              aria-controls="a11y-popover"
+              data-popover-trigger="a11y-popover">
+              <svg class="a11y-bar__btn-icon" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path fill="currentColor" d="M8 0a8 8 0 100 16A8 8 0 008 0zm0 3a1.5 1.5 0 110 3 1.5 1.5 0 010-3zm-3 5h6a.5.5 0 010 1H9v4.5a.5.5 0 01-1 0V11H7v2.5a.5.5 0 01-1 0V9H5a.5.5 0 010-1z"/></svg>
+              Acessibilidade
+            </button>
+
+            <!-- Botões inline — escondidos em mobile via .a11y-bar__inline -->
+            <div class="a11y-bar__inline">
+              <button type="button" class="a11y-bar__btn" data-toggle="fontscale:diminuir" aria-label="Diminuir fonte">A−</button>
+              <button type="button" class="a11y-bar__btn" data-toggle="fontscale:padrao" aria-label="Fonte padrão">A</button>
+              <button type="button" class="a11y-bar__btn" data-toggle="fontscale:aumentar" aria-label="Aumentar fonte">A+</button>
+              <button type="button" class="a11y-bar__btn" data-toggle="contrast:alto" aria-label="Alto contraste">
+                <svg class="a11y-bar__btn-icon" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path fill="currentColor" d="M8 1a7 7 0 100 14A7 7 0 008 1zm0 12V3a5 5 0 010 10z"/></svg>
+                Alto contraste
+              </button>
+              <button type="button" class="a11y-bar__btn" data-toggle="tema:escuro" aria-label="Tema escuro">
+                <svg class="a11y-bar__btn-icon" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path fill="currentColor" d="M6 1a7 7 0 109 9A7 7 0 016 1z"/></svg>
+                Tema escuro
+              </button>
+              <button type="button" class="a11y-bar__btn" data-toggle="fonte:legivel" aria-label="Fonte legível para baixa visão">
+                <svg class="a11y-bar__btn-icon" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path fill="currentColor" d="M3 13l3-9h2l3 9H9l-.6-2H5.6L5 13H3zm2.9-3.5h2.2L7 6.2l-1.1 3.3z"/></svg>
+                Fonte legível
+              </button>
+            </div>
+          </div>
+
+          <!-- Popover de acessibilidade (mobile) — clones dos toggles, fora da
+               árvore da barra para position fixed funcionar corretamente -->
+          <div id="a11y-popover" class="popover" role="dialog" aria-label="Preferências de acessibilidade" hidden>
+            <div class="popover__header">
+              <h2 class="popover__title">Acessibilidade</h2>
+              <button type="button" class="popover__close" aria-label="Fechar" data-popover-close="a11y-popover">×</button>
+            </div>
+            <div class="popover__body">
+              <fieldset class="popover__group">
+                <legend>Tamanho da fonte</legend>
+                <button type="button" class="a11y-bar__btn" data-toggle="fontscale:diminuir" aria-label="Diminuir fonte">A−</button>
+                <button type="button" class="a11y-bar__btn" data-toggle="fontscale:padrao" aria-label="Fonte padrão">A</button>
+                <button type="button" class="a11y-bar__btn" data-toggle="fontscale:aumentar" aria-label="Aumentar fonte">A+</button>
+              </fieldset>
+              <button type="button" class="a11y-bar__btn popover__row" data-toggle="contrast:alto">
+                <svg class="a11y-bar__btn-icon" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path fill="currentColor" d="M8 1a7 7 0 100 14A7 7 0 008 1zm0 12V3a5 5 0 010 10z"/></svg>
+                Alto contraste
+              </button>
+              <button type="button" class="a11y-bar__btn popover__row" data-toggle="tema:escuro">
+                <svg class="a11y-bar__btn-icon" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path fill="currentColor" d="M6 1a7 7 0 109 9A7 7 0 016 1z"/></svg>
+                Tema escuro
+              </button>
+              <button type="button" class="a11y-bar__btn popover__row" data-toggle="fonte:legivel">
+                <svg class="a11y-bar__btn-icon" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path fill="currentColor" d="M3 13l3-9h2l3 9H9l-.6-2H5.6L5 13H3zm2.9-3.5h2.2L7 6.2l-1.1 3.3z"/></svg>
+                Fonte legível
+              </button>
+            </div>
+          </div>
+
+          <!-- Header Uni+ — em ≥768px nav inline; em mobile o nav vira
+               trigger hamburger + popover com os mesmos itens. -->
+          <header class="uniplus-header" role="banner">
+            <div class="uniplus-header__brand">
+              <div class="uniplus-header__logo">
+                <img
+                  class="uniplus-header__logo-img"
+                  src="img/Unifesspa%20-%20chama%20branca.png"
+                  alt="Unifesspa — Universidade Federal do Sul e Sudeste do Pará"
+                  width="32"
+                  height="44" />
+              </div>
+              <span class="uniplus-header__divider" aria-hidden="true"></span>
+              <span class="uniplus-header__product">Uni+ · Portal do Candidato</span>
+            </div>
+
+            <!-- Trigger hamburger — só aparece em mobile -->
+            <button
+              type="button"
+              class="uniplus-header__menu-toggle"
+              aria-haspopup="true"
+              aria-expanded="false"
+              aria-controls="user-menu-popover"
+              aria-label="Abrir menu do usuário"
+              data-popover-trigger="user-menu-popover">
+              <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" width="22" height="22">
+                <path fill="currentColor" d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/>
+              </svg>
+            </button>
+
+            <!-- Nav inline (desktop) -->
+            <nav class="uniplus-header__nav" aria-label="Menu do usuário">
+              <a class="uniplus-header__link" href="#">Ajuda</a>
+              <span class="user-chip" aria-label="Candidata Nalanda">
+                <span class="user-chip__avatar" aria-hidden="true">N</span>
+                <span>Nalanda</span>
+              </span>
+              <button type="button" class="btn-logout">
+                <svg class="btn-logout__icon" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path fill="currentColor" d="M6 2v2H3v8h3v2H1V2h5zm3 2.5L13.5 9 9 13.5V11H6V7h3V4.5z"/></svg>
+                Sair
+              </button>
+            </nav>
+          </header>
+
+          <!-- Popover do menu do usuário (mobile) -->
+          <div id="user-menu-popover" class="popover" role="dialog" aria-label="Menu do usuário" hidden>
+            <div class="popover__header">
+              <span class="user-chip" aria-label="Candidata Nalanda">
+                <span class="user-chip__avatar" aria-hidden="true">N</span>
+                <span>Nalanda</span>
+              </span>
+              <button type="button" class="popover__close" aria-label="Fechar" data-popover-close="user-menu-popover">×</button>
+            </div>
+            <div class="popover__body">
+              <a class="popover__row" href="#">
+                <svg viewBox="0 0 16 16" aria-hidden="true" focusable="false" width="16" height="16"><path fill="currentColor" d="M8 1a7 7 0 100 14A7 7 0 008 1zm0 11a1 1 0 110 2 1 1 0 010-2zm0-9c1.7 0 3 1.3 3 3 0 1.5-1 2-2 2.5-.5.3-.5 1-.5 1.5h-1c0-1 0-2 1-2.5.7-.4 1-.7 1-1.5a1.5 1.5 0 00-3 0H6c0-1.7 1.3-3 2-3z"/></svg>
+                Ajuda
+              </a>
+              <button type="button" class="popover__row btn-logout-row">
+                <svg viewBox="0 0 16 16" aria-hidden="true" focusable="false" width="16" height="16"><path fill="currentColor" d="M6 2v2H3v8h3v2H1V2h5zm3 2.5L13.5 9 9 13.5V11H6V7h3V4.5z"/></svg>
+                Sair
+              </button>
+            </div>
+          </div>
+
+          <!-- Sub-nav -->
+          <nav class="subnav" aria-label="Navegação principal">
+            <a href="#" class="subnav__link">Editais <kbd class="subnav__kbd" aria-label="Atalho 1">1</kbd></a>
+            <span class="subnav__sep" aria-hidden="true"></span>
+            <a href="#" class="subnav__link">Acompanhamento <kbd class="subnav__kbd" aria-label="Atalho 2">2</kbd></a>
+          </nav>
+
+          <!-- Main -->
+          <main id="conteudo">
+            <div class="content">
+              <!-- Welcome -->
+              <section class="welcome" aria-labelledby="welcome-title">
+                <h1 class="welcome__title" id="welcome-title">Bem-vinda, Nalanda</h1>
+                <p class="welcome__subtitle">Agora você pode se inscrever em editais.</p>
+              </section>
+
+              <!-- Empty state card -->
+              <section class="empty-card" aria-labelledby="empty-title">
+                <svg class="empty-card__illustration" viewBox="0 0 200 160" role="img" aria-label="Ilustração de um documento com um sinal de aprovação verde">
+                  <!-- Documento -->
+                  <rect x="40" y="20" width="100" height="120" rx="8" fill="#f0f3fa" stroke="#1351b4" stroke-width="2"/>
+                  <line x1="55" y1="50" x2="125" y2="50" stroke="#9faec3" stroke-width="3" stroke-linecap="round"/>
+                  <line x1="55" y1="65" x2="115" y2="65" stroke="#9faec3" stroke-width="3" stroke-linecap="round"/>
+                  <line x1="55" y1="80" x2="125" y2="80" stroke="#9faec3" stroke-width="3" stroke-linecap="round"/>
+                  <line x1="55" y1="95" x2="100" y2="95" stroke="#9faec3" stroke-width="3" stroke-linecap="round"/>
+                  <!-- Selo aprovação -->
+                  <circle cx="60" cy="125" r="14" fill="#168821"/>
+                  <path d="M53 125 L58 130 L67 121" stroke="#fff" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+                  <!-- Emoji feliz canto superior -->
+                  <circle cx="155" cy="35" r="14" fill="#fdc94c"/>
+                  <circle cx="151" cy="33" r="1.5" fill="#1c1c1c"/>
+                  <circle cx="159" cy="33" r="1.5" fill="#1c1c1c"/>
+                  <path d="M150 39 Q155 43 160 39" stroke="#1c1c1c" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+                </svg>
+                <h2 class="empty-card__title" id="empty-title">Você ainda não tem inscrições</h2>
+                <p class="empty-card__description">Veja os editais abertos e escolha um para começar. Você pode salvar e voltar depois quando quiser.</p>
+                <a href="#" class="btn-primary">
+                  Ver editais abertos
+                  <svg class="btn-primary__icon" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path fill="currentColor" d="M9 3l5 5-5 5v-3H2V6h7V3z"/></svg>
+                </a>
+              </section>
+
+              <!-- Como funciona -->
+              <section class="steps" aria-labelledby="steps-title">
+                <h2 class="steps__title" id="steps-title">Como funciona</h2>
+                <ol class="steps__grid" role="list">
+                  <li class="step-card" role="listitem">
+                    <div class="step-card__head">
+                      <span class="step-card__badge" aria-hidden="true">1</span>
+                      <h3 class="step-card__title">Escolha um edital</h3>
+                    </div>
+                    <p class="step-card__description">Veja os editais abertos e leia as regras de cada um.</p>
+                  </li>
+                  <li class="step-card" role="listitem">
+                    <div class="step-card__head">
+                      <span class="step-card__badge" aria-hidden="true">2</span>
+                      <h3 class="step-card__title">Faça a inscrição</h3>
+                    </div>
+                    <p class="step-card__description">Preencha em etapas curtas. Você pode parar e voltar depois.</p>
+                  </li>
+                  <li class="step-card" role="listitem">
+                    <div class="step-card__head">
+                      <span class="step-card__badge" aria-hidden="true">3</span>
+                      <h3 class="step-card__title">Acompanhe</h3>
+                    </div>
+                    <p class="step-card__description">Veja a situação do seu pedido aqui mesmo a qualquer momento.</p>
+                  </li>
+                </ol>
+              </section>
+            </div>
+          </main>
+
+          <footer class="uniplus-footer" role="contentinfo">
+            Protótipo de demonstração do Uni+ — Universidade Federal do Sul e Sudeste do Pará
+          </footer>
+        </div>
+      </div>
+
+      <!-- =================================================================
+           INSPECTOR — bancada de inspeção visual (não faz parte da tela real)
+           ================================================================= -->
+      <aside class="inspector" data-open="false" aria-label="Inspetor de design e acessibilidade">
+        <div class="inspector__header">
+          <h2 class="inspector__title">Inspector</h2>
+          <p class="inspector__subtitle">Compare o protótipo Figma com o briefing UX em tempo real.</p>
+        </div>
+
+        <section class="inspector__section">
+          <h3 class="inspector__legend">Modo de design</h3>
+          <div class="design-switch" role="group" aria-label="Selecionar modo de design">
+            <button type="button" class="design-switch__btn" data-toggle="design:figma">Figma original</button>
+            <button type="button" class="design-switch__btn" data-toggle="design:briefing">Briefing aplicado</button>
+          </div>
+          <p class="design-switch__hint">
+            <strong>Figma original</strong>: Inter, valores fracionários, cinza #636363, touch ~32px.<br>
+            <strong>Briefing aplicado</strong>: Rawline → Public Sans → Inter, escala tokenizada (16px base), cinza AAA #595959, touch ≥44px, line-height 1.5, max-line 75ch.
+          </p>
+        </section>
+
+        <section class="inspector__section">
+          <h3 class="inspector__legend">Viewport simulado</h3>
+          <div class="viewport-controls" role="group" aria-label="Selecionar viewport">
+            <button type="button" class="viewport-btn" data-toggle="viewport:mobile">Mobile 360</button>
+            <button type="button" class="viewport-btn" data-toggle="viewport:tablet">Tablet 768</button>
+            <button type="button" class="viewport-btn" data-toggle="viewport:desktop">Desktop ≥1024</button>
+          </div>
+        </section>
+
+        <section class="inspector__section">
+          <h3 class="inspector__legend">Tokens ativos no page-frame</h3>
+          <ul class="token-list" id="inspector-tokens"></ul>
+        </section>
+
+        <section class="inspector__section">
+          <h3 class="inspector__legend">Contraste WCAG (calculado em tempo real)</h3>
+          <ul class="contrast-list" id="inspector-contrast"></ul>
+          <p class="design-switch__hint" style="margin-top:12px">
+            <strong>AAA</strong> ≥ 7.0:1 corpo · <strong>AA</strong> ≥ 4.5:1 corpo · <strong>AA-LG</strong> ≥ 3.0:1 texto grande.
+          </p>
+        </section>
+
+        <section class="inspector__section">
+          <h3 class="inspector__legend">Diferenças que o briefing aplica</h3>
+          <ul class="diff-list" id="inspector-diff"></ul>
+        </section>
+
+        <section class="inspector__section">
+          <button type="button" class="viewport-btn" data-action="reset" style="width:100%;padding:10px">↺ Resetar preferências</button>
+        </section>
+      </aside>
+    </div>
+
+    <button type="button" class="inspector-toggle" data-action="toggle-inspector" aria-label="Abrir inspector">
+      Inspector
+    </button>
+
+    <script type="module" src="js/inspector.js"></script>
+  </body>
+</html>
