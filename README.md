@@ -23,9 +23,10 @@ E abrir <http://localhost:8765/> no navegador.
 
 ## Protótipos
 
-| Pasta | Tema | Status | Stakeholder |
-|---|---|---|---|
-| [`prototipo-cadastro-edital/`](prototipo-cadastro-edital/) | Wizard de cadastro de edital com 13 passos, catálogos editáveis e validações dinâmicas (obrigatoriedades legais como dado, não código) | Pronto para apresentação | Jairo (P.O. CEPS) |
+| Pasta | Foco | Tema | Status | Stakeholder |
+|---|---|---|---|---|
+| [`prototipo-cadastro-edital/`](prototipo-cadastro-edital/) | Fluxo | Wizard de cadastro de edital com 13 passos, catálogos editáveis e validações dinâmicas (obrigatoriedades legais como dado, não código) | Pronto para apresentação | Jairo (P.O. CEPS) |
+| [`prototipo-portal-candidato-home/`](prototipo-portal-candidato-home/) | Conceito visual + a11y | Home autenticada do Portal do Candidato (primeiro acesso, estado vazio). Bancada de inspeção comparando Figma original × briefing UX aplicado, com toggles de a11y (alto contraste, escuro, fonte Atkinson Hyperlegible, A−/A/A+, viewport mobile/tablet/desktop) e contraste WCAG calculado em tempo real | Pronto para apresentação | CTIC + designer UX |
 
 ## Diretrizes para novos protótipos
 
