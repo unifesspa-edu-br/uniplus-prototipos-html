@@ -1,0 +1,374 @@
+/* =========================================================================
+   inspector.css — Painel de inspeção visual lateral
+   Permite alternar modo de design e visualizar tokens/contraste em tempo
+   real. Não faz parte da página real do portal — é a "bancada" do
+   protótipo, separada visualmente.
+   ========================================================================= */
+
+.inspector-shell {
+  display: grid;
+  grid-template-columns: 1fr 380px;
+  min-height: 100vh;
+}
+
+@media (max-width: 1199px) {
+  .inspector-shell {
+    grid-template-columns: 1fr;
+  }
+  .inspector {
+    position: fixed;
+    inset-inline-end: 0;
+    inset-block-end: 0;
+    inset-block-start: auto;
+    z-index: 9999;
+    max-height: 60vh;
+    width: min(100%, 380px);
+    transform: translateX(100%);
+    transition: transform 0.3s ease;
+  }
+  .inspector[data-open="true"] {
+    transform: translateX(0);
+  }
+  .inspector-toggle {
+    display: inline-flex !important;
+  }
+}
+
+.inspector {
+  background: #1a1f2a;
+  color: #e6ebf2;
+  border-inline-start: 1px solid #2a3142;
+  padding: 0;
+  overflow-y: auto;
+  font-family: 'Inter', system-ui, sans-serif;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.inspector__header {
+  position: sticky;
+  inset-block-start: 0;
+  background: #0e1116;
+  padding: 16px;
+  border-block-end: 1px solid #2a3142;
+  z-index: 1;
+}
+
+.inspector__title {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: #ffffff;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.inspector__subtitle {
+  margin: 6px 0 0;
+  font-size: 12px;
+  color: #9faec3;
+}
+
+.inspector__section {
+  padding: 16px;
+  border-block-end: 1px solid #2a3142;
+}
+
+.inspector__legend {
+  margin: 0 0 10px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: #9faec3;
+}
+
+/* === Switch design (Figma ↔ Briefing) === */
+.design-switch {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  background: #0a0d12;
+  border-radius: 8px;
+  padding: 4px;
+  gap: 4px;
+}
+
+.design-switch__btn {
+  background: transparent;
+  border: 0;
+  color: #e6ebf2;
+  font: inherit;
+  font-weight: 500;
+  padding: 10px 8px;
+  border-radius: 6px;
+  cursor: pointer;
+  text-align: center;
+  transition: background 0.15s, color 0.15s;
+}
+
+.design-switch__btn[aria-pressed="true"] {
+  background: #1351b4;
+  color: #ffffff;
+}
+
+.design-switch__btn:focus-visible {
+  outline: 2px solid #c2850c;
+  outline-offset: 2px;
+}
+
+.design-switch__hint {
+  margin: 8px 0 0;
+  font-size: 11px;
+  color: #9faec3;
+}
+
+/* === Token table === */
+.token-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 6px;
+}
+
+.token-list__item {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  padding: 6px 8px;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 4px;
+}
+
+.token-list__name {
+  font-family: ui-monospace, 'SFMono-Regular', monospace;
+  color: #cdd5e0;
+}
+
+.token-list__value {
+  font-family: ui-monospace, 'SFMono-Regular', monospace;
+  color: #ffffff;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.token-swatch {
+  width: 14px;
+  height: 14px;
+  border-radius: 3px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  flex: none;
+}
+
+/* === Contrast pairs === */
+.contrast-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 8px;
+}
+
+.contrast-row {
+  display: grid;
+  grid-template-columns: 60px 1fr auto auto;
+  gap: 8px;
+  align-items: center;
+  padding: 8px;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 4px;
+  font-size: 12px;
+}
+
+.contrast-sample {
+  height: 36px;
+  border-radius: 4px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.contrast-row__label {
+  color: #cdd5e0;
+  font-family: ui-monospace, monospace;
+  font-size: 11px;
+}
+
+.contrast-row__ratio {
+  font-weight: 700;
+  font-family: ui-monospace, monospace;
+  color: #ffffff;
+}
+
+.contrast-badge {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  padding: 2px 6px;
+  border-radius: 3px;
+}
+
+.contrast-badge--aaa {
+  background: #168821;
+  color: #ffffff;
+}
+
+.contrast-badge--aa {
+  background: #1351b4;
+  color: #ffffff;
+}
+
+.contrast-badge--aa-large {
+  background: #d4a017;
+  color: #1c1c1c;
+}
+
+.contrast-badge--fail {
+  background: #be4341;
+  color: #ffffff;
+}
+
+/* === Diff list (mudanças do briefing) === */
+.diff-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 8px;
+}
+
+.diff-list__item {
+  font-size: 12px;
+  padding: 8px 10px;
+  background: rgba(255, 255, 255, 0.03);
+  border-inline-start: 3px solid #1351b4;
+  border-radius: 4px;
+}
+
+.diff-list__from {
+  color: #9faec3;
+  text-decoration: line-through;
+  display: block;
+  font-size: 11px;
+}
+
+.diff-list__to {
+  color: #4dd178;
+  display: block;
+}
+
+.diff-list__why {
+  display: block;
+  margin-top: 4px;
+  color: #cdd5e0;
+  font-style: italic;
+  font-size: 11px;
+}
+
+/* === Viewport simulator === */
+.viewport-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.viewport-btn {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid #2a3142;
+  color: #e6ebf2;
+  font: inherit;
+  font-size: 11px;
+  padding: 6px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  min-height: 32px;
+}
+
+.viewport-btn[aria-pressed="true"] {
+  background: #1351b4;
+  border-color: #1351b4;
+  color: #ffffff;
+}
+
+.viewport-frame {
+  background: #f8f8f8;
+  display: flex;
+  justify-content: center;
+  padding-block: 32px;
+  padding-inline: 16px;
+  min-height: calc(100vh - 0px);
+  align-items: flex-start;
+  overflow-x: auto;
+}
+
+.viewport-frame[data-viewport="mobile"] .page-frame {
+  width: 360px;
+  border: 1px solid #2a3142;
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.viewport-frame[data-viewport="tablet"] .page-frame {
+  width: 768px;
+  border: 1px solid #2a3142;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.viewport-frame[data-viewport="desktop"] .page-frame {
+  width: 100%;
+  max-width: 1440px;
+}
+
+/* === Toggle button (mobile) === */
+.inspector-toggle {
+  display: none;
+  position: fixed;
+  inset-block-end: 16px;
+  inset-inline-end: 16px;
+  z-index: 10000;
+  background: #1a1f2a;
+  color: #ffffff;
+  border: 0;
+  padding: 14px 18px;
+  border-radius: 100px;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+/* === Print: oculta o inspector === */
+@media print {
+  .inspector,
+  .inspector-toggle {
+    display: none !important;
+  }
+  .inspector-shell {
+    grid-template-columns: 1fr;
+  }
+  .viewport-frame {
+    padding: 0;
+    min-height: auto;
+  }
+}
+
+/* === Modo demo limpo (?clean=1) — esconde o Inspector para screenshots
+       e apresentações sem poluição visual da bancada de inspeção === */
+body.demo-clean .inspector,
+body.demo-clean .inspector-toggle {
+  display: none !important;
+}
+
+body.demo-clean .inspector-shell {
+  grid-template-columns: 1fr;
+}
+
+body.demo-clean .viewport-frame {
+  padding: 0;
+  min-height: auto;
+}
