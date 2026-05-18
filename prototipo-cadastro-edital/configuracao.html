@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Uni+ · Catálogo</title>
+    <title>Uni+ · Configuração</title>
     <link
       rel="stylesheet"
       href="https://cdn.jsdelivr.net/npm/@govbr-ds/core@3.7.1/dist/core.min.css"
@@ -35,21 +35,21 @@
       <nav class="br-breadcrumb" aria-label="Breadcrumb">
         <ol class="crumb-list">
           <li class="crumb home"><a href="index.html">Início</a></li>
-          <li class="crumb"><a href="catalogos.html">Catálogos</a></li>
+          <li class="crumb"><a href="configuracoes.html">Configurações</a></li>
           <li class="crumb" id="crumb-current">…</li>
         </ol>
       </nav>
 
       <section class="br-section">
-        <div id="catalogo-header"></div>
-        <div id="catalogo-table" class="mt-4"></div>
+        <div id="configuracao-header"></div>
+        <div id="configuracao-table" class="mt-4"></div>
       </section>
     </main>
 
     <footer class="br-footer">
       <div class="container-lg">
         <div class="footer-content">
-          <p>Uni+ · Protótipo · <a href="catalogos.html" style="color: white">Catálogos</a></p>
+          <p>Uni+ · Protótipo · <a href="configuracoes.html" style="color: white">Configurações</a></p>
         </div>
       </div>
     </footer>
@@ -58,16 +58,16 @@
 
     <script type="module" src="js/theme.js"></script>
     <script type="module">
-      import { renderCatalogo } from './js/catalog.js';
-      import { getCatalogo } from './js/catalog-schemas.js';
+      import { renderConfiguracao } from './js/configuracao.js';
+      import { getConfiguracao } from './js/configuracao-schemas.js';
 
       const params = new URLSearchParams(window.location.search);
       const slug = params.get('slug') || 'tipos-edital';
-      const def = getCatalogo(slug);
+      const def = getConfiguracao(slug);
       if (def) {
         document.getElementById('crumb-current').textContent = def.titulo;
       }
-      renderCatalogo(slug);
+      renderConfiguracao(slug);
     </script>
   </body>
 </html>

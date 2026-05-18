@@ -16,7 +16,7 @@ const ELEGIBILIDADES = [
 export async function render(container, ctx) {
   const { state, updateState, setStepStatus } = ctx;
   const bonus = state.edital.bonus || { habilitado: false };
-  const modalidadesEdital = state.edital.vagasModalidades?.modalidades || [];
+  const modalidadesEdital = state.edital.distribuicaoModalidades?.modalidades || [];
 
   function update(campo, valor) {
     const novo = { ...bonus, [campo]: valor };
@@ -27,11 +27,11 @@ export async function render(container, ctx) {
   function avaliarStatus() {
     const b = state.edital.bonus;
     if (!b || !b.habilitado) {
-      setStepStatus('completed'); // bônus é opcional — sem bônus = passo OK
+      setStepStatus('concluido'); // bônus é opcional — sem bônus = passo OK
       return;
     }
     const completo = b.tipo && b.valor != null && b.modalidades_aplicaveis?.length > 0;
-    setStepStatus(completo ? 'completed' : 'in-progress');
+    setStepStatus(completo ? 'concluido' : 'emProgresso');
   }
 
   container.innerHTML = '';

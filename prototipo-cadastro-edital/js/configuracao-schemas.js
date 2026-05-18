@@ -1,5 +1,5 @@
-// catalog-schemas.js — define schema declarativo para cada um dos 8 catálogos.
-// O CRUD genérico em catalog.js consome esses schemas para renderizar tabelas e formulários.
+// configuracao-schemas.js — define schema declarativo para cada uma das 8 configurações.
+// O CRUD genérico em configuracao.js consome esses schemas para renderizar tabelas e formulários.
 
 import { Keys } from './storage.js';
 
@@ -14,7 +14,7 @@ import { Keys } from './storage.js';
  *   - multi-tag   : tags livres separadas por vírgula no input, persistidos como array
  *   - select-tags : multi-select com options definidas
  *   - json        : textarea com parse JSON
- *   - ref         : referência a outro catálogo (options vêm do catálogo)
+ *   - ref         : referência a outra configuração (options vêm da configuração)
  */
 
 const CATEGORIA_OPTS = [
@@ -37,7 +37,7 @@ const CATEGORIA_OBRIG_OPTS = [
   { value: 'OUTROS', label: 'Outros' },
 ];
 
-export const CATALOGOS = {
+const _RAW_CONFIGURACOES = {
   'tipos-edital': {
     titulo: 'Tipos de edital',
     descricao: 'Templates por tipo de processo seletivo. Define defaults aplicados ao iniciar o wizard.',
@@ -63,13 +63,13 @@ export const CATALOGOS = {
   },
 
   modalidades: {
-    titulo: 'Modalidades de concorrência',
+    titulo: 'Modalidades de concorrência (cotas)',
     descricao: 'Categorias de vaga (AC, V, LB_*, LI_*, PSIQ_*) com seus critérios cumulativos.',
     icone: '🎯',
     key: Keys.MODALIDADES,
     colunas: [
       { campo: 'codigo', label: 'Código' },
-      { campo: 'nome_completo', label: 'Nome completo' },
+      { campo: 'nome', label: 'Nome completo' },
       { campo: 'exige_heteroidentificacao', label: 'Hetero?', tipo: 'bool' },
       { campo: 'exige_comprovacao_renda', label: 'Renda?', tipo: 'bool' },
       { campo: 'exige_laudo_pcd', label: 'Laudo?', tipo: 'bool' },
@@ -77,7 +77,7 @@ export const CATALOGOS = {
     ],
     campos: [
       { campo: 'codigo', label: 'Código', tipo: 'text', required: true },
-      { campo: 'nome_completo', label: 'Nome completo', tipo: 'text', required: true },
+      { campo: 'nome', label: 'Nome completo', tipo: 'text', required: true },
       { campo: 'criterios_cumulativos', label: 'Critérios cumulativos', tipo: 'multi-tag', hint: 'Ex.: ESCOLA_PUBLICA, RENDA_ATE_1SM_PER_CAPITA' },
       { campo: 'exige_heteroidentificacao', label: 'Exige heteroidentificação?', tipo: 'checkbox' },
       { campo: 'exige_comprovacao_renda', label: 'Exige comprovação de renda?', tipo: 'checkbox' },
@@ -163,34 +163,30 @@ export const CATALOGOS = {
     ],
   },
 
-  'locais-prova': {
-    titulo: 'Locais de prova',
-    descricao: 'Polos físicos onde provas são aplicadas. Capacidade pode ser ajustada por edital.',
+  'cidades-prova': {
+    titulo: 'Cidades de prova',
+    descricao: 'Cidades disponíveis para o candidato escolher na inscrição. <strong>O local exato (sala/prédio) é definido depois, pelo módulo de ensalamento</strong> — fora do escopo da fase de inscrição. Cada cidade aparece como opção para o candidato no momento da inscrição.',
     icone: '📍',
-    key: Keys.LOCAIS_PROVA,
+    key: Keys.CIDADES_PROVA,
     colunas: [
       { campo: 'codigo', label: 'Código' },
-      { campo: 'nome', label: 'Nome' },
-      { campo: 'municipio', label: 'Município' },
+      { campo: 'nome', label: 'Cidade' },
       { campo: 'uf', label: 'UF' },
-      { campo: 'capacidade', label: 'Capacidade' },
+      { campo: 'municipio_ibge_id', label: 'ID IBGE' },
     ],
     campos: [
-      { campo: 'codigo', label: 'Código', tipo: 'text', required: true },
-      { campo: 'nome', label: 'Nome', tipo: 'text', required: true },
-      { campo: 'municipio', label: 'Município', tipo: 'text', required: true },
-      { campo: 'municipio_ibge_id', label: 'ID IBGE do município', tipo: 'text' },
-      { campo: 'uf', label: 'UF', tipo: 'text', maxlength: 2 },
-      { campo: 'endereco', label: 'Endereço', tipo: 'textarea' },
-      { campo: 'capacidade', label: 'Capacidade', tipo: 'number' },
-      { campo: 'responsavel', label: 'Responsável', tipo: 'text' },
+      { campo: 'codigo', label: 'Código', tipo: 'text', required: true, hint: 'Identificador único, ex.: MARABA, SAO_FELIX.' },
+      { campo: 'nome', label: 'Cidade', tipo: 'text', required: true, hint: 'Nome da cidade como aparecerá para o candidato.' },
+      { campo: 'uf', label: 'UF', tipo: 'text', maxlength: 2, required: true },
+      { campo: 'municipio_ibge_id', label: 'ID IBGE do município', tipo: 'text', hint: 'Código IBGE de 7 dígitos. Opcional.' },
+      { campo: 'observacoes', label: 'Observações', tipo: 'textarea' },
     ],
   },
 
   necessidades: {
     titulo: 'Necessidades especiais',
     descricao: 'Atendimento diferenciado durante a prova: gravidez, PcD, baixa visão, mobilidade reduzida, etc.',
-    icone: '♿',
+    icone: 'img/Accessibility_logo.svg',
     key: Keys.NECESSIDADES,
     colunas: [
       { campo: 'codigo', label: 'Código' },
@@ -217,7 +213,7 @@ export const CATALOGOS = {
 
   'tipos-documento': {
     titulo: 'Tipos de documento',
-    descricao: 'Catálogo de documentos exigidos nas inscrições (RG, histórico, declarações, laudos).',
+    descricao: 'Configuração de documentos exigidos nas inscrições (RG, histórico, declarações, laudos).',
     icone: '📄',
     key: Keys.TIPOS_DOCUMENTO,
     colunas: [
@@ -242,8 +238,8 @@ export const CATALOGOS = {
 
   'criterios-desempate': {
     titulo: 'Critérios de desempate',
-    descricao: 'Primitivas reutilizáveis pelos editais ao definir ordem de desempate.',
-    icone: '⚖️',
+    descricao: 'Critérios reutilizáveis pelos editais ao definir ordem de desempate.',
+    icone: '🥇',
     key: Keys.CRITERIOS_DESEMPATE,
     colunas: [
       { campo: 'codigo', label: 'Código' },
@@ -257,7 +253,7 @@ export const CATALOGOS = {
       { campo: 'nome', label: 'Nome', tipo: 'text', required: true },
       { campo: 'descricao', label: 'Descrição', tipo: 'textarea' },
       { campo: 'requer_etapa_referencia', label: 'Requer etapa de referência?', tipo: 'checkbox' },
-      { campo: 'versao', label: 'Versão', tipo: 'text', hint: 'Versionamento de primitivas (v1, v2…)' },
+      { campo: 'versao', label: 'Versão', tipo: 'text', hint: 'Versionamento dos critérios (v1, v2…)' },
       { campo: 'base_legal', label: 'Base legal', tipo: 'text' },
     ],
   },
@@ -265,13 +261,13 @@ export const CATALOGOS = {
   obrigatoriedades: {
     titulo: 'Obrigatoriedades legais',
     descricao: 'Regras que validam editais conforme legislação. <strong>Substituem validações hardcoded</strong> — quando lei muda, atualiza aqui sem deploy.',
-    icone: '⚖️',
+    icone: '📜',
     key: Keys.OBRIGATORIEDADES,
     colunas: [
       { campo: 'tipo_edital_codigo', label: 'Tipo edital' },
       { campo: 'categoria', label: 'Categoria' },
       { campo: 'regra_codigo', label: 'Regra' },
-      { campo: 'descricao_humana', label: 'Descrição', truncate: 60 },
+      { campo: 'descricao', label: 'Descrição', truncate: 60 },
       { campo: 'base_legal', label: 'Base legal' },
     ],
     campos: [
@@ -300,7 +296,7 @@ export const CATALOGOS = {
         hint: 'Payload da regra. Ex.: {"tipo_etapa": "BANCA_HETEROIDENTIFICACAO"} ou {"modalidades": ["AC","LB_PPI"]}',
       },
       {
-        campo: 'descricao_humana',
+        campo: 'descricao',
         label: 'Descrição humana',
         tipo: 'textarea',
         required: true,
@@ -311,14 +307,194 @@ export const CATALOGOS = {
       { campo: 'data_vigencia_fim', label: 'Vigência — fim', tipo: 'date', hint: 'Vazio = sem fim definido.' },
     ],
   },
+
+  cursos: {
+    titulo: 'Cursos',
+    descricao: 'Cada combinação <strong>(nome, grau, campus, turno)</strong> é uma entrada única. O mesmo nome (ex.: História, Engenharia Civil) pode ter múltiplas entradas — uma por campus + grau. Editais cadastram vagas referenciando entradas daqui.',
+    icone: '🎓',
+    key: Keys.CURSOS,
+    colunas: [
+      { campo: 'codigo', label: 'Código' },
+      { campo: 'nome', label: 'Nome' },
+      { campo: 'grau', label: 'Grau' },
+      { campo: 'campus_codigo', label: 'Campus' },
+      { campo: 'turno', label: 'Turno' },
+    ],
+    campos: [
+      { campo: 'codigo', label: 'Código', tipo: 'text', required: true, hint: 'Identificador único. Convenção: {CAMPUS}-{NOME-ABREV}-{GRAU-ABREV}. Ex.: MARABA-HISTORIA-LIC.' },
+      { campo: 'nome', label: 'Nome', tipo: 'text', required: true },
+      {
+        campo: 'grau',
+        label: 'Grau',
+        tipo: 'select',
+        required: true,
+        options: [
+          { value: 'BACHARELADO', label: 'Bacharelado' },
+          { value: 'LICENCIATURA', label: 'Licenciatura' },
+          { value: 'TECNOLOGO', label: 'Tecnólogo' },
+        ],
+      },
+      {
+        campo: 'campus_codigo',
+        label: 'Cidade do campus',
+        tipo: 'ref',
+        refKey: 'cidades-prova',
+        refValue: 'codigo',
+        refLabel: 'nome',
+        required: true,
+        hint: 'Cidade onde fica o campus que oferece o curso. Vem de Configurações › Cidades de prova.',
+      },
+      {
+        campo: 'turno',
+        label: 'Turno',
+        tipo: 'select',
+        required: true,
+        options: [
+          { value: 'MATUTINO', label: 'Matutino' },
+          { value: 'VESPERTINO', label: 'Vespertino' },
+          { value: 'NOTURNO', label: 'Noturno' },
+          { value: 'INTEGRAL', label: 'Integral' },
+        ],
+      },
+      { campo: 'duracao_semestres', label: 'Duração (semestres)', tipo: 'number' },
+      { campo: 'e_mec_codigo', label: 'Código e-MEC', tipo: 'text', hint: 'Identificador oficial no sistema e-MEC do MEC. Opcional.' },
+      { campo: 'observacoes', label: 'Observações', tipo: 'textarea' },
+    ],
+  },
+
+  'estrategias-balanceamento': {
+    titulo: 'Estratégias de balanceamento de vagas',
+    descricao: 'Estratégia aplicada quando o mínimo garantido por modalidade faria a soma exceder o total do curso. <strong>Componível via dados:</strong> escolha uma das 3 estratégias canônicas em <code>distribuicao-vagas.js → ESTRATEGIAS</code> e liste os campos afetados. Sem eval — estratégias novas precisam de PR no código (auditabilidade).',
+    icone: '🎚️',
+    key: Keys.ESTRATEGIAS_BALANCEAMENTO,
+    colunas: [
+      { campo: 'codigo', label: 'Código' },
+      { campo: 'nome', label: 'Nome' },
+      { campo: 'estrategia_codigo', label: 'Estratégia' },
+      { campo: 'parametros_campos', label: 'Campos', tipo: 'tags' },
+      { campo: 'descricao', label: 'Descrição', truncate: 80 },
+    ],
+    campos: [
+      { campo: 'codigo', label: 'Código', tipo: 'text', required: true, hint: 'Identificador único, ex.: REDUZIR_AC, REDUZIR_EP_DEPOIS_AC.' },
+      { campo: 'nome', label: 'Nome', tipo: 'text', required: true },
+      {
+        campo: 'estrategia_codigo',
+        label: 'Estratégia canônica',
+        tipo: 'select',
+        required: true,
+        options: [
+          { value: 'PERMITE_ESTOURO', label: 'PERMITE_ESTOURO — não ajusta, soma pode passar VO' },
+          { value: 'REDUZIR_DE', label: 'REDUZIR_DE — subtrai dos campos listados, na ordem (cascata)' },
+          { value: 'REDUZIR_PROPORCIONAL_EM', label: 'REDUZIR_PROPORCIONAL_EM — distribui proporcionalmente entre os campos' },
+        ],
+        hint: 'Função em distribuicao-vagas.js → ESTRATEGIAS. Não há eval — só estas três estão disponíveis. Novas estratégias exigem PR no repositório.',
+      },
+      {
+        campo: 'parametros_campos',
+        label: 'Campos afetados',
+        tipo: 'multi-tag',
+        hint: 'Lista de modalidades (separadas por vírgula). Ordem importa em REDUZIR_DE. Códigos válidos: ac, lb_ppi, lb_q, lb_pcd, lb_ep, li_ppi, li_q, li_pcd, li_ep.',
+      },
+      { campo: 'descricao', label: 'Descrição', tipo: 'textarea', required: true, hint: 'Explique o efeito da combinação estratégia + campos para o admin entender quando usar.' },
+      { campo: 'base_legal', label: 'Base legal / justificativa', tipo: 'text' },
+    ],
+  },
+
+  'cascatas-remanejamento': {
+    titulo: 'Cascatas de remanejamento',
+    descricao: 'Ordem em que vagas não preenchidas são redirecionadas entre modalidades. Cada entrada é uma política (Portaria MEC 704/2025 para SiSU, Res. 532/2021 para PSIQ, etc.). <strong>O edital escolhe uma cascata; o snapshot congela na publicação (RN08).</strong> Em <code>ordens</code>, cada chave é uma modalidade de origem e o valor é a lista ordenada de destinos. Se todos os destinos esgotarem, a vaga vai para <code>fallback_codigo</code> (tipicamente AC).',
+    icone: '🔀',
+    key: Keys.CASCATAS_REMANEJAMENTO,
+    colunas: [
+      { campo: 'codigo', label: 'Código' },
+      { campo: 'nome', label: 'Nome' },
+      { campo: 'fallback_codigo', label: 'Fallback' },
+      { campo: 'base_legal', label: 'Base legal' },
+    ],
+    campos: [
+      { campo: 'codigo', label: 'Código', tipo: 'text', required: true, hint: 'Identificador único. Ex.: PORTARIA_MEC_704_2025, PSIQ_RES_532.' },
+      { campo: 'nome', label: 'Nome', tipo: 'text', required: true },
+      { campo: 'descricao', label: 'Descrição', tipo: 'textarea' },
+      { campo: 'base_legal', label: 'Base legal', tipo: 'text', required: true },
+      {
+        campo: 'fallback_codigo',
+        label: 'Modalidade fallback',
+        tipo: 'ref',
+        refKey: 'modalidades',
+        refValue: 'codigo',
+        refLabel: 'codigo',
+        required: true,
+        hint: 'Destino final quando todos os destinos da ordem esgotarem. Tipicamente AC.',
+      },
+      {
+        campo: 'ordens',
+        label: 'Ordens de remanejamento',
+        tipo: 'cascata-ordens',
+        required: true,
+        hint: 'Para cada modalidade origem, defina a ordem em que vagas não preenchidas serão redirecionadas. Use as setas para reordenar. Modalidades sem origem própria caem direto no fallback.',
+      },
+    ],
+  },
+
+  'percentuais-ibge': {
+    titulo: 'Percentuais demográficos (IBGE)',
+    descricao: 'Insumos da fórmula de distribuição de vagas por modalidade (Lei 12.711/2012 + Lei 14.723/2023). Cada entrada representa uma UF + edição do Censo. <strong>O edital referencia uma entrada pelo código; a publicação congela os valores no snapshot (RN08).</strong>',
+    icone: '📊',
+    key: Keys.PERCENTUAIS_IBGE,
+    colunas: [
+      { campo: 'codigo', label: 'Código' },
+      { campo: 'nome', label: 'Nome' },
+      { campo: 'uf', label: 'UF' },
+      { campo: 'ano_censo', label: 'Ano' },
+      { campo: 'ppi', label: 'PPI (%)' },
+      { campo: 'q', label: 'Q (%)' },
+      { campo: 'pcd', label: 'PcD (%)' },
+    ],
+    campos: [
+      { campo: 'codigo', label: 'Código', tipo: 'text', required: true, hint: 'Identificador único. Ex.: PARA_2022.' },
+      { campo: 'nome', label: 'Nome', tipo: 'text', required: true },
+      { campo: 'uf', label: 'UF', tipo: 'text', maxlength: 2, required: true },
+      { campo: 'ano_censo', label: 'Ano do Censo', tipo: 'number', required: true, hint: 'Ano de referência do Censo Demográfico do IBGE.' },
+      { campo: 'ppi', label: 'PPI (%) — Pretos + Pardos + Indígenas', tipo: 'number', step: '0.01', required: true },
+      { campo: 'q', label: 'Q (%) — Quilombolas', tipo: 'number', step: '0.01', required: true },
+      { campo: 'pcd', label: 'PcD (%) — critério Grupo de Washington', tipo: 'number', step: '0.01', required: true },
+      { campo: 'fonte', label: 'Fonte', tipo: 'text', hint: 'Ex.: IBGE Censo 2022, Tabela 9605.' },
+      { campo: 'observacoes', label: 'Observações', tipo: 'textarea' },
+    ],
+  },
 };
 
-export function getCatalogo(slug) {
-  return CATALOGOS[slug] || null;
+/**
+ * Ordem canônica das configurações no hub — agrupa por afinidade:
+ *   1. Catalogação base (entidades de domínio + vocabulários)
+ *   2. Insumos legais e demográficos
+ *   3. Estratégias / regras de cálculo
+ */
+const ORDEM_CONFIGURACOES = [
+  'tipos-edital',
+  'tipos-etapa',
+  'modalidades',
+  'cursos',
+  'cidades-prova',
+  'tipos-documento',
+  'necessidades',
+  'criterios-desempate',
+  'obrigatoriedades',
+  'percentuais-ibge',
+  'estrategias-balanceamento',
+  'cascatas-remanejamento',
+];
+
+export const CONFIGURACOES = Object.fromEntries(
+  ORDEM_CONFIGURACOES.map((slug) => [slug, _RAW_CONFIGURACOES[slug]])
+);
+
+export function getConfiguracao(slug) {
+  return CONFIGURACOES[slug] || null;
 }
 
-export function listCatalogos() {
-  return Object.entries(CATALOGOS).map(([slug, def]) => ({
+export function listConfiguracoes() {
+  return Object.entries(CONFIGURACOES).map(([slug, def]) => ({
     slug,
     titulo: def.titulo,
     descricao: def.descricao,

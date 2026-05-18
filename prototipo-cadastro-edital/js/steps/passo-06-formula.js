@@ -27,7 +27,7 @@ export async function render(container, ctx) {
   function avaliarStatus() {
     const f = state.edital.formula;
     const completo = f.agregacao && f.precisao;
-    setStepStatus(completo ? 'completed' : f.agregacao || f.precisao ? 'in-progress' : 'pending');
+    setStepStatus(completo ? 'concluido' : f.agregacao || f.precisao ? 'emProgresso' : 'pendente');
   }
 
   container.innerHTML = '';

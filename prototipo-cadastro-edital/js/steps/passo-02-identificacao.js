@@ -15,7 +15,7 @@ export async function render(container, ctx) {
   function avaliarStatus() {
     const i = state.edital.identificacao;
     const completo = i.numero && i.ano && i.dataEdital && i.sigla && i.nomeProcesso;
-    setStepStatus(completo ? 'completed' : 'in-progress');
+    setStepStatus(completo ? 'concluido' : 'emProgresso');
   }
 
   container.innerHTML = '';

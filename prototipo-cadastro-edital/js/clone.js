@@ -1,11 +1,11 @@
 // clone.js — converte snapshot (denormalizado) em estado de wizard (normalizado).
 // Usado para clonar de modelo ou de edital publicado.
 
-import { Collection, Keys } from './storage.js';
+import { Collection, Keys, randomUUID } from './storage.js';
 
 /**
  * Reconstrói o `state.edital` (formato do wizard) a partir de um snapshot publicado.
- * Catálogos são re-resolvidos pelos seus códigos (caso tenham sido renomeados, mantém o código).
+ * Configurações são re-resolvidos pelos seus códigos (caso tenham sido renomeados, mantém o código).
  *
  * @param {object} snapshot - snapshot do edital publicado ou do modelo
  * @param {object} options - { manterIdentificacao: bool, manterCronograma: bool, manterVagas: bool }
@@ -17,7 +17,7 @@ export function snapshotToWizardState(snapshot, options = {}) {
     : null;
 
   const state = {
-    id: crypto.randomUUID(),
+    id: randomUUID(),
     status: 'rascunho',
     criadoEm: new Date().toISOString(),
     atualizadoEm: new Date().toISOString(),
@@ -25,20 +25,25 @@ export function snapshotToWizardState(snapshot, options = {}) {
     statusPorPasso: {},
     edital: {
       tipo: tipoLocal
-        ? {
-            tipoEditalId: tipoLocal.id,
-            codigo: tipoLocal.codigo,
-            nome: tipoLocal.nome,
-          }
+        ? { codigo: tipoLocal.codigo, nome: tipoLocal.nome }
         : null,
       identificacao: options.manterIdentificacao
         ? { ...snapshot.identificacao }
         : { sigla: snapshot.identificacao?.sigla || 'CEPS/UNIFESSPA' },
-      vagasModalidades: {
-        cursos: options.manterVagas ? [...(snapshot.vagas || [])] : [],
+      vagas: {
+        // Round-trip via `codigo` da entrada Curso. Sem manterVagas, descarta tudo.
+        cursos: options.manterVagas
+          ? (snapshot.vagas || [])
+              .filter((v) => v.codigo)
+              .map((v) => ({ cursoCodigo: v.codigo, vagas: v.vagas }))
+          : [],
+      },
+      distribuicaoModalidades: {
         modalidades: (snapshot.modalidades || []).map((m) => m.codigo),
         concorrenciaDupla: snapshot.concorrencia_dupla || false,
-        cascata: [...(snapshot.cascata_remanejamento || [])],
+        percentuaisIbgeCodigo: snapshot.percentuais_ibge?.codigo || null,
+        estrategiaBalanceamentoCodigo: snapshot.estrategia_balanceamento?.codigo || null,
+        cascataRemanejamentoCodigo: snapshot.cascata_remanejamento?.codigo || null,
       },
       etapas: (snapshot.etapas || []).map((e) => ({
         tipoEtapaCodigo: e.tipo?.codigo || null,
@@ -62,7 +67,7 @@ export function snapshotToWizardState(snapshot, options = {}) {
       desempate: (snapshot.desempate || []).map((d) => ({
         codigo: d.criterio?.codigo,
         ordem: d.ordem,
-        etapaRef: d.etapa_referencia,
+        etapaReferencia: d.etapa_referencia,
       })),
       eliminacao: { ...snapshot.eliminacao },
       documentos: (snapshot.documentos_por_modalidade || []).map((d) => ({
@@ -70,21 +75,23 @@ export function snapshotToWizardState(snapshot, options = {}) {
         modalidade: d.modalidade,
         obrigatorio: d.obrigatorio,
       })),
-      locais: (snapshot.locais || []).map((l) => ({
-        localProvaCodigo: l.local?.codigo,
-        capacidade: l.capacidade_neste_edital,
-        sessoes: options.manterCronograma ? [...(l.sessoes || [])] : [],
-      })),
+      cidades: (snapshot.cidades || [])
+        .filter((c) => c.cidade?.codigo)
+        .map((c) => ({
+          cidadeCodigo: c.cidade.codigo,
+          cursoCodigos: (c.cursos || []).map((curso) => curso.codigo).filter(Boolean),
+          capacidadeMaxima: c.capacidade_maxima ?? null,
+        })),
       atendimento: (snapshot.atendimento_especial || []).map((a) => ({
         necessidadeEspecialCodigo: a.necessidade?.codigo,
-        recursos_disponibilizados: [...(a.recursos_disponibilizados || [])],
+        recursosDisponibilizados: [...(a.recursos_disponibilizados || [])],
       })),
     },
   };
 
   // Se tipo selecionado, marca passo 1 como completo
   if (state.edital.tipo) {
-    state.statusPorPasso[1] = 'completed';
+    state.statusPorPasso[1] = 'concluido';
   }
 
   return state;
@@ -109,7 +116,7 @@ export function cloneFromModelo(modeloId) {
  * Clona a partir de um edital publicado (mantém tudo exceto identificação).
  */
 export function cloneFromEditalPublicado(publicadoId) {
-  const publicados = new Collection(Keys.EDITAIS_PUBLICADO);
+  const publicados = new Collection(Keys.EDITAIS_PUBLICADOS);
   const ed = publicados.byId(publicadoId);
   if (!ed) throw new Error('Edital publicado não encontrado.');
 

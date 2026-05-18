@@ -1,0 +1,26 @@
+[
+  {
+    "codigo": "PARA_2022",
+    "nome": "Pará — Censo Demográfico 2022",
+    "uf": "PA",
+    "ano_censo": 2022,
+    "ppi": 78.0,
+    "q": 0.5,
+    "pcd": 8.0,
+    "fonte": "IBGE Censo Demográfico 2022 (valores estimados — oficiais pendentes em normas/README.md)",
+    "observacoes": "Insumos da fórmula de distribuição de vagas (sistema-cotas-e-vagas.md). PPI = pretos + pardos + indígenas. Q = quilombolas. PcD = pessoas com deficiência (critério Grupo de Washington).",
+    "ativo": true
+  },
+  {
+    "codigo": "PARA_2010",
+    "nome": "Pará — Censo Demográfico 2010",
+    "uf": "PA",
+    "ano_censo": 2010,
+    "ppi": 75.5,
+    "q": 0.4,
+    "pcd": 23.5,
+    "fonte": "IBGE Censo Demográfico 2010 (referência histórica)",
+    "observacoes": "Valores anteriores à atualização Lei 14.723/2023. Mantido como referência para editais legados ou comparação.",
+    "ativo": true
+  }
+]

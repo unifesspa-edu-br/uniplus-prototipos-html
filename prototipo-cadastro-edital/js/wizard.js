@@ -1,10 +1,11 @@
 // wizard.js — controlador do wizard (estado, navegação, autosave, render).
 
-import { Storage, Collection, Keys } from './storage.js';
+import { Storage, Collection, Keys, randomUUID } from './storage.js';
 import { Toast } from './toast.js';
+import { iconNode } from './dom.js';
 import { STEPS, getStep } from './wizard-steps.js';
 
-const RASCUNHOS = new Collection(Keys.EDITAIS_RASCUNHO);
+const RASCUNHOS = new Collection(Keys.EDITAIS_RASCUNHOS);
 
 // =====================================================
 // Estado
@@ -19,23 +20,30 @@ const stepModules = new Map(); // cache de módulos importados
 
 function novoEstadoEdital() {
   return {
-    id: crypto.randomUUID(),
+    id: randomUUID(),
     status: 'rascunho',
     criadoEm: new Date().toISOString(),
     atualizadoEm: new Date().toISOString(),
     passoAtual: 1,
-    statusPorPasso: {}, // { 1: 'in-progress' | 'completed' | 'pending', ... }
+    statusPorPasso: {}, // { 1: 'emProgresso' | 'concluido' | 'pendente', ... }
     edital: {
-      tipo: null, // { tipoEditalId, codigo, nome }
+      tipo: null, // { codigo, nome }
       identificacao: {},
-      vagasModalidades: { cursos: [], modalidades: [], concorrenciaDupla: false, cascata: [] },
+      vagas: { cursos: [] },
+      distribuicaoModalidades: {
+        modalidades: [],
+        concorrenciaDupla: false,
+        percentuaisIbgeCodigo: null,
+        estrategiaBalanceamentoCodigo: null,
+        cascataRemanejamentoCodigo: null,
+      },
       etapas: [],
       formula: {},
       bonus: null,
       desempate: [],
       eliminacao: { notasMinimas: {}, clausulas: [] },
       documentos: [],
-      locais: [],
+      cidades: [],
       atendimento: [],
     },
   };
@@ -124,10 +132,10 @@ function el(tag, attrs = {}, ...children) {
 
 function statusIcon(status) {
   switch (status) {
-    case 'completed': return '✅';
-    case 'in-progress': return '⏳';
-    case 'warning': return '⚠️';
-    case 'blocked': return '🔒';
+    case 'concluido': return '✅';
+    case 'emProgresso': return '⏳';
+    case 'atencao': return '⚠️';
+    case 'bloqueado': return '🔒';
     default: return '○';
   }
 }
@@ -143,8 +151,8 @@ function renderSidebar() {
     const isCurrent = step.id === currentStepId;
     const isBlocked = !podeAcessar(step.id);
     const status = isBlocked
-      ? 'blocked'
-      : state.statusPorPasso[step.id] || 'pending';
+      ? 'bloqueado'
+      : state.statusPorPasso[step.id] || 'pendente';
 
     const button = el(
       'button',
@@ -197,7 +205,7 @@ async function loadStepModule(step) {
           el(
             'div',
             { class: 'empty-state' },
-            el('div', { class: 'empty-state-icon' }, step.icone),
+            el('div', { class: 'empty-state-icon' }, iconNode(step.icone)),
             el('h3', {}, step.titulo),
             el('p', {}, `Conteúdo do passo ${step.id} ainda não implementado neste protótipo.`),
             el('p', { class: 'text-small text-muted' }, 'Será adicionado na Etapa 4.')
@@ -219,7 +227,12 @@ async function renderStep() {
   const header = el(
     'div',
     { class: 'wizard-step-header' },
-    el('h2', { class: 'wizard-step-title' }, `${step.icone}  Passo ${step.id}: ${step.titulo}`)
+    el(
+      'h2',
+      { class: 'wizard-step-title' },
+      iconNode(step.icone),
+      `  Passo ${step.id}: ${step.titulo}`
+    )
   );
   content.appendChild(header);
 
@@ -319,7 +332,7 @@ export async function bootWizard(idParam) {
 async function showModalAbertura() {
   const { cloneFromModelo, cloneFromEditalPublicado } = await import('./clone.js');
   const modelos = new Collection(Keys.MODELOS).list({ includeInactive: false });
-  const publicados = new Collection(Keys.EDITAIS_PUBLICADO).list({ includeInactive: true });
+  const publicados = new Collection(Keys.EDITAIS_PUBLICADOS).list({ includeInactive: true });
 
   const overlay = el('div', { class: 'modal-overlay' });
 

@@ -4,23 +4,27 @@ import { Storage, Collection, Keys } from './storage.js';
 import { Toast } from './toast.js';
 
 function updateStats() {
-  const editaisRascunho = new Collection(Keys.EDITAIS_RASCUNHO).count({
+  const editaisRascunho = new Collection(Keys.EDITAIS_RASCUNHOS).count({
     includeInactive: true,
   });
-  const editaisPublicado = new Collection(Keys.EDITAIS_PUBLICADO).count({
+  const editaisPublicado = new Collection(Keys.EDITAIS_PUBLICADOS).count({
     includeInactive: true,
   });
   const modelos = new Collection(Keys.MODELOS).count({ includeInactive: true });
 
-  const catalogoCount = [
+  const configuracoesCount = [
     Keys.TIPOS_EDITAL,
     Keys.MODALIDADES,
     Keys.TIPOS_ETAPA,
-    Keys.LOCAIS_PROVA,
+    Keys.CIDADES_PROVA,
     Keys.NECESSIDADES,
     Keys.TIPOS_DOCUMENTO,
     Keys.CRITERIOS_DESEMPATE,
     Keys.OBRIGATORIEDADES,
+    Keys.PERCENTUAIS_IBGE,
+    Keys.ESTRATEGIAS_BALANCEAMENTO,
+    Keys.CASCATAS_REMANEJAMENTO,
+    Keys.CURSOS,
   ].reduce((sum, k) => sum + new Collection(k).count({ includeInactive: false }), 0);
 
   setStats(
@@ -28,7 +32,7 @@ function updateStats() {
     `${editaisRascunho} rascunho(s) · ${editaisPublicado} publicado(s)`
   );
   setStats('modelos', `${modelos} modelo(s)`);
-  setStats('catalogos', `${catalogoCount} entradas em 8 catálogos`);
+  setStats('configuracoes', `${configuracoesCount} entradas em 8 configurações`);
 }
 
 function setStats(name, value) {
@@ -38,7 +42,7 @@ function setStats(name, value) {
 
 async function resetData() {
   const ok = window.confirm(
-    'Isso vai apagar TODOS os dados do protótipo (editais, modelos, catálogos) e repopular os catálogos + 2 rascunhos demo. Continuar?'
+    'Isso vai apagar TODOS os dados do protótipo (editais, modelos, configurações) e repopular as configurações + 2 rascunhos demo. Continuar?'
   );
   if (!ok) return;
 
@@ -53,7 +57,7 @@ async function resetData() {
     const qtdModelos = await loadDemoModelos();
 
     Toast.success(
-      `Catálogos repopulados + ${qtdRascunhos} rascunho(s) e ${qtdModelos} modelo(s) demo criados.`
+      `Configurações repopulados + ${qtdRascunhos} rascunho(s) e ${qtdModelos} modelo(s) demo criados.`
     );
     updateStats();
   } catch (e) {
@@ -72,7 +76,7 @@ async function ensureSeedsLoaded() {
     loadDemoEditais();
     await loadDemoModelos();
 
-    Toast.info('Catálogos, rascunhos e modelos demo populados pela primeira vez.');
+    Toast.info('Configurações, rascunhos e modelos demo populados pela primeira vez.');
   } catch (e) {
     console.warn('Seeds ainda não disponíveis:', e.message);
   }

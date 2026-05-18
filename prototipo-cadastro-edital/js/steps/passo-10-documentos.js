@@ -6,8 +6,8 @@ import { el, checkbox } from '../dom.js';
 export async function render(container, ctx) {
   const { state, updateState, setStepStatus } = ctx;
   const documentos = state.edital.documentos || [];
-  const tiposCatalogo = new Collection(Keys.TIPOS_DOCUMENTO).list({ includeInactive: false });
-  const modalidadesEdital = state.edital.vagasModalidades?.modalidades || [];
+  const tiposDisponiveis = new Collection(Keys.TIPOS_DOCUMENTO).list({ includeInactive: false });
+  const modalidadesEdital = state.edital.distribuicaoModalidades?.modalidades || [];
 
   function findEntry(tipoCod, mod) {
     return documentos.find((d) => d.tipoDocumentoCodigo === tipoCod && d.modalidade === mod);
@@ -30,7 +30,7 @@ export async function render(container, ctx) {
 
   function avaliarStatus() {
     const d = state.edital.documentos;
-    setStepStatus(d.length > 0 ? 'completed' : 'pending');
+    setStepStatus(d.length > 0 ? 'concluido' : 'pendente');
   }
 
   container.innerHTML = '';
@@ -41,14 +41,14 @@ export async function render(container, ctx) {
     return;
   }
 
-  if (tiposCatalogo.length === 0) {
+  if (tiposDisponiveis.length === 0) {
     container.appendChild(el('p', { class: 'text-muted' }, 'Cadastre tipos de documento primeiro.'));
     return;
   }
 
   // Agrupa por categoria
   const porCategoria = new Map();
-  for (const t of tiposCatalogo) {
+  for (const t of tiposDisponiveis) {
     const cat = t.categoria || 'OUTROS';
     if (!porCategoria.has(cat)) porCategoria.set(cat, []);
     porCategoria.get(cat).push(t);

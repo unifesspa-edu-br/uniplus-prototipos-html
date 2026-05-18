@@ -1,0 +1,50 @@
+[
+  {
+    "codigo": "MARABA",
+    "nome": "Marabá",
+    "uf": "PA",
+    "municipio_ibge_id": "1504208",
+    "observacoes": "Sede da Unifesspa.",
+    "ativo": true
+  },
+  {
+    "codigo": "SANTANA",
+    "nome": "Santana do Araguaia",
+    "uf": "PA",
+    "municipio_ibge_id": "1506906",
+    "observacoes": "",
+    "ativo": true
+  },
+  {
+    "codigo": "SAO_FELIX",
+    "nome": "São Félix do Xingu",
+    "uf": "PA",
+    "municipio_ibge_id": "1507300",
+    "observacoes": "",
+    "ativo": true
+  },
+  {
+    "codigo": "CANAA",
+    "nome": "Canaã dos Carajás",
+    "uf": "PA",
+    "municipio_ibge_id": "1502152",
+    "observacoes": "Cidade-polo de PS Convênios.",
+    "ativo": true
+  },
+  {
+    "codigo": "RONDON",
+    "nome": "Rondon do Pará",
+    "uf": "PA",
+    "municipio_ibge_id": "1506187",
+    "observacoes": "",
+    "ativo": true
+  },
+  {
+    "codigo": "XINGUARA",
+    "nome": "Xinguara",
+    "uf": "PA",
+    "municipio_ibge_id": "1508357",
+    "observacoes": "",
+    "ativo": true
+  }
+]

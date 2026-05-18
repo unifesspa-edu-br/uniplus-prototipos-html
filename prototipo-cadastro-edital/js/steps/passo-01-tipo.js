@@ -20,7 +20,7 @@ export async function render(container, ctx) {
         { class: 'empty-state' },
         el('div', { class: 'empty-state-icon' }, '📭'),
         el('p', {}, 'Nenhum tipo de edital cadastrado.'),
-        el('a', { class: 'btn btn-primary mt-4', href: 'catalogo.html?slug=tipos-edital' }, 'Cadastrar tipos de edital')
+        el('a', { class: 'btn btn-primary mt-4', href: 'configuracao.html?slug=tipos-edital' }, 'Cadastrar tipos de edital')
       )
     );
     return;
@@ -29,7 +29,7 @@ export async function render(container, ctx) {
   const grid = el('div', { class: 'card-grid' });
 
   for (const tipo of tipos) {
-    const isSelected = state.edital.tipo?.tipoEditalId === tipo.id;
+    const isSelected = state.edital.tipo?.codigo === tipo.codigo;
 
     const card = el(
       'button',
@@ -56,7 +56,7 @@ export async function render(container, ctx) {
           { class: 'flex gap-2', style: 'flex-wrap: wrap; margin-top: 0.5rem' },
           tipo.permite_duas_opcoes_curso ? badge('2 opções', 'info') : null,
           tipo.exige_prova_presencial ? badge('Presencial', 'info') : null,
-          tipo.vagas_suplementares ? badge('Suplementares', 'warning') : null
+          tipo.vagas_suplementares ? badge('Suplementares', 'atencao') : null
         ),
         tipo.base_legal_referencia
           ? el('p', { class: 'text-small text-muted mt-2', style: 'font-style: italic' }, tipo.base_legal_referencia)
@@ -90,7 +90,7 @@ export async function render(container, ctx) {
 
 function selectTipo(tipo, state, updateState, setStepStatus, ctx) {
   // Se já há um tipo diferente selecionado, avisar
-  if (state.edital.tipo && state.edital.tipo.tipoEditalId !== tipo.id) {
+  if (state.edital.tipo && state.edital.tipo.codigo !== tipo.codigo) {
     if (!confirm('Trocar o tipo de edital invalida os defaults aplicados nos próximos passos. Continuar?')) {
       return;
     }
@@ -100,16 +100,15 @@ function selectTipo(tipo, state, updateState, setStepStatus, ctx) {
   const defaults = tipo.defaults || {};
   const patch = {
     tipo: {
-      tipoEditalId: tipo.id,
       codigo: tipo.codigo,
       nome: tipo.nome,
     },
   };
 
   // Pré-preencher campos derivados (apenas se ainda vazios — não sobrescreve trabalho do admin)
-  if (defaults.modalidades_sugeridas && (!state.edital.vagasModalidades.modalidades || state.edital.vagasModalidades.modalidades.length === 0)) {
-    patch.vagasModalidades = {
-      ...state.edital.vagasModalidades,
+  if (defaults.modalidades_sugeridas && (!state.edital.distribuicaoModalidades.modalidades || state.edital.distribuicaoModalidades.modalidades.length === 0)) {
+    patch.distribuicaoModalidades = {
+      ...state.edital.distribuicaoModalidades,
       modalidades: defaults.modalidades_sugeridas,
       concorrenciaDupla: defaults.concorrencia_dupla || false,
     };
@@ -147,7 +146,7 @@ function selectTipo(tipo, state, updateState, setStepStatus, ctx) {
   }
 
   updateState(patch);
-  setStepStatus('completed');
+  setStepStatus('concluido');
   Toast.success(`Tipo "${tipo.nome}" selecionado. Defaults aplicados.`);
 
   // Re-render

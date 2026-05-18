@@ -93,14 +93,14 @@
       function progresso(state) {
         const total = STEPS.length;
         const completos = Object.values(state.statusPorPasso || {}).filter(
-          (s) => s === 'completed'
+          (s) => s === 'concluido'
         ).length;
         return { completos, total };
       }
 
       function renderListaRascunhos() {
         const wrap = document.getElementById('lista-rascunhos');
-        const items = new Collection(Keys.EDITAIS_RASCUNHO).list({ includeInactive: true });
+        const items = new Collection(Keys.EDITAIS_RASCUNHOS).list({ includeInactive: true });
         wrap.innerHTML = '';
 
         if (items.length === 0) {
@@ -179,7 +179,7 @@
                   on: {
                     click: () => {
                       if (!confirm('Excluir este rascunho?')) return;
-                      new Collection(Keys.EDITAIS_RASCUNHO).hardDelete(item.id);
+                      new Collection(Keys.EDITAIS_RASCUNHOS).hardDelete(item.id);
                       Toast.warning('Rascunho excluído.');
                       renderListaRascunhos();
                     },
@@ -198,7 +198,7 @@
 
       function renderListaPublicados() {
         const wrap = document.getElementById('lista-publicados');
-        const items = new Collection(Keys.EDITAIS_PUBLICADO).list({ includeInactive: true });
+        const items = new Collection(Keys.EDITAIS_PUBLICADOS).list({ includeInactive: true });
         wrap.innerHTML = '';
 
         if (items.length === 0) {

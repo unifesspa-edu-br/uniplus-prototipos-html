@@ -6,7 +6,7 @@ import { el, field, select } from '../dom.js';
 export async function render(container, ctx) {
   const { state, updateState, setStepStatus } = ctx;
   const desempate = state.edital.desempate || [];
-  const criteriosCatalogo = new Collection(Keys.CRITERIOS_DESEMPATE).list({ includeInactive: false });
+  const criteriosDisponiveis = new Collection(Keys.CRITERIOS_DESEMPATE).list({ includeInactive: false });
   const etapas = state.edital.etapas || [];
 
   function updateDesempate(novo) {
@@ -16,7 +16,7 @@ export async function render(container, ctx) {
 
   function avaliarStatus() {
     const d = state.edital.desempate;
-    setStepStatus(d.length > 0 ? 'completed' : 'pending');
+    setStepStatus(d.length > 0 ? 'concluido' : 'pendente');
   }
 
   container.innerHTML = '';
@@ -28,7 +28,7 @@ export async function render(container, ctx) {
     const list = el('ol', { style: 'list-style: none; padding: 0; counter-reset: desempate' });
     for (let i = 0; i < desempate.length; i++) {
       const item = desempate[i];
-      const def = criteriosCatalogo.find((c) => c.codigo === item.codigo);
+      const def = criteriosDisponiveis.find((c) => c.codigo === item.codigo);
 
       const li = el(
         'li',
@@ -64,9 +64,9 @@ export async function render(container, ctx) {
               field(
                 'Etapa de referência',
                 select(
-                  item.etapaRef,
+                  item.etapaReferencia,
                   etapas.map((e, idx) => ({ value: e.tipoEtapaCodigo, label: `Etapa ${e.ordem || idx + 1} — ${e.tipoEtapaCodigo || '?'}` })),
-                  (v) => atualizarItem(i, 'etapaRef', v),
+                  (v) => atualizarItem(i, 'etapaReferencia', v),
                   { placeholder: '— escolher etapa —' }
                 )
               )
@@ -101,7 +101,7 @@ export async function render(container, ctx) {
   }
 
   // Adicionar critério
-  const disponiveis = criteriosCatalogo.filter((c) => !desempate.find((d) => d.codigo === c.codigo));
+  const disponiveis = criteriosDisponiveis.filter((c) => !desempate.find((d) => d.codigo === c.codigo));
   if (disponiveis.length > 0) {
     container.appendChild(
       field(
