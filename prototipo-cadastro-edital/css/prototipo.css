@@ -479,19 +479,19 @@ body {
   flex-shrink: 0;
 }
 
-.status-pending .wizard-step-icon {
+.status-pendente .wizard-step-icon {
   color: var(--text-muted);
 }
-.status-in-progress .wizard-step-icon {
+.status-emProgresso .wizard-step-icon {
   color: var(--warning-text);
 }
-.status-completed .wizard-step-icon {
+.status-concluido .wizard-step-icon {
   color: var(--success-text);
 }
-.status-warning .wizard-step-icon {
+.status-atencao .wizard-step-icon {
   color: var(--warning-text);
 }
-.status-blocked .wizard-step-icon {
+.status-bloqueado .wizard-step-icon {
   color: var(--border-default);
 }
 
@@ -522,6 +522,24 @@ body {
   font-weight: 600;
   color: var(--primary);
   margin: 0 0 0.5rem;
+}
+
+/* Ícone como imagem (SVG) — usado quando step.icone é um arquivo .svg.
+   Logo da ONU (acessibilidade) tem traços pretos invisíveis em fundo escuro,
+   então no tema escuro o filtro inverte luminância preservando o azul ciano. */
+.step-icon-img {
+  height: 1em;
+  width: auto;
+  vertical-align: -0.15em;
+  display: inline-block;
+}
+.empty-state-icon .step-icon-img {
+  opacity: 1;
+  display: block;
+  margin: 0 auto;
+}
+[data-theme='dark'] .step-icon-img {
+  filter: invert(1) hue-rotate(180deg);
 }
 
 .wizard-step-description {
@@ -674,7 +692,7 @@ body {
 }
 
 /* ============================================================
-   Tables (catálogos)
+   Tables (configurações)
    ============================================================ */
 .table-wrapper {
   background: var(--bg-surface);
@@ -864,15 +882,15 @@ body {
 }
 
 /* ============================================================
-   Catálogos hub
+   Configurações hub
    ============================================================ */
-.catalogo-hub-grid {
+.configuracao-hub-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
   gap: 1.25rem;
 }
 
-.catalogo-hub-card {
+.configuracao-hub-card {
   background: var(--bg-surface);
   border: var(--proto-border);
   border-radius: var(--proto-radius);
@@ -886,13 +904,13 @@ body {
   min-height: 150px;
 }
 
-.catalogo-hub-card:hover {
+.configuracao-hub-card:hover {
   border-color: var(--primary);
   box-shadow: var(--proto-shadow);
   transform: translateY(-2px);
 }
 
-.catalogo-hub-card h3 {
+.configuracao-hub-card h3 {
   font-size: 1rem;
   font-weight: 600;
   margin: 0;
@@ -900,7 +918,7 @@ body {
   line-height: 1.3;
 }
 
-.catalogo-hub-card p {
+.configuracao-hub-card p {
   font-size: 0.875rem;
   color: var(--text-secondary);
   margin: 0;
@@ -908,7 +926,7 @@ body {
   flex: 1;
 }
 
-.catalogo-hub-card .count {
+.configuracao-hub-card .count {
   display: inline-block;
   background: var(--primary-pastel-02);
   color: var(--primary);
@@ -967,7 +985,7 @@ body {
   color: var(--success-text);
 }
 
-.validation-status-warning {
+.validation-status-atencao {
   color: var(--warning-text);
 }
 

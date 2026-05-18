@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Uni+ · Catálogos</title>
+    <title>Uni+ · Configurações</title>
     <link
       rel="stylesheet"
       href="https://cdn.jsdelivr.net/npm/@govbr-ds/core@3.7.1/dist/core.min.css"
@@ -35,20 +35,20 @@
       <nav class="br-breadcrumb" aria-label="Breadcrumb">
         <ol class="crumb-list">
           <li class="crumb home"><a href="index.html">Início</a></li>
-          <li class="crumb">Catálogos</li>
+          <li class="crumb">Configurações</li>
         </ol>
       </nav>
 
       <section class="br-section">
-        <h1 class="section-title">Catálogos</h1>
+        <h1 class="section-title">Configurações</h1>
         <p class="section-description">
-          Os catálogos são <strong>editáveis pelo administrador</strong> e
+          As configurações são <strong>editáveis pelo administrador</strong> e
           alimentam o wizard de cadastro de edital. Quando uma lei muda
           (modalidades, obrigatoriedades, base legal de desempate), atualize aqui
           — sem deploy.
         </p>
 
-        <div class="catalogo-hub-grid" id="catalogos-hub"></div>
+        <div class="configuracao-hub-grid" id="configuracoes-hub"></div>
       </section>
     </main>
 
@@ -65,16 +65,20 @@
     <script type="module" src="js/theme.js"></script>
     <script type="module">
       import { Collection } from './js/storage.js';
-      import { listCatalogos } from './js/catalog-schemas.js';
+      import { listConfiguracoes } from './js/configuracao-schemas.js';
 
-      const hub = document.getElementById('catalogos-hub');
-      for (const cat of listCatalogos()) {
+      const hub = document.getElementById('configuracoes-hub');
+      for (const cat of listConfiguracoes()) {
         const count = new Collection(cat.key).count({ includeInactive: false });
         const card = document.createElement('a');
-        card.className = 'catalogo-hub-card';
-        card.href = `catalogo.html?slug=${cat.slug}`;
+        card.className = 'configuracao-hub-card';
+        card.href = `configuracao.html?slug=${cat.slug}`;
+        const iconHtml =
+          typeof cat.icone === 'string' && cat.icone.endsWith('.svg')
+            ? `<img class="step-icon-img" src="${cat.icone}" alt="" aria-hidden="true">`
+            : cat.icone;
         card.innerHTML = `
-          <h3>${cat.icone} ${cat.titulo}</h3>
+          <h3>${iconHtml} ${cat.titulo}</h3>
           <p>${cat.descricao}</p>
           <span class="count">${count} entrada${count === 1 ? '' : 's'} ativa${count === 1 ? '' : 's'}</span>
         `;

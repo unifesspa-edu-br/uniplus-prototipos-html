@@ -1,0 +1,43 @@
+[
+  {
+    "codigo": "PORTARIA_MEC_704_2025",
+    "nome": "Portaria MEC 704/2025 — padrão SiSU",
+    "descricao": "Cascata canônica aplicável ao SiSU e processos com sistema completo de cotas (Lei 12.711/2012 + 14.723/2023). 8 origens × 7 destinos, com AC como fallback final.",
+    "base_legal": "Portaria MEC 704/2025, Anexo I (Tabela de remanejamento de vagas)",
+    "fallback_codigo": "AC",
+    "ordens": {
+      "LB_PPI": ["LB_Q", "LB_PcD", "LB_EP", "LI_PPI", "LI_Q", "LI_PcD", "LI_EP"],
+      "LB_Q":   ["LB_PPI", "LB_PcD", "LB_EP", "LI_PPI", "LI_Q", "LI_PcD", "LI_EP"],
+      "LB_PcD": ["LB_PPI", "LB_Q", "LB_EP", "LI_PPI", "LI_Q", "LI_PcD", "LI_EP"],
+      "LB_EP":  ["LB_PPI", "LB_Q", "LB_PcD", "LI_PPI", "LI_Q", "LI_PcD", "LI_EP"],
+      "LI_PPI": ["LB_PPI", "LB_Q", "LB_PcD", "LB_EP", "LI_Q", "LI_PcD", "LI_EP"],
+      "LI_Q":   ["LB_PPI", "LB_Q", "LB_PcD", "LB_EP", "LI_PPI", "LI_PcD", "LI_EP"],
+      "LI_PcD": ["LB_PPI", "LB_Q", "LB_PcD", "LB_EP", "LI_PPI", "LI_Q", "LI_EP"],
+      "LI_EP":  ["LB_PPI", "LB_Q", "LB_PcD", "LB_EP", "LI_PPI", "LI_Q", "LI_PcD"]
+    },
+    "ativo": true
+  },
+  {
+    "codigo": "PSIQ_RES_532",
+    "nome": "PSIQ — Resolução Unifesspa 532/2021",
+    "descricao": "Remanejamento exclusivo do Processo Seletivo Indígena/Quilombola. Vagas indígenas não preenchidas vão para quilombolas e vice-versa, condicionado a não haver candidato na lista de espera da origem. AC é fallback final.",
+    "base_legal": "Resolução CONSEPE/Unifesspa 532/2021, Art. 2º Parágrafo único",
+    "fallback_codigo": "AC",
+    "ordens": {
+      "PSIQ_I": ["PSIQ_Q"],
+      "PSIQ_Q": ["PSIQ_I"]
+    },
+    "ativo": true
+  },
+  {
+    "codigo": "PSE_EDUCACAO_CAMPO",
+    "nome": "PSE Educação do Campo — vagas PcD → AC",
+    "descricao": "Cascata simplificada do Processo Seletivo Especial. Vagas PcD não preenchidas são redirecionadas direto à Ampla Concorrência (sem cadeia intermediária).",
+    "base_legal": "sistema-cotas-e-vagas.md (Remanejamento no PSE Educação do Campo)",
+    "fallback_codigo": "AC",
+    "ordens": {
+      "V": []
+    },
+    "ativo": true
+  }
+]

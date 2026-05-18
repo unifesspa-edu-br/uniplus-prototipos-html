@@ -2,12 +2,13 @@
 
 import { Collection, Keys } from './storage.js';
 import { Toast } from './toast.js';
-import { el, badge } from './dom.js';
+import { el, badge, iconNode } from './dom.js';
+import { renderMatrizDistribuicao } from './distribuicao-vagas.js';
 import { exportAsJson } from './snapshot.js';
 import { cloneFromEditalPublicado } from './clone.js';
 
-const PUBLICADOS = new Collection(Keys.EDITAIS_PUBLICADO);
-const RASCUNHOS = new Collection(Keys.EDITAIS_RASCUNHO);
+const PUBLICADOS = new Collection(Keys.EDITAIS_PUBLICADOS);
+const RASCUNHOS = new Collection(Keys.EDITAIS_RASCUNHOS);
 
 const NOMES_AGREGACAO = {
   MEDIA_PONDERADA: 'Média Ponderada — Σ(nota×peso) / Σ pesos',
@@ -229,6 +230,7 @@ function renderVagasModalidades(snapshot) {
     tabela(
       [
         { label: 'Curso', key: 'curso' },
+        { label: 'Grau', key: 'grau' },
         { label: 'Campus', key: 'campus' },
         { label: 'Turno', key: 'turno' },
         { label: 'Vagas', key: 'vagas', width: '80px' },
@@ -239,12 +241,12 @@ function renderVagasModalidades(snapshot) {
     tabela(
       [
         { label: 'Código', key: 'codigo', width: '110px' },
-        { label: 'Nome', key: 'nome_completo' },
+        { label: 'Nome', key: 'nome' },
         {
           label: 'Requisitos',
           render: (m) => {
             const tags = [];
-            if (m.exige_heteroidentificacao) tags.push(badge('Heteroid.', 'warning'));
+            if (m.exige_heteroidentificacao) tags.push(badge('Heteroid.', 'atencao'));
             if (m.exige_comprovacao_renda) tags.push(badge('Renda', 'info'));
             if (m.exige_laudo_pcd) tags.push(badge('Laudo PcD', 'info'));
             if (m.exige_declaracao_quilombola) tags.push(badge(`${m.liderancas_minimas} lid.`, 'info'));
@@ -256,7 +258,97 @@ function renderVagasModalidades(snapshot) {
         { label: 'Base legal', render: (m) => el('span', { class: 'text-small' }, m.base_legal) },
       ],
       modalidades
+    ),
+    snapshot.percentuais_ibge ? renderPercentuaisIbge(snapshot.percentuais_ibge) : null,
+    renderDistribuicaoCongelada(snapshot),
+    snapshot.cascata_remanejamento ? renderCascataCongelada(snapshot.cascata_remanejamento) : null
+  );
+}
+
+function renderCascataCongelada(cascata) {
+  const ordens = Object.entries(cascata.ordens || {});
+  return el(
+    'div',
+    {},
+    el(
+      'h3',
+      { style: 'font-size: 0.875rem; font-weight: 600; margin: 1.5rem 0 0.5rem' },
+      '🔀 Cascata de remanejamento congelada (RN08)'
+    ),
+    el(
+      'div',
+      { class: 'text-small text-muted', style: 'margin-bottom: 0.5rem' },
+      el('strong', {}, `${cascata.codigo}: `),
+      cascata.nome,
+      cascata.base_legal ? ` · ${cascata.base_legal}` : '',
+      ` · fallback ${cascata.fallback_codigo || 'AC'}`
+    ),
+    tabela(
+      [
+        { label: 'Origem', render: (e) => el('span', { style: 'font-family: monospace; font-weight: 600' }, e[0]) },
+        {
+          label: 'Ordem de destinos',
+          render: (e) =>
+            el(
+              'span',
+              { style: 'font-family: monospace; font-size: 0.875rem' },
+              (e[1] || []).length > 0
+                ? (e[1]).join(' → ')
+                : `→ ${cascata.fallback_codigo || 'AC'} (fallback direto)`
+            ),
+        },
+      ],
+      ordens,
+      { empty: 'Sem origens configuradas — todas as vagas remanescentes vão para o fallback.' }
     )
+  );
+}
+
+function renderPercentuaisIbge(ibge) {
+  return el(
+    'div',
+    {},
+    el('h3', { style: 'font-size: 0.875rem; font-weight: 600; margin: 1.5rem 0 0.5rem' }, '📊 Percentuais demográficos congelados (RN08)'),
+    el(
+      'div',
+      {
+        style:
+          'padding: 0.75rem 1rem; background: var(--primary-pastel-02); border-radius: 4px; display: flex; gap: 1.5rem; flex-wrap: wrap; align-items: center; font-size: 0.875rem',
+      },
+      el('span', {}, el('strong', {}, `${ibge.codigo}: `), ibge.nome),
+      el('span', {}, el('strong', {}, 'PPI: '), `${ibge.ppi}%`),
+      el('span', {}, el('strong', {}, 'Q: '), `${ibge.q}%`),
+      el('span', {}, el('strong', {}, 'PcD: '), `${ibge.pcd}%`),
+      el('span', { class: 'text-muted text-small' }, `${ibge.uf} · Censo ${ibge.ano_censo}`)
+    ),
+    ibge.fonte
+      ? el('div', { class: 'text-muted text-small', style: 'margin-top: 0.25rem' }, `Fonte: ${ibge.fonte}`)
+      : null
+  );
+}
+
+function renderDistribuicaoCongelada(snapshot) {
+  const ibge = snapshot.percentuais_ibge;
+  if (!ibge) return null;
+  const cursos = snapshot.vagas || [];
+  const modalidadesSelecionadas = (snapshot.modalidades || []).map((m) => m.codigo);
+  const regra = snapshot.estrategia_balanceamento;
+  return el(
+    'div',
+    {},
+    el(
+      'h3',
+      { style: 'font-size: 0.875rem; font-weight: 600; margin: 1.5rem 0 0.5rem' },
+      '🧮 Distribuição de vagas por modalidade (derivada do snapshot)'
+    ),
+    el(
+      'p',
+      { class: 'text-muted text-small', style: 'margin: 0 0 0.5rem' },
+      'Função pura dos valores congelados: ',
+      el('code', {}, `${cursos.length} curso(s) × {ppi=${ibge.ppi}, q=${ibge.q}, pcd=${ibge.pcd}} · regra=${regra?.codigo || 'MINIMO_GARANTIDO_ESTOURA (default)'}`),
+      '. Reproduzível: alterar Percentuais demográficos ou Estratégias de balanceamento depois da publicação não muda esta matriz.'
+    ),
+    renderMatrizDistribuicao(cursos, ibge, modalidadesSelecionadas, regra)
   );
 }
 
@@ -293,7 +385,7 @@ function renderEtapas(snapshot) {
             const cat = e.tipo?.categoria;
             if (cat === 'ADMINISTRATIVA') return badge('Adm', 'info');
             if (cat === 'AVALIATIVA') return badge('Aval', 'success');
-            if (cat === 'IMPORTACAO_AUTOMATICA') return badge('Imp', 'warning');
+            if (cat === 'IMPORTACAO_AUTOMATICA') return badge('Imp', 'atencao');
             return '—';
           },
           width: '90px',
@@ -331,7 +423,7 @@ function renderEtapas(snapshot) {
         },
         {
           label: 'Eliminatória?',
-          render: (e) => (e.eliminatoria ? badge('Sim', 'warning') : '—'),
+          render: (e) => (e.eliminatoria ? badge('Sim', 'atencao') : '—'),
           width: '110px',
         },
       ],
@@ -458,23 +550,59 @@ function renderDocumentos(snapshot) {
   return section('📄 Documentos por modalidade', conteudo);
 }
 
-function renderLocais(snapshot) {
-  const locais = snapshot.locais || [];
+function renderCidades(snapshot) {
+  const cidades = snapshot.cidades || [];
+  const totalCursosEdital = (snapshot.vagas || []).length;
   return section(
-    '📍 Locais de prova',
+    el(
+      'span',
+      {},
+      '📍 Cidades de prova ',
+      el('span', { class: 'text-small text-muted', style: 'font-weight: 400' }, '(local exato definido pelo ensalamento)')
+    ),
     tabela(
       [
-        { label: 'Local', render: (l) => l.local?.nome || l.local?.codigo || '?' },
-        { label: 'Município', render: (l) => `${l.local?.municipio || ''}/${l.local?.uf || ''}`.replace(/^\/+|\/+$/g, '') },
-        { label: 'Capacidade', key: 'capacidade_neste_edital', width: '110px' },
+        { label: 'Cidade', render: (c) => `${c.cidade?.nome || '?'} (${c.cidade?.uf || '?'})` },
         {
-          label: 'Sessões',
-          render: (l) => `${(l.sessoes || []).length} sessão(ões)`,
-          width: '120px',
+          label: 'Capacidade máx.',
+          width: '130px',
+          render: (c) =>
+            c.capacidade_maxima
+              ? el('span', { style: 'font-family: monospace' }, String(c.capacidade_maxima))
+              : el('span', { class: 'text-muted text-small' }, 'sem limite'),
+        },
+        {
+          label: 'Cursos com prova nesta cidade',
+          render: (c) => {
+            const cursos = c.cursos || [];
+            if (cursos.length === 0) {
+              return el('span', { class: 'text-muted' }, '— nenhum curso —');
+            }
+            if (cursos.length === totalCursosEdital && totalCursosEdital > 0) {
+              return el(
+                'span',
+                {},
+                badge(`Todos os ${cursos.length} cursos do edital`, 'success'),
+                ' ',
+                el('span', { class: 'text-muted text-small' }, cursos.map((cu) => cu.curso).join(', '))
+              );
+            }
+            return el(
+              'div',
+              { style: 'display: flex; gap: 0.25rem; flex-wrap: wrap' },
+              ...cursos.map((cu) =>
+                el(
+                  'span',
+                  { class: 'tag', style: 'font-size: 0.75rem' },
+                  `${cu.curso} · ${cu.grau?.substring(0, 4)} · ${cu.campus}`
+                )
+              )
+            );
+          },
         },
       ],
-      locais,
-      { empty: 'Nenhum local configurado.' }
+      cidades,
+      { empty: 'Nenhuma cidade configurada — esta inscrição não exige escolha de cidade pelo candidato (ex.: SiSU classifica via ENEM, sem prova local).' }
     )
   );
 }
@@ -482,7 +610,7 @@ function renderLocais(snapshot) {
 function renderAtendimento(snapshot) {
   const atendimento = snapshot.atendimento_especial || [];
   return section(
-    '♿ Atendimento especial',
+    el('span', {}, iconNode('img/Accessibility_logo.svg'), ' Atendimento especial'),
     atendimento.length === 0
       ? el('p', { class: 'text-muted' }, 'Nenhuma necessidade configurada.')
       : el(
@@ -529,7 +657,7 @@ function renderObrigatoriedades(snapshot) {
           el(
             'div',
             { style: 'flex: 1' },
-            el('div', { style: 'font-weight: 500; font-size: 0.875rem' }, r.regra.descricao_humana),
+            el('div', { style: 'font-weight: 500; font-size: 0.875rem' }, r.regra.descricao),
             el('div', { class: 'text-small text-muted', style: 'font-style: italic' }, r.regra.base_legal)
           )
         )
@@ -558,7 +686,7 @@ function renderEdital(item) {
   root.appendChild(renderDesempate(snapshot));
   root.appendChild(renderEliminacao(snapshot));
   root.appendChild(renderDocumentos(snapshot));
-  root.appendChild(renderLocais(snapshot));
+  root.appendChild(renderCidades(snapshot));
   root.appendChild(renderAtendimento(snapshot));
   const obrig = renderObrigatoriedades(snapshot);
   if (obrig) root.appendChild(obrig);

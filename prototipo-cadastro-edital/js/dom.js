@@ -59,7 +59,13 @@ export function checkbox(label, value, onChange) {
   if (value) cb.setAttribute('checked', '');
   cb.addEventListener('change', () => onChange(cb.checked));
   wrap.appendChild(cb);
-  wrap.appendChild(document.createTextNode(' ' + label));
+  // Aceita Node (ex.: <strong>) ou string como label
+  if (label instanceof Node) {
+    wrap.appendChild(document.createTextNode(' '));
+    wrap.appendChild(label);
+  } else {
+    wrap.appendChild(document.createTextNode(' ' + label));
+  }
   return wrap;
 }
 
@@ -81,6 +87,23 @@ export function select(value, options, onChange, opts = {}) {
 
 export function dateInput(value, onChange) {
   return input(value, onChange, { type: 'date' });
+}
+
+/**
+ * Renderiza um ícone como Node — `<img>` quando o valor termina em `.svg`
+ * (caminho de arquivo) ou nó de texto para emojis. Permite que campos `icone`
+ * das configurações/passos aceitem tanto emoji quanto SVG sem ramificações no chamador.
+ */
+export function iconNode(icone) {
+  if (typeof icone === 'string' && icone.endsWith('.svg')) {
+    const img = document.createElement('img');
+    img.src = icone;
+    img.alt = '';
+    img.setAttribute('aria-hidden', 'true');
+    img.className = 'step-icon-img';
+    return img;
+  }
+  return document.createTextNode(icone);
 }
 
 export function badge(text, type = 'info') {

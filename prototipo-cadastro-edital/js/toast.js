@@ -32,7 +32,7 @@ export function toast(message, type = 'info', duration = DEFAULT_DURATION) {
 
 export const Toast = {
   success: (msg, dur) => toast(msg, 'success', dur),
-  warning: (msg, dur) => toast(msg, 'warning', dur),
+  warning: (msg, dur) => toast(msg, 'atencao', dur),
   error: (msg, dur) => toast(msg, 'error', dur),
   info: (msg, dur) => toast(msg, 'info', dur),
 };

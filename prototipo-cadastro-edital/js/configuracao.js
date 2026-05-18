@@ -1,8 +1,9 @@
-// catalog.js — render genérico de CRUD de catálogo (lista + formulário modal).
+// configuracao.js — render genérico de CRUD de configuração (lista + formulário modal).
 
 import { Collection } from './storage.js';
-import { CATALOGOS, getCatalogo } from './catalog-schemas.js';
+import { CONFIGURACOES, getConfiguracao } from './configuracao-schemas.js';
 import { Toast } from './toast.js';
+import { iconNode } from './dom.js';
 
 let currentSlug = null;
 let currentDef = null;
@@ -33,7 +34,7 @@ function el(tag, attrs = {}, ...children) {
 }
 
 function renderHeader() {
-  const header = $('#catalogo-header');
+  const header = $('#configuracao-header');
   if (!header) return;
   header.innerHTML = '';
   header.appendChild(
@@ -43,7 +44,7 @@ function renderHeader() {
       el(
         'div',
         {},
-        el('h1', { class: 'section-title' }, `${currentDef.icone} ${currentDef.titulo}`),
+        el('h1', { class: 'section-title' }, iconNode(currentDef.icone), ` ${currentDef.titulo}`),
         el('p', { class: 'section-description', html: currentDef.descricao })
       ),
       el(
@@ -51,8 +52,8 @@ function renderHeader() {
         { class: 'flex gap-2' },
         el(
           'a',
-          { href: 'catalogos.html', class: 'btn btn-ghost' },
-          '← Voltar aos catálogos'
+          { href: 'configuracoes.html', class: 'btn btn-ghost' },
+          '← Voltar aas configurações'
         ),
         el(
           'button',
@@ -88,7 +89,7 @@ function formatCellValue(value, coluna) {
 }
 
 function renderTable() {
-  const wrapper = $('#catalogo-table');
+  const wrapper = $('#configuracao-table');
   if (!wrapper) return;
   wrapper.innerHTML = '';
 
@@ -187,6 +188,222 @@ function getFieldValue(field, value) {
   return value == null ? '' : String(value);
 }
 
+/**
+ * Editor visual da cascata de remanejamento em 2 etapas:
+ *   1) Usuário marca quais modalidades participam (checkboxes)
+ *   2) Sistema gera/sincroniza a estrutura automaticamente; usuário reordena destinos
+ *
+ * Merge inteligente: ao marcar/desmarcar uma modalidade, preserva ordens
+ * já ajustadas; adiciona novas no fim; remove as que saíram.
+ * O valor salvo continua sendo um objeto { origem: [destinos...] }.
+ */
+function renderCascataOrdens(field, value) {
+  const ordens = JSON.parse(JSON.stringify(value || {}));
+
+  const modCol = new Collection(getConfiguracao('modalidades').key);
+  const modalidades = modCol.list({ includeInactive: false });
+
+  const wrapper = el('div', {
+    name: field.campo,
+    style:
+      'border: 1px solid var(--border-default); border-radius: 4px; padding: 0.75rem; background: var(--bg-surface-alt);',
+  });
+  wrapper._getValue = () => JSON.parse(JSON.stringify(ordens));
+
+  function sincronizar(participantes) {
+    // Origens removidas: deletar do objeto
+    for (const origem of Object.keys(ordens)) {
+      if (!participantes.includes(origem)) delete ordens[origem];
+    }
+    // Origens adicionadas: criar com destinos iniciais = outras participantes em ordem
+    for (const m of participantes) {
+      if (!ordens[m]) {
+        ordens[m] = participantes.filter((x) => x !== m);
+      } else {
+        // Origem que continua: limpar destinos que saíram + adicionar novos no fim
+        ordens[m] = ordens[m].filter((d) => participantes.includes(d));
+        for (const novo of participantes) {
+          if (novo !== m && !ordens[m].includes(novo)) ordens[m].push(novo);
+        }
+      }
+    }
+  }
+
+  function rerender() {
+    wrapper.innerHTML = '';
+
+    // ===== Etapa 1: Seleção de participantes =====
+    wrapper.appendChild(
+      el(
+        'div',
+        { class: 'form-help', style: 'margin-bottom: 0.5rem' },
+        'Marque as modalidades que vão compor a cascata. A estrutura é gerada automaticamente.'
+      )
+    );
+
+    const grid = el('div', {
+      style:
+        'display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 0.25rem; margin-bottom: 0.75rem',
+    });
+    const participantes = Object.keys(ordens);
+    for (const m of modalidades) {
+      const marcado = participantes.includes(m.codigo);
+      const cb = el(
+        'label',
+        {
+          style:
+            'display: flex; gap: 0.5rem; align-items: center; padding: 0.25rem 0.5rem; background: var(--bg-surface); border: 1px solid var(--border-default); border-radius: 4px; cursor: pointer; font-size: 0.875rem',
+        },
+        (() => {
+          const i = el('input', { type: 'checkbox' });
+          if (marcado) i.setAttribute('checked', '');
+          i.addEventListener('change', () => {
+            const atualParticipantes = Object.keys(ordens);
+            const novos = i.checked
+              ? [...atualParticipantes, m.codigo]
+              : atualParticipantes.filter((x) => x !== m.codigo);
+            sincronizar(novos);
+            rerender();
+          });
+          return i;
+        })(),
+        el('span', { style: 'font-family: monospace; font-weight: 600' }, m.codigo)
+      );
+      grid.appendChild(cb);
+    }
+    wrapper.appendChild(grid);
+
+    // ===== Etapa 2: Cascata gerada =====
+    const origens = Object.keys(ordens);
+    if (origens.length === 0) {
+      wrapper.appendChild(
+        el(
+          'p',
+          { class: 'text-small text-muted', style: 'margin: 0' },
+          'Nenhuma modalidade marcada. Marque ao menos uma acima para gerar a cascata.'
+        )
+      );
+      return;
+    }
+
+    wrapper.appendChild(
+      el(
+        'div',
+        { style: 'border-top: 1px solid var(--border-default); padding-top: 0.5rem; margin-bottom: 0.5rem' },
+        el('strong', { style: 'font-size: 0.875rem' }, 'Cascata gerada — ajuste a ordem dos destinos:')
+      )
+    );
+
+    for (const origem of origens) {
+      wrapper.appendChild(renderCard(origem));
+    }
+  }
+
+  function renderCard(origem) {
+    const destinos = ordens[origem] || [];
+    const card = el('div', {
+      style:
+        'border: 1px solid var(--border-default); border-radius: 4px; padding: 0.5rem 0.75rem; margin-bottom: 0.5rem; background: var(--bg-surface);',
+    });
+
+    card.appendChild(
+      el(
+        'div',
+        { style: 'margin-bottom: 0.25rem' },
+        el('strong', { style: 'font-family: monospace' }, origem),
+        el('span', { class: 'text-small text-muted' }, ' → destinos em ordem de prioridade:')
+      )
+    );
+
+    if (destinos.length === 0) {
+      card.appendChild(
+        el(
+          'div',
+          { class: 'text-small text-muted', style: 'padding: 0.25rem 0; font-style: italic' },
+          'Sem destinos — vagas não preenchidas vão direto para o fallback.'
+        )
+      );
+      return card;
+    }
+
+    const lista = el('ol', { style: 'list-style: none; padding-left: 0; margin: 0.25rem 0' });
+    destinos.forEach((d, idx) => {
+      lista.appendChild(
+        el(
+          'li',
+          { style: 'display: flex; align-items: center; gap: 0.25rem; padding: 0.125rem 0' },
+          el('span', { class: 'text-small text-muted', style: 'min-width: 1.5em' }, `${idx + 1}.`),
+          el('span', { style: 'flex: 1; font-family: monospace; font-size: 0.875rem' }, d),
+          (() => {
+            const b = el(
+              'button',
+              {
+                type: 'button',
+                class: 'btn btn-ghost btn-small',
+                title: 'Subir',
+                on: {
+                  click: () => {
+                    if (idx === 0) return;
+                    const novos = [...destinos];
+                    [novos[idx - 1], novos[idx]] = [novos[idx], novos[idx - 1]];
+                    ordens[origem] = novos;
+                    rerender();
+                  },
+                },
+              },
+              '⬆'
+            );
+            if (idx === 0) b.setAttribute('disabled', '');
+            return b;
+          })(),
+          (() => {
+            const b = el(
+              'button',
+              {
+                type: 'button',
+                class: 'btn btn-ghost btn-small',
+                title: 'Descer',
+                on: {
+                  click: () => {
+                    if (idx === destinos.length - 1) return;
+                    const novos = [...destinos];
+                    [novos[idx], novos[idx + 1]] = [novos[idx + 1], novos[idx]];
+                    ordens[origem] = novos;
+                    rerender();
+                  },
+                },
+              },
+              '⬇'
+            );
+            if (idx === destinos.length - 1) b.setAttribute('disabled', '');
+            return b;
+          })(),
+          el(
+            'button',
+            {
+              type: 'button',
+              class: 'btn btn-ghost btn-small',
+              title: 'Remover este destino desta origem',
+              on: {
+                click: () => {
+                  ordens[origem] = destinos.filter((_, i) => i !== idx);
+                  rerender();
+                },
+              },
+            },
+            '×'
+          )
+        )
+      );
+    });
+    card.appendChild(lista);
+    return card;
+  }
+
+  rerender();
+  return wrapper;
+}
+
 function renderField(field, value) {
   const id = `field-${field.campo}`;
   const wrapper = el(
@@ -223,6 +440,10 @@ function renderField(field, value) {
       input.value = getFieldValue(field, value);
       break;
 
+    case 'cascata-ordens':
+      input = renderCascataOrdens(field, value);
+      break;
+
     case 'select':
       input = el('select', { id, name: field.campo, class: 'form-select' });
       input.appendChild(el('option', { value: '' }, '— selecione —'));
@@ -234,7 +455,7 @@ function renderField(field, value) {
       break;
 
     case 'ref': {
-      const refDef = getCatalogo(field.refKey);
+      const refDef = getConfiguracao(field.refKey);
       const refColl = refDef ? new Collection(refDef.key) : null;
       const refItems = refColl ? refColl.list({ includeInactive: false }) : [];
       input = el('select', { id, name: field.campo, class: 'form-select' });
@@ -348,6 +569,9 @@ function buildItemFromForm(form) {
           }
         }
         break;
+      case 'cascata-ordens':
+        value = input._getValue ? input._getValue() : {};
+        break;
       default:
         value = input.value.trim() === '' ? null : input.value.trim();
     }
@@ -371,7 +595,7 @@ function openForm(item = null) {
 
   const title = item ? `Editar ${currentDef.titulo}` : `Novo ${currentDef.titulo.replace(/s$/, '')}`;
 
-  const form = el('form', { id: 'catalogo-form' });
+  const form = el('form', { id: 'configuracao-form' });
   const formGrid = el('div', { class: 'form-grid' });
   for (const field of currentDef.campos) {
     formGrid.appendChild(renderField(field, item ? item[field.campo] : undefined));
@@ -434,17 +658,17 @@ function closeModal() {
   $('#modal-overlay')?.remove();
 }
 
-export function renderCatalogo(slug) {
+export function renderConfiguracao(slug) {
   currentSlug = slug;
-  currentDef = getCatalogo(slug);
+  currentDef = getConfiguracao(slug);
 
   if (!currentDef) {
-    $('#catalogo-header').innerHTML = `<p class="empty-state">Catálogo "${slug}" não encontrado.</p>`;
+    $('#configuracao-header').innerHTML = `<p class="empty-state">Configuração "${slug}" não encontrado.</p>`;
     return;
   }
 
   currentCollection = new Collection(currentDef.key);
-  document.title = `Uni+ · Catálogo · ${currentDef.titulo}`;
+  document.title = `Uni+ · Configuração · ${currentDef.titulo}`;
 
   renderHeader();
   renderTable();

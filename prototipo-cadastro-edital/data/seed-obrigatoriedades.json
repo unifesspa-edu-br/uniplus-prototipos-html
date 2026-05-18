@@ -6,7 +6,7 @@
     "parametros": {
       "tipo_etapa": "INSCRICAO_CANDIDATOS"
     },
-    "descricao_humana": "Todo edital deve ter etapa de Inscrição de candidatos com janela definida.",
+    "descricao": "Todo edital deve ter etapa de Inscrição de candidatos com janela definida.",
     "base_legal": "Lei 14.129/2021 (Governo Digital) art. 3º; Constituição Federal art. 37",
     "data_vigencia_inicio": "2021-03-30",
     "data_vigencia_fim": null
@@ -18,7 +18,7 @@
     "parametros": {
       "tipo_etapa": "HOMOLOGACAO_INSCRICOES"
     },
-    "descricao_humana": "Todo edital deve ter etapa de Homologação das inscrições para análise dos documentos enviados.",
+    "descricao": "Todo edital deve ter etapa de Homologação das inscrições para análise dos documentos enviados.",
     "base_legal": "Lei 13.709/2018 (LGPD) art. 7º; transparência administrativa",
     "data_vigencia_inicio": "2020-08-01",
     "data_vigencia_fim": null
@@ -30,7 +30,7 @@
     "parametros": {
       "tipo_etapa": "DIVULGACAO_RESULTADO_FINAL"
     },
-    "descricao_humana": "Todo edital deve ter etapa de Divulgação do resultado final para encerramento oficial.",
+    "descricao": "Todo edital deve ter etapa de Divulgação do resultado final para encerramento oficial.",
     "base_legal": "Lei 12.527/2011 (LAI) art. 8º; princípio da publicidade",
     "data_vigencia_inicio": "2012-05-16",
     "data_vigencia_fim": null
@@ -42,7 +42,7 @@
     "parametros": {
       "tipo_etapa": "BANCA_HETEROIDENTIFICACAO"
     },
-    "descricao_humana": "Editais PSIQ devem ter banca de heteroidentificação para validação de autodeclaração.",
+    "descricao": "Editais PSIQ devem ter banca de heteroidentificação para validação de autodeclaração.",
     "base_legal": "IN MGI 23/2023; Resolução Unifesspa 532/2021",
     "data_vigencia_inicio": "2021-06-01",
     "data_vigencia_fim": null
@@ -54,7 +54,7 @@
     "parametros": {
       "modalidades": ["PSIQ_I", "PSIQ_Q"]
     },
-    "descricao_humana": "Editais PSIQ devem oferecer pelo menos as modalidades indígena (PSIQ_I) e quilombola (PSIQ_Q).",
+    "descricao": "Editais PSIQ devem oferecer pelo menos as modalidades indígena (PSIQ_I) e quilombola (PSIQ_Q).",
     "base_legal": "Resolução Unifesspa 532/2021",
     "data_vigencia_inicio": "2021-06-01",
     "data_vigencia_fim": null
@@ -66,7 +66,7 @@
     "parametros": {
       "modalidades": ["AC", "V", "LB_PPI", "LB_Q", "LB_PcD", "LB_EP", "LI_PPI", "LI_Q", "LI_PcD", "LI_EP"]
     },
-    "descricao_humana": "Editais SiSU devem oferecer ampla concorrência, vaga PcD e as 8 modalidades de cota da Lei 14.723/2023.",
+    "descricao": "Editais SiSU devem oferecer ampla concorrência, vaga PcD e as 8 modalidades de cota da Lei 14.723/2023.",
     "base_legal": "Lei 12.711/2012 atualizada pela Lei 14.723/2023; Portaria MEC 21/2012",
     "data_vigencia_inicio": "2023-09-13",
     "data_vigencia_fim": null
@@ -76,7 +76,7 @@
     "categoria": "OUTROS",
     "regra_codigo": "CONCORRENCIA_DUPLA_OBRIGATORIA",
     "parametros": {},
-    "descricao_humana": "Editais SiSU devem aplicar o mecanismo de concorrência dupla — cotista que atinge nota de AC ocupa vaga de AC.",
+    "descricao": "Editais SiSU devem aplicar o mecanismo de concorrência dupla — cotista que atinge nota de AC ocupa vaga de AC.",
     "base_legal": "Lei 14.723/2023 art. 3º",
     "data_vigencia_inicio": "2023-09-13",
     "data_vigencia_fim": null
@@ -88,7 +88,7 @@
     "parametros": {
       "modalidades_aplicaveis": ["AC"]
     },
-    "descricao_humana": "Editais de PS Convênios devem oferecer bônus regional aplicável a AC, conforme PN MEC 2.027/2023.",
+    "descricao": "Editais de PS Convênios devem oferecer bônus regional aplicável a AC, conforme PN MEC 2.027/2023.",
     "base_legal": "PN MEC 2.027/2023; resoluções de cada convênio",
     "data_vigencia_inicio": "2023-01-01",
     "data_vigencia_fim": null
@@ -101,7 +101,7 @@
       "modalidade": "*",
       "tipo_documento": "DECLARACAO_PERTENCIMENTO_TERRITORIAL"
     },
-    "descricao_humana": "Editais PSE Educação do Campo exigem declaração de pertencimento territorial de todos os candidatos.",
+    "descricao": "Editais PSE Educação do Campo exigem declaração de pertencimento territorial de todos os candidatos.",
     "base_legal": "Resolução Unifesspa 805/2024",
     "data_vigencia_inicio": "2024-01-01",
     "data_vigencia_fim": null
@@ -114,7 +114,7 @@
       "modalidade": "PSIQ_I",
       "tipo_documento": "DECLARACAO_PERTENCIMENTO_INDIGENA"
     },
-    "descricao_humana": "Candidatos PSIQ_I (indígenas) devem apresentar declaração de pertencimento indígena assinada por 3 lideranças.",
+    "descricao": "Candidatos PSIQ_I (indígenas) devem apresentar declaração de pertencimento indígena assinada por 3 lideranças.",
     "base_legal": "Resolução Unifesspa 532/2021",
     "data_vigencia_inicio": "2021-06-01",
     "data_vigencia_fim": null
@@ -127,7 +127,7 @@
       "modalidade": "PSIQ_Q",
       "tipo_documento": "DECLARACAO_QUILOMBOLA"
     },
-    "descricao_humana": "Candidatos PSIQ_Q (quilombolas) devem apresentar declaração quilombola assinada por 3 lideranças.",
+    "descricao": "Candidatos PSIQ_Q (quilombolas) devem apresentar declaração quilombola assinada por 3 lideranças.",
     "base_legal": "Resolução Unifesspa 532/2021; Lei 14.723/2023",
     "data_vigencia_inicio": "2021-06-01",
     "data_vigencia_fim": null
@@ -139,7 +139,7 @@
     "parametros": {
       "criterio_desempate": "IDOSO_60"
     },
-    "descricao_humana": "Editais devem incluir critério de prioridade para candidatos com 60+ anos (Estatuto do Idoso).",
+    "descricao": "Editais devem incluir critério de prioridade para candidatos com 60+ anos (Estatuto do Idoso).",
     "base_legal": "Lei 10.741/2003 art. 27",
     "data_vigencia_inicio": "2003-10-01",
     "data_vigencia_fim": null
@@ -151,7 +151,7 @@
     "parametros": {
       "necessidades": ["CADEIRANTE", "BAIXA_VISAO", "CEGUEIRA", "SURDEZ"]
     },
-    "descricao_humana": "Editais devem oferecer atendimento especial para PcD: cadeirante, baixa visão, cegueira e surdez (mínimo).",
+    "descricao": "Editais devem oferecer atendimento especial para PcD: cadeirante, baixa visão, cegueira e surdez (mínimo).",
     "base_legal": "Lei 13.146/2015 (LBI)",
     "data_vigencia_inicio": "2016-01-02",
     "data_vigencia_fim": null
@@ -163,7 +163,7 @@
     "parametros": {
       "necessidades": ["GRAVIDEZ", "AMAMENTACAO"]
     },
-    "descricao_humana": "Editais com prova presencial devem oferecer atendimento para gestantes e lactantes.",
+    "descricao": "Editais com prova presencial devem oferecer atendimento para gestantes e lactantes.",
     "base_legal": "Constituição Federal art. 6º; Lei 13.872/2019",
     "data_vigencia_inicio": "2019-09-17",
     "data_vigencia_fim": null

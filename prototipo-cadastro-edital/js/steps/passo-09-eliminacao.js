@@ -28,7 +28,7 @@ export async function render(container, ctx) {
 
   function avaliarStatus() {
     const e = state.edital.eliminacao;
-    setStepStatus(e.clausulas?.length > 0 ? 'completed' : 'in-progress');
+    setStepStatus(e.clausulas?.length > 0 ? 'concluido' : 'emProgresso');
   }
 
   container.innerHTML = '';

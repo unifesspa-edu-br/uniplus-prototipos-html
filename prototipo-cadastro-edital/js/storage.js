@@ -1,9 +1,37 @@
 // storage.js — wrapper sobre localStorage para o protótipo Uni+
 //
 // Convenção de chaves: tudo prefixado com `uniplus.`
-// Coleções (catálogos, editais, modelos) são arrays de objetos com `id` (uuid v4).
+// Coleções (configurações, editais, modelos) são arrays de objetos com `id` (uuid v4).
 
 const PREFIX = 'uniplus.';
+
+/**
+ * Gera UUID v4 — usa `crypto.randomUUID()` quando disponível e cai num
+ * fallback baseado em `crypto.getRandomValues` (disponível em qualquer
+ * contexto, inclusive HTTP via IP da LAN). Use sempre este helper em vez
+ * de chamar `crypto.randomUUID()` direto.
+ */
+export function randomUUID() {
+  if (typeof globalThis.crypto?.randomUUID === 'function') {
+    return globalThis.crypto.randomUUID();
+  }
+  const bytes = new Uint8Array(16);
+  globalThis.crypto.getRandomValues(bytes);
+  bytes[6] = (bytes[6] & 0x0f) | 0x40; // versão 4
+  bytes[8] = (bytes[8] & 0x3f) | 0x80; // variante RFC 4122
+  const h = Array.from(bytes, (b) => b.toString(16).padStart(2, '0'));
+  return (
+    h.slice(0, 4).join('') +
+    '-' +
+    h.slice(4, 6).join('') +
+    '-' +
+    h.slice(6, 8).join('') +
+    '-' +
+    h.slice(8, 10).join('') +
+    '-' +
+    h.slice(10, 16).join('')
+  );
+}
 
 export const Storage = {
   /** Lê uma chave (parsing JSON). Retorna null se ausente ou inválido. */
@@ -96,7 +124,7 @@ export class Collection {
 
     if (!item.id) {
       const novo = {
-        id: crypto.randomUUID(),
+        id: randomUUID(),
         ativo: true,
         ...item,
         criadoEm: now,
@@ -156,22 +184,26 @@ export class Collection {
  * Chaves canônicas do protótipo. Exportadas para evitar typos.
  */
 export const Keys = {
-  // Catálogos
-  TIPOS_EDITAL: 'catalogo.tipos-edital',
-  MODALIDADES: 'catalogo.modalidades',
-  TIPOS_ETAPA: 'catalogo.tipos-etapa',
-  LOCAIS_PROVA: 'catalogo.locais-prova',
-  NECESSIDADES: 'catalogo.necessidades',
-  TIPOS_DOCUMENTO: 'catalogo.tipos-documento',
-  CRITERIOS_DESEMPATE: 'catalogo.criterios-desempate',
-  OBRIGATORIEDADES: 'catalogo.obrigatoriedades',
+  // Configurações
+  TIPOS_EDITAL: 'configuracao.tipos-edital',
+  MODALIDADES: 'configuracao.modalidades',
+  TIPOS_ETAPA: 'configuracao.tipos-etapa',
+  CIDADES_PROVA: 'configuracao.cidades-prova',
+  NECESSIDADES: 'configuracao.necessidades',
+  TIPOS_DOCUMENTO: 'configuracao.tipos-documento',
+  CRITERIOS_DESEMPATE: 'configuracao.criterios-desempate',
+  OBRIGATORIEDADES: 'configuracao.obrigatoriedades',
+  PERCENTUAIS_IBGE: 'configuracao.percentuais-ibge',
+  ESTRATEGIAS_BALANCEAMENTO: 'configuracao.estrategias-balanceamento',
+  CASCATAS_REMANEJAMENTO: 'configuracao.cascatas-remanejamento',
+  CURSOS: 'configuracao.cursos',
 
   // Domínio
-  EDITAIS_RASCUNHO: 'editais.rascunho',
-  EDITAIS_PUBLICADO: 'editais.publicado',
+  EDITAIS_RASCUNHOS: 'editais.rascunhos',
+  EDITAIS_PUBLICADOS: 'editais.publicados',
   MODELOS: 'modelos',
 
   // App
   PREFERENCES: 'app.preferences',
-  SEEDS_LOADED: 'app.seeds-loaded',
+  SEEDS_LOADED: 'app.seeds-loaded-v13',
 };

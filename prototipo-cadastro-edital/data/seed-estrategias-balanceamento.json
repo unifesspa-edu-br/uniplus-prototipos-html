@@ -1,0 +1,47 @@
+[
+  {
+    "codigo": "MINIMO_GARANTIDO_ESTOURA",
+    "nome": "Mínimo garantido — estouro permitido",
+    "estrategia_codigo": "PERMITE_ESTOURO",
+    "parametros_campos": [],
+    "descricao": "Aplica teto + mínimo 1 vaga por modalidade. Quando a soma fica maior que o total do curso (VO), o estouro é mantido como sinalização. Comportamento mais transparente para auditoria.",
+    "base_legal": "sistema-cotas-e-vagas.md (garantia mínima); decisão institucional sobre balanceamento pendente",
+    "ativo": true
+  },
+  {
+    "codigo": "REDUZIR_AC",
+    "nome": "Reduzir AC (Ampla Concorrência)",
+    "estrategia_codigo": "REDUZIR_DE",
+    "parametros_campos": ["ac"],
+    "descricao": "Subtrai o excesso de AC. Todas as cotas e EP preservadas. Cotas têm prioridade legal, AC absorve arredondamentos.",
+    "base_legal": "Interpretação conservadora — preserva direitos de cotistas integralmente.",
+    "ativo": true
+  },
+  {
+    "codigo": "REDUZIR_PPI_PROPORCIONAL",
+    "nome": "Reduzir PPI proporcionalmente (LB e LI)",
+    "estrategia_codigo": "REDUZIR_PROPORCIONAL_EM",
+    "parametros_campos": ["lb_ppi", "li_ppi"],
+    "descricao": "Reduz LB_PPI e LI_PPI proporcionalmente até o excesso ser absorvido. Mantém mínimo 1 das cotas pequenas (Q, PcD). AC e EP residuais preservados.",
+    "base_legal": "Estratégia institucional alternativa: protege a maior parcela de cotas (PPI) absorvendo arredondamentos.",
+    "ativo": true
+  },
+  {
+    "codigo": "REDUZIR_EP_DEPOIS_AC",
+    "nome": "Reduzir EP em cascata, depois AC",
+    "estrategia_codigo": "REDUZIR_DE",
+    "parametros_campos": ["lb_ep", "li_ep", "ac"],
+    "descricao": "Subtrai do LB_EP primeiro, depois LI_EP, depois AC. Preserva integralmente PPI, Q e PcD (cotas com critério étnico-racial e PcD).",
+    "base_legal": "Composição via dados das estratégias — sem código novo. Útil quando o CEPS quer absorver o excesso na cota residual (EP) antes de tocar AC.",
+    "ativo": true
+  },
+  {
+    "codigo": "REDUZIR_EP_PROPORCIONAL",
+    "nome": "Reduzir LB_EP e LI_EP proporcionalmente",
+    "estrategia_codigo": "REDUZIR_PROPORCIONAL_EM",
+    "parametros_campos": ["lb_ep", "li_ep"],
+    "descricao": "Distribui o excesso entre LB_EP e LI_EP proporcionalmente. Preserva AC, PPI, Q e PcD em ambas as faixas de renda.",
+    "base_legal": "Composição via dados das estratégias — outro exemplo do mesmo motor servindo lógicas diferentes.",
+    "ativo": true
+  }
+]

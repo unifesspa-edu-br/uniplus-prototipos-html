@@ -32,7 +32,7 @@ export async function render(container, ctx) {
         if (tipo.categoria === 'AVALIATIVA' && !(x.peso > 0)) return false;
         return true;
       });
-    setStepStatus(completo ? 'completed' : e.length > 0 ? 'in-progress' : 'pending');
+    setStepStatus(completo ? 'concluido' : e.length > 0 ? 'emProgresso' : 'pendente');
   }
 
   container.innerHTML = '';
@@ -321,6 +321,6 @@ function renderEtapa(etapa, idx, todas, updateEtapas, tipoOpts, tiposEtapa) {
 function badgeCategoria(cat) {
   if (cat === 'ADMINISTRATIVA') return badge('Administrativa', 'info');
   if (cat === 'AVALIATIVA') return badge('Avaliativa', 'success');
-  if (cat === 'IMPORTACAO_AUTOMATICA') return badge('Importação', 'warning');
+  if (cat === 'IMPORTACAO_AUTOMATICA') return badge('Importação', 'atencao');
   return null;
 }

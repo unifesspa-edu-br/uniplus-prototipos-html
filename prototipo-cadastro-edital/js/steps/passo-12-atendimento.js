@@ -6,7 +6,7 @@ import { el, checkbox } from '../dom.js';
 export async function render(container, ctx) {
   const { state, updateState, setStepStatus } = ctx;
   const atendimento = state.edital.atendimento || [];
-  const necessidadesCatalogo = new Collection(Keys.NECESSIDADES).list({ includeInactive: false });
+  const necessidadesDisponiveis = new Collection(Keys.NECESSIDADES).list({ includeInactive: false });
 
   function isSelected(codigo) {
     return atendimento.some((a) => a.necessidadeEspecialCodigo === codigo);
@@ -18,7 +18,7 @@ export async function render(container, ctx) {
         ...atendimento.filter((a) => a.necessidadeEspecialCodigo !== necessidade.codigo),
         {
           necessidadeEspecialCodigo: necessidade.codigo,
-          recursos_disponibilizados: [...(necessidade.recursos_requeridos || [])],
+          recursosDisponibilizados: [...(necessidade.recursos_requeridos || [])],
         },
       ];
       updateState({ atendimento: novo });
@@ -34,29 +34,29 @@ export async function render(container, ctx) {
   function toggleRecurso(codigo, recurso, marcado) {
     const novo = atendimento.map((a) => {
       if (a.necessidadeEspecialCodigo !== codigo) return a;
-      const recursos = a.recursos_disponibilizados || [];
+      const recursos = a.recursosDisponibilizados || [];
       const atualizado = marcado
         ? [...new Set([...recursos, recurso])]
         : recursos.filter((r) => r !== recurso);
-      return { ...a, recursos_disponibilizados: atualizado };
+      return { ...a, recursosDisponibilizados: atualizado };
     });
     updateState({ atendimento: novo });
   }
 
   function avaliarStatus() {
     const a = state.edital.atendimento;
-    setStepStatus(a.length > 0 ? 'completed' : 'pending');
+    setStepStatus(a.length > 0 ? 'concluido' : 'pendente');
   }
 
   container.innerHTML = '';
   container.appendChild(el('p', { class: 'text-muted mb-4' }, 'Necessidades especiais aceitas neste edital. Para cada uma, marque quais recursos serão disponibilizados.'));
 
-  if (necessidadesCatalogo.length === 0) {
+  if (necessidadesDisponiveis.length === 0) {
     container.appendChild(el('p', { class: 'text-muted' }, 'Cadastre necessidades especiais primeiro.'));
     return;
   }
 
-  for (const nec of necessidadesCatalogo) {
+  for (const nec of necessidadesDisponiveis) {
     const entry = atendimento.find((a) => a.necessidadeEspecialCodigo === nec.codigo);
     const selected = !!entry;
 
@@ -83,7 +83,7 @@ export async function render(container, ctx) {
 
     if (selected) {
       const recursos = nec.recursos_requeridos || [];
-      const ativos = entry.recursos_disponibilizados || [];
+      const ativos = entry.recursosDisponibilizados || [];
 
       if (recursos.length > 0) {
         const recGrid = el(

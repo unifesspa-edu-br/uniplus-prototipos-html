@@ -1,6 +1,6 @@
 // validator.js — engine de validação dinâmica.
-// Lê catálogo ObrigatoriedadeLegal e produz lista de pendências para o tipo de edital escolhido.
-// Substitui validações hardcoded — quando lei muda, atualiza-se o catálogo e o resultado muda
+// Lê configuração ObrigatoriedadeLegal e produz lista de pendências para o tipo de edital escolhido.
+// Substitui validações hardcoded — quando lei muda, atualiza-se a configuração e o resultado muda
 // sem alterar uma linha de código.
 
 import { Collection, Keys } from './storage.js';
@@ -15,7 +15,7 @@ const AVALIADORES = {
   },
 
   MODALIDADES_MINIMAS: (state, p) => {
-    const selecionadas = state.edital.vagasModalidades?.modalidades || [];
+    const selecionadas = state.edital.distribuicaoModalidades?.modalidades || [];
     const requeridas = p.modalidades || [];
     return requeridas.every((req) => {
       // Suporta wildcards LB_* ou LI_*
@@ -28,7 +28,7 @@ const AVALIADORES = {
   },
 
   CONCORRENCIA_DUPLA_OBRIGATORIA: (state) =>
-    state.edital.vagasModalidades?.concorrenciaDupla === true,
+    state.edital.distribuicaoModalidades?.concorrenciaDupla === true,
 
   BONUS_OBRIGATORIO: (state, p) => {
     const bonus = state.edital.bonus;
@@ -47,7 +47,7 @@ const AVALIADORES = {
     const docs = state.edital.documentos || [];
     const modalidades =
       p.modalidade === '*'
-        ? state.edital.vagasModalidades?.modalidades || []
+        ? state.edital.distribuicaoModalidades?.modalidades || []
         : [p.modalidade];
     return modalidades.every((mod) =>
       docs.some(
@@ -71,16 +71,28 @@ const AVALIADORES = {
     // mesma lógica do anterior
     return AVALIADORES.ATENDIMENTO_PCD_DISPONIVEL(state, p);
   },
+
+  CASCATA_COBRE_MODALIDADES: (state) => {
+    // Toda modalidade selecionada (exceto a do fallback) precisa ser chave em ordens.
+    const codigo = state.edital.distribuicaoModalidades?.cascataRemanejamentoCodigo;
+    if (!codigo) return false;
+    const cascata = new Collection(Keys.CASCATAS_REMANEJAMENTO).byCodigo(codigo);
+    if (!cascata) return false;
+    const selecionadas = state.edital.distribuicaoModalidades?.modalidades || [];
+    const origens = Object.keys(cascata.ordens || {});
+    const fallback = cascata.fallback_codigo;
+    return selecionadas.every((m) => m === fallback || origens.includes(m));
+  },
 };
 
-// Mapeia código da regra para o número do passo onde corrigir (12 passos)
+// Mapeia código da regra para o número do passo onde corrigir (13 passos)
 const PASSO_POR_CATEGORIA = {
-  ETAPA: 4,
+  ETAPA: 5,
   MODALIDADE: 3,
-  DESEMPATE: 7,
-  DOCUMENTO: 9,
-  BONUS: 6,
-  ATENDIMENTO: 11,
+  DESEMPATE: 8,
+  DOCUMENTO: 10,
+  BONUS: 7,
+  ATENDIMENTO: 12,
   OUTROS: 3,
 };
 
@@ -157,15 +169,15 @@ export async function renderValidationPanel(container, ctx) {
         el('p', {}, 'Nenhuma obrigatoriedade legal cadastrada para este tipo de edital.'),
         el(
           'a',
-          { class: 'btn btn-secondary mt-2', href: 'catalogo.html?slug=obrigatoriedades' },
-          'Ir para o catálogo'
+          { class: 'btn btn-secondary mt-2', href: 'configuracao.html?slug=obrigatoriedades' },
+          'Ir para a configuração'
         )
       )
     );
   } else {
     const list = el('ul', { class: 'validation-list' });
     for (const r of result.aplicaveis) {
-      const statusClass = r.atendida ? 'validation-status-ok' : 'validation-status-warning';
+      const statusClass = r.atendida ? 'validation-status-ok' : 'validation-status-atencao';
       const icon = r.atendida ? '✅' : '⚠️';
       list.appendChild(
         el(
@@ -175,7 +187,7 @@ export async function renderValidationPanel(container, ctx) {
           el(
             'div',
             { style: 'flex: 1' },
-            el('div', { class: 'validation-rule' }, r.regra.descricao_humana),
+            el('div', { class: 'validation-rule' }, r.regra.descricao),
             el(
               'div',
               { class: 'validation-base-legal' },

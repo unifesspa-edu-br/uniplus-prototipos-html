@@ -1,30 +1,30 @@
 // snapshot.js — geração do snapshot consolidado (RN08), hash sha256 e publicação.
 //
-// O snapshot é a cópia profunda do edital + todos os catálogos referenciados
+// O snapshot é a cópia profunda do edital + todos as configurações referenciados
 // no momento da publicação. Garante idempotência: alterações posteriores nos
-// catálogos não retroagem para editais já publicados.
+// configurações não retroagem para editais já publicados.
 
-import { Collection, Keys } from './storage.js';
+import { Collection, Keys, randomUUID } from './storage.js';
 import { Toast } from './toast.js';
 import { el } from './dom.js';
 import { validate } from './validator.js';
 
-const RASCUNHOS = new Collection(Keys.EDITAIS_RASCUNHO);
-const PUBLICADOS = new Collection(Keys.EDITAIS_PUBLICADO);
+const RASCUNHOS = new Collection(Keys.EDITAIS_RASCUNHOS);
+const PUBLICADOS = new Collection(Keys.EDITAIS_PUBLICADOS);
 const MODELOS = new Collection(Keys.MODELOS);
 
 // =====================================================
 // Build snapshot
 // =====================================================
 
-function denormSingle(catalogKey, predicate) {
-  const items = new Collection(catalogKey).list({ includeInactive: true });
+function denormSingle(colecaoKey, predicate) {
+  const items = new Collection(colecaoKey).list({ includeInactive: true });
   const item = items.find(predicate);
   return item ? omitMeta(item) : null;
 }
 
-function denormMany(catalogKey, predicate) {
-  const items = new Collection(catalogKey).list({ includeInactive: true });
+function denormMany(colecaoKey, predicate) {
+  const items = new Collection(colecaoKey).list({ includeInactive: true });
   return items.filter(predicate).map(omitMeta);
 }
 
@@ -42,20 +42,52 @@ export function buildSnapshot(state) {
     edital_uuid: state.id,
 
     tipo: ed.tipo
-      ? denormSingle(Keys.TIPOS_EDITAL, (t) => t.id === ed.tipo.tipoEditalId)
+      ? denormSingle(Keys.TIPOS_EDITAL, (t) => t.codigo === ed.tipo.codigo)
       : null,
 
     identificacao: { ...ed.identificacao },
 
-    vagas: ed.vagasModalidades?.cursos || [],
+    // Denormaliza cada vaga: resolve o Curso (configuração `cursos`) e o Campus (cidades-prova).
+    // Snapshot frozen com nome/grau/campus/turno em texto + `codigo` original para clone.
+    vagas: (ed.vagas?.cursos || []).map((v) => {
+      const cursoDef = denormSingle(Keys.CURSOS, (c) => c.codigo === v.cursoCodigo);
+      const localDef = cursoDef
+        ? denormSingle(Keys.CIDADES_PROVA, (l) => l.codigo === cursoDef.campus_codigo)
+        : null;
+      if (!cursoDef) {
+        return { codigo: v.cursoCodigo || null, curso: '(não encontrado)', vagas: v.vagas || 0 };
+      }
+      return {
+        codigo: cursoDef.codigo,
+        curso: cursoDef.nome,
+        grau: cursoDef.grau,
+        campus: localDef?.nome || cursoDef.campus_codigo,
+        turno: cursoDef.turno,
+        vagas: v.vagas || 0,
+      };
+    }),
 
     modalidades: denormMany(Keys.MODALIDADES, (m) =>
-      (ed.vagasModalidades?.modalidades || []).includes(m.codigo)
+      (ed.distribuicaoModalidades?.modalidades || []).includes(m.codigo)
     ),
 
-    concorrencia_dupla: ed.vagasModalidades?.concorrenciaDupla || false,
+    concorrencia_dupla: ed.distribuicaoModalidades?.concorrenciaDupla || false,
 
-    cascata_remanejamento: ed.vagasModalidades?.cascata || [],
+    // RN08: percentuais IBGE congelados no momento da publicação. Mudanças posteriores
+    // na configuração `percentuais-ibge` NÃO retroagem para este snapshot.
+    percentuais_ibge: ed.distribuicaoModalidades?.percentuaisIbgeCodigo
+      ? denormSingle(Keys.PERCENTUAIS_IBGE, (p) => p.codigo === ed.distribuicaoModalidades.percentuaisIbgeCodigo)
+      : null,
+
+    // RN08: estratégia de balanceamento congelada no momento da publicação.
+    estrategia_balanceamento: ed.distribuicaoModalidades?.estrategiaBalanceamentoCodigo
+      ? denormSingle(Keys.ESTRATEGIAS_BALANCEAMENTO, (r) => r.codigo === ed.distribuicaoModalidades.estrategiaBalanceamentoCodigo)
+      : null,
+
+    // RN08: cascata de remanejamento congelada no momento da publicação.
+    cascata_remanejamento: ed.distribuicaoModalidades?.cascataRemanejamentoCodigo
+      ? denormSingle(Keys.CASCATAS_REMANEJAMENTO, (c) => c.codigo === ed.distribuicaoModalidades.cascataRemanejamentoCodigo)
+      : null,
 
     etapas: (ed.etapas || []).map((e) => {
       const tipoSnap = denormSingle(Keys.TIPOS_ETAPA, (t) => t.codigo === e.tipoEtapaCodigo);
@@ -90,7 +122,7 @@ export function buildSnapshot(state) {
       return {
         ordem: idx + 1,
         criterio: def,
-        etapa_referencia: d.etapaRef || null,
+        etapa_referencia: d.etapaReferencia || null,
       };
     }),
 
@@ -105,20 +137,40 @@ export function buildSnapshot(state) {
       };
     }),
 
-    locais: (ed.locais || []).map((l) => {
-      const def = denormSingle(Keys.LOCAIS_PROVA, (lp) => lp.codigo === l.localProvaCodigo);
-      return {
-        local: def,
-        capacidade_neste_edital: l.capacidade,
-        sessoes: l.sessoes || [],
-      };
-    }),
+    // Cidades onde o candidato pode optar por fazer a prova na inscrição, com a lista
+    // de cursos do edital que aceitam prova em cada cidade. O local exato (sala/prédio)
+    // é definido pelo módulo de ensalamento — fora do escopo.
+    cidades: (ed.cidades || [])
+      .map((entry) => {
+        const cidade = denormSingle(Keys.CIDADES_PROVA, (c) => c.codigo === entry.cidadeCodigo);
+        if (!cidade) return null;
+        const cursos = (entry.cursoCodigos || [])
+          .map((codigo) => {
+            const cursoDef = denormSingle(Keys.CURSOS, (c) => c.codigo === codigo);
+            if (!cursoDef) return null;
+            const cidadeCurso = denormSingle(Keys.CIDADES_PROVA, (c) => c.codigo === cursoDef.campus_codigo);
+            return {
+              codigo: cursoDef.codigo,
+              curso: cursoDef.nome,
+              grau: cursoDef.grau,
+              campus: cidadeCurso?.nome || cursoDef.campus_codigo,
+              turno: cursoDef.turno,
+            };
+          })
+          .filter(Boolean);
+        return {
+          cidade,
+          cursos,
+          capacidade_maxima: entry.capacidadeMaxima ?? null,
+        };
+      })
+      .filter(Boolean),
 
     atendimento_especial: (ed.atendimento || []).map((a) => {
       const def = denormSingle(Keys.NECESSIDADES, (n) => n.codigo === a.necessidadeEspecialCodigo);
       return {
         necessidade: def,
-        recursos_disponibilizados: a.recursos_disponibilizados || [],
+        recursos_disponibilizados: a.recursosDisponibilizados || [],
       };
     }),
 
@@ -169,7 +221,7 @@ export async function publish(state) {
   const hash = await computeHash(snapshot);
 
   const publicado = {
-    id: crypto.randomUUID(),
+    id: randomUUID(),
     rascunhoId: state.id,
     snapshot,
     hash,
@@ -205,7 +257,7 @@ export async function saveAsModel(state, nome) {
   delete sanitized.edital_uuid;
 
   const modelo = {
-    id: crypto.randomUUID(),
+    id: randomUUID(),
     nome,
     tipo_edital_codigo: snapshot.tipo?.codigo,
     snapshot: sanitized,
@@ -364,7 +416,7 @@ export async function renderPublishPanel(container, ctx) {
               return;
             }
             await publish(state);
-            setStepStatus('completed');
+            setStepStatus('concluido');
             Toast.success('Edital publicado. Snapshot RN08 congelado.');
             // Redireciona para lista
             setTimeout(() => (window.location.href = 'editais.html'), 800);

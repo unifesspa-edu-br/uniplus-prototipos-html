@@ -5,7 +5,7 @@ import { el } from '../dom.js';
 
 export async function render(container, ctx) {
   const { state, setStepStatus } = ctx;
-  setStepStatus('in-progress');
+  setStepStatus('emProgresso');
 
   container.innerHTML = '';
   container.appendChild(el('p', { class: 'text-muted mb-4' }, 'Revisão final do edital. Painel de validações dinâmicas (obrigatoriedades legais) + snapshot + hash sha256.'));

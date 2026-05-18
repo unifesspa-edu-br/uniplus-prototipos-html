@@ -1,22 +1,22 @@
 // demo-editais.js — gera rascunhos completos pré-preenchidos para demonstração.
-// Carregado após os seeds dos catálogos (precisa dos ids para resolver as referências).
+// Carregado após os seeds das configurações (precisa dos ids para resolver as referências).
 //
 // Modelo de etapa unificado (toda janela do edital é uma etapa):
 //   - administrativa (inscrição, homologação, divulgações)
 //   - avaliativa (provas, redação, banca, entrevista)
 //   - importação automática (notas ENEM)
 
-import { Collection, Keys } from './storage.js';
+import { Collection, Keys, randomUUID } from './storage.js';
 
-function tipoEditalIdPorCodigo(codigo) {
+function tipoPorCodigo(codigo) {
   const t = new Collection(Keys.TIPOS_EDITAL).byCodigo(codigo);
-  return t ? { tipoEditalId: t.id, codigo: t.codigo, nome: t.nome } : null;
+  return t ? { codigo: t.codigo, nome: t.nome } : null;
 }
 
 function todosOsPassosCompletos(quaisIncompletos = []) {
   const status = {};
-  for (let i = 1; i <= 12; i++) {
-    status[i] = quaisIncompletos.includes(i) ? 'in-progress' : 'completed';
+  for (let i = 1; i <= 13; i++) {
+    status[i] = quaisIncompletos.includes(i) ? 'emProgresso' : 'concluido';
   }
   return status;
 }
@@ -58,16 +58,16 @@ function etapa({
 // Demo 1: PSE Educação do Campo 2026 — Marabá
 // =====================================================
 function montarPseEducacaoCampo() {
-  const tipo = tipoEditalIdPorCodigo('PSE_EC');
+  const tipo = tipoPorCodigo('PSE_EC');
   if (!tipo) return null;
 
   return {
-    id: crypto.randomUUID(),
+    id: randomUUID(),
     status: 'rascunho',
     criadoEm: nowIso(),
     atualizadoEm: nowIso(),
     passoAtual: 12,
-    statusPorPasso: todosOsPassosCompletos([12]),
+    statusPorPasso: todosOsPassosCompletos([13]),
     edital: {
       tipo,
       identificacao: {
@@ -80,14 +80,15 @@ function montarPseEducacaoCampo() {
         anoIngresso: 2026,
         periodoIngresso: '2S',
       },
-      vagasModalidades: {
+      vagas: {
         cursos: [
-          { curso: 'Licenciatura em Educação do Campo', campus: 'Marabá', turno: 'Integral', vagas: 30 },
-          { curso: 'Licenciatura em Educação do Campo', campus: 'Rondon do Pará', turno: 'Integral', vagas: 25 },
+          { cursoCodigo: 'MARABA-EDUCACAO-CAMPO-LIC', vagas: 30 },
+          { cursoCodigo: 'RONDON-EDUCACAO-CAMPO-LIC', vagas: 25 },
         ],
+      },
+      distribuicaoModalidades: {
         modalidades: ['AC', 'V'],
         concorrenciaDupla: false,
-        cascata: [],
       },
       etapas: [
         etapa({
@@ -183,42 +184,32 @@ function montarPseEducacaoCampo() {
         { tipoDocumentoCodigo: 'COMPROVANTE_RESIDENCIA', modalidade: 'AC', obrigatorio: true },
         { tipoDocumentoCodigo: 'COMPROVANTE_RESIDENCIA', modalidade: 'V', obrigatorio: true },
       ],
-      locais: [
-        {
-          localProvaCodigo: 'MARABA',
-          capacidade: 200,
-          sessoes: [
-            { dataInicio: '2026-06-15', dataFim: '2026-06-15', fechamentoPortoesAntesMin: 30 },
-          ],
-        },
-        {
-          localProvaCodigo: 'RONDON',
-          capacidade: 150,
-          sessoes: [
-            { dataInicio: '2026-06-15', dataFim: '2026-06-15', fechamentoPortoesAntesMin: 30 },
-          ],
-        },
+      // Em Marabá faz prova só para o curso de Marabá; idem Rondon. Capacidades realistas
+      // baseadas no histórico do campus.
+      cidades: [
+        { cidadeCodigo: 'MARABA', cursoCodigos: ['MARABA-EDUCACAO-CAMPO-LIC'], capacidadeMaxima: 120 },
+        { cidadeCodigo: 'RONDON', cursoCodigos: ['RONDON-EDUCACAO-CAMPO-LIC'], capacidadeMaxima: 80 },
       ],
       atendimento: [
         {
           necessidadeEspecialCodigo: 'GRAVIDEZ',
-          recursos_disponibilizados: ['SALA_TERREA', 'MOBILIARIO_ADEQUADO'],
+          recursosDisponibilizados: ['SALA_TERREA', 'MOBILIARIO_ADEQUADO'],
         },
         {
           necessidadeEspecialCodigo: 'AMAMENTACAO',
-          recursos_disponibilizados: ['BERCARIO', 'TEMPO_ADICIONAL'],
+          recursosDisponibilizados: ['BERCARIO', 'TEMPO_ADICIONAL'],
         },
         {
           necessidadeEspecialCodigo: 'CADEIRANTE',
-          recursos_disponibilizados: ['SALA_TERREA', 'MOBILIARIO_ADAPTADO', 'BANHEIRO_ACESSIVEL'],
+          recursosDisponibilizados: ['SALA_TERREA', 'MOBILIARIO_ADAPTADO', 'BANHEIRO_ACESSIVEL'],
         },
         {
           necessidadeEspecialCodigo: 'BAIXA_VISAO',
-          recursos_disponibilizados: ['PROVA_AMPLIADA', 'ILUMINACAO_REFORCADA', 'TEMPO_ADICIONAL'],
+          recursosDisponibilizados: ['PROVA_AMPLIADA', 'ILUMINACAO_REFORCADA', 'TEMPO_ADICIONAL'],
         },
         {
           necessidadeEspecialCodigo: 'MOBILIDADE_REDUZIDA',
-          recursos_disponibilizados: ['SALA_TERREA', 'MOBILIARIO_ADEQUADO'],
+          recursosDisponibilizados: ['SALA_TERREA', 'MOBILIARIO_ADEQUADO'],
         },
       ],
     },
@@ -229,16 +220,16 @@ function montarPseEducacaoCampo() {
 // Demo 2: PS Convênios 2026 — Canaã dos Carajás
 // =====================================================
 function montarPsConveniosCanaa() {
-  const tipo = tipoEditalIdPorCodigo('PS_CONVENIOS');
+  const tipo = tipoPorCodigo('PS_CONVENIOS');
   if (!tipo) return null;
 
   return {
-    id: crypto.randomUUID(),
+    id: randomUUID(),
     status: 'rascunho',
     criadoEm: nowIso(),
     atualizadoEm: nowIso(),
     passoAtual: 12,
-    statusPorPasso: todosOsPassosCompletos([12]),
+    statusPorPasso: todosOsPassosCompletos([13]),
     edital: {
       tipo,
       identificacao: {
@@ -250,19 +241,20 @@ function montarPsConveniosCanaa() {
         anoIngresso: 2026,
         periodoIngresso: '1S',
       },
-      vagasModalidades: {
+      vagas: {
         cursos: [
-          { curso: 'Engenharia de Minas e Meio Ambiente', campus: 'Canaã dos Carajás', turno: 'Integral', vagas: 50 },
-          { curso: 'Geologia', campus: 'Canaã dos Carajás', turno: 'Integral', vagas: 30 },
-          { curso: 'Sistemas de Informação', campus: 'Canaã dos Carajás', turno: 'Noturno', vagas: 40 },
+          { cursoCodigo: 'CANAA-ENG-MINAS-BACH', vagas: 50 },
+          { cursoCodigo: 'CANAA-GEOLOGIA-BACH', vagas: 30 },
+          { cursoCodigo: 'CANAA-SI-BACH', vagas: 40 },
         ],
+      },
+      distribuicaoModalidades: {
         modalidades: [
           'AC', 'V',
           'LB_PPI', 'LB_Q', 'LB_PcD', 'LB_EP',
           'LI_PPI', 'LI_Q', 'LI_PcD', 'LI_EP',
         ],
         concorrenciaDupla: true,
-        cascata: [],
       },
       etapas: [
         etapa({
@@ -352,43 +344,42 @@ function montarPsConveniosCanaa() {
         ],
       },
       documentos: gerarDocumentosPsConvenios(),
-      locais: [
+      // Em Canaã, prova vale para os 3 cursos do edital.
+      cidades: [
         {
-          localProvaCodigo: 'CANAA',
-          capacidade: 400,
-          sessoes: [
-            { dataInicio: '2026-05-20', dataFim: '2026-05-20', fechamentoPortoesAntesMin: 30 },
-          ],
+          cidadeCodigo: 'CANAA',
+          cursoCodigos: ['CANAA-ENG-MINAS-BACH', 'CANAA-GEOLOGIA-BACH', 'CANAA-SI-BACH'],
+          capacidadeMaxima: 400,
         },
       ],
       atendimento: [
         {
           necessidadeEspecialCodigo: 'GRAVIDEZ',
-          recursos_disponibilizados: ['SALA_TERREA', 'MOBILIARIO_ADEQUADO'],
+          recursosDisponibilizados: ['SALA_TERREA', 'MOBILIARIO_ADEQUADO'],
         },
         {
           necessidadeEspecialCodigo: 'AMAMENTACAO',
-          recursos_disponibilizados: ['BERCARIO', 'TEMPO_ADICIONAL'],
+          recursosDisponibilizados: ['BERCARIO', 'TEMPO_ADICIONAL'],
         },
         {
           necessidadeEspecialCodigo: 'CADEIRANTE',
-          recursos_disponibilizados: ['SALA_TERREA', 'MOBILIARIO_ADAPTADO', 'BANHEIRO_ACESSIVEL'],
+          recursosDisponibilizados: ['SALA_TERREA', 'MOBILIARIO_ADAPTADO', 'BANHEIRO_ACESSIVEL'],
         },
         {
           necessidadeEspecialCodigo: 'BAIXA_VISAO',
-          recursos_disponibilizados: ['PROVA_AMPLIADA', 'ILUMINACAO_REFORCADA', 'TEMPO_ADICIONAL'],
+          recursosDisponibilizados: ['PROVA_AMPLIADA', 'ILUMINACAO_REFORCADA', 'TEMPO_ADICIONAL'],
         },
         {
           necessidadeEspecialCodigo: 'CEGUEIRA',
-          recursos_disponibilizados: ['LEDOR', 'PROVA_BRAILE', 'TEMPO_ADICIONAL'],
+          recursosDisponibilizados: ['LEDOR', 'PROVA_BRAILE', 'TEMPO_ADICIONAL'],
         },
         {
           necessidadeEspecialCodigo: 'SURDEZ',
-          recursos_disponibilizados: ['INTERPRETE_LIBRAS'],
+          recursosDisponibilizados: ['INTERPRETE_LIBRAS'],
         },
         {
           necessidadeEspecialCodigo: 'MOBILIDADE_REDUZIDA',
-          recursos_disponibilizados: ['SALA_TERREA', 'MOBILIARIO_ADEQUADO'],
+          recursosDisponibilizados: ['SALA_TERREA', 'MOBILIARIO_ADEQUADO'],
         },
       ],
     },
@@ -429,11 +420,186 @@ function gerarDocumentosPsConvenios() {
 }
 
 // =====================================================
+// Demo 3: SiSU 2026 — Edital nº 26/2025-CEPS (Anexo I real, 1.345 vagas / 40 cursos / 5 campi)
+// Fonte: notícia "Unifesspa oferta 1.345 vagas em cursos de graduação por meio do SiSU 2026"
+// publicada em 23/12/2025 — quadro de vagas extraído do PDF oficial.
+// =====================================================
+// Referências para entradas da configuração `cursos`. Mantém só (cursoCodigo, vagas)
+// — nome/grau/campus/turno vêm da configuração, denormalizados pelo snapshot.
+const CURSOS_SISU_2026 = [
+  // Marabá (27 cursos / 890 vagas)
+  { cursoCodigo: 'MARABA-FISICA-LIC', vagas: 40 },
+  { cursoCodigo: 'MARABA-MATEMATICA-LIC', vagas: 40 },
+  { cursoCodigo: 'MARABA-CIENCIAS-NATURAIS-LIC', vagas: 30 },
+  { cursoCodigo: 'MARABA-QUIMICA-LIC', vagas: 40 },
+  { cursoCodigo: 'MARABA-CIENCIAS-SOCIAIS-BACH', vagas: 25 },
+  { cursoCodigo: 'MARABA-CIENCIAS-SOCIAIS-LIC', vagas: 25 },
+  { cursoCodigo: 'MARABA-GEOGRAFIA-BACH', vagas: 40 },
+  { cursoCodigo: 'MARABA-HISTORIA-LIC', vagas: 40 },
+  { cursoCodigo: 'MARABA-PEDAGOGIA-LIC', vagas: 40 },
+  { cursoCodigo: 'MARABA-DIREITO-BACH', vagas: 40 },
+  { cursoCodigo: 'MARABA-CIENCIAS-ECONOMICAS-BACH', vagas: 30 },
+  { cursoCodigo: 'MARABA-AGRONOMIA-BACH', vagas: 30 },
+  { cursoCodigo: 'MARABA-CIENCIAS-BIOLOGICAS-BACH', vagas: 30 },
+  { cursoCodigo: 'MARABA-SAUDE-COLETIVA-BACH', vagas: 30 },
+  { cursoCodigo: 'MARABA-PSICOLOGIA-BACH', vagas: 30 },
+  { cursoCodigo: 'MARABA-SI-BACH', vagas: 40 },
+  { cursoCodigo: 'MARABA-GEOLOGIA-BACH', vagas: 30 },
+  { cursoCodigo: 'MARABA-ENG-MATERIAIS-BACH', vagas: 30 },
+  { cursoCodigo: 'MARABA-ENG-MINAS-BACH', vagas: 30 },
+  { cursoCodigo: 'MARABA-ENG-COMPUTACAO-BACH', vagas: 30 },
+  { cursoCodigo: 'MARABA-ENG-ELETRICA-BACH', vagas: 30 },
+  { cursoCodigo: 'MARABA-ENG-QUIMICA-BACH', vagas: 30 },
+  { cursoCodigo: 'MARABA-ENG-MECANICA-BACH', vagas: 30 },
+  { cursoCodigo: 'MARABA-ENG-CIVIL-BACH', vagas: 30 },
+  { cursoCodigo: 'MARABA-LETRAS-PORTUGUES-LIC', vagas: 40 },
+  { cursoCodigo: 'MARABA-ARTES-VISUAIS-LIC', vagas: 30 },
+  { cursoCodigo: 'MARABA-LETRAS-INGLES-LIC', vagas: 30 },
+  // Rondon do Pará (3 cursos / 120 vagas)
+  { cursoCodigo: 'RONDON-ADMINISTRACAO-BACH', vagas: 40 },
+  { cursoCodigo: 'RONDON-CIENCIAS-CONTABEIS-BACH', vagas: 40 },
+  { cursoCodigo: 'RONDON-JORNALISMO-BACH', vagas: 40 },
+  // São Félix do Xingu (3 cursos / 90 vagas)
+  { cursoCodigo: 'SAO_FELIX-LETRAS-PORTUGUES-LIC', vagas: 30 },
+  { cursoCodigo: 'SAO_FELIX-CIENCIAS-BIOLOGICAS-LIC', vagas: 30 },
+  { cursoCodigo: 'SAO_FELIX-ENG-FLORESTAL-BACH', vagas: 30 },
+  // Santana do Araguaia (3 cursos / 100 vagas)
+  { cursoCodigo: 'SANTANA-MATEMATICA-LIC', vagas: 40 },
+  { cursoCodigo: 'SANTANA-ENG-CIVIL-BACH', vagas: 30 },
+  { cursoCodigo: 'SANTANA-ARQUITETURA-BACH', vagas: 30 },
+  // Xinguara (4 cursos / 145 vagas)
+  { cursoCodigo: 'XINGUARA-HISTORIA-LIC', vagas: 40 },
+  { cursoCodigo: 'XINGUARA-GEOGRAFIA-LIC', vagas: 40 },
+  { cursoCodigo: 'XINGUARA-ZOOTECNIA-BACH', vagas: 35 },
+  { cursoCodigo: 'XINGUARA-MED-VETERINARIA-BACH', vagas: 30 },
+];
+
+function gerarDocumentosSisu2026() {
+  // Homologação institucional no CRCA — docs comuns + docs por modalidade de cota.
+  const todas = ['AC', 'V', 'LB_PPI', 'LB_Q', 'LB_PcD', 'LB_EP', 'LI_PPI', 'LI_Q', 'LI_PcD', 'LI_EP'];
+  const docs = [];
+  for (const mod of todas) {
+    docs.push({ tipoDocumentoCodigo: 'RG', modalidade: mod, obrigatorio: true });
+    docs.push({ tipoDocumentoCodigo: 'CPF', modalidade: mod, obrigatorio: true });
+    docs.push({ tipoDocumentoCodigo: 'HISTORICO_MEDIO', modalidade: mod, obrigatorio: true });
+    docs.push({ tipoDocumentoCodigo: 'CERTIFICADO_CONCLUSAO_EM', modalidade: mod, obrigatorio: true });
+    docs.push({ tipoDocumentoCodigo: 'FOTO_3X4', modalidade: mod, obrigatorio: true });
+  }
+  for (const mod of ['V', 'LB_PcD', 'LI_PcD']) {
+    docs.push({ tipoDocumentoCodigo: 'LAUDO_MEDICO_PCD', modalidade: mod, obrigatorio: true });
+  }
+  for (const mod of ['LB_PPI', 'LI_PPI']) {
+    docs.push({ tipoDocumentoCodigo: 'DECLARACAO_AUTORRECONHECIMENTO', modalidade: mod, obrigatorio: true });
+  }
+  for (const mod of ['LB_Q', 'LI_Q']) {
+    docs.push({ tipoDocumentoCodigo: 'DECLARACAO_QUILOMBOLA', modalidade: mod, obrigatorio: true });
+  }
+  for (const mod of ['LB_PPI', 'LB_Q', 'LB_PcD', 'LB_EP']) {
+    docs.push({ tipoDocumentoCodigo: 'COMPROVANTE_RENDA', modalidade: mod, obrigatorio: true });
+  }
+  return docs;
+}
+
+function montarSisu2026() {
+  const tipo = tipoPorCodigo('SISU');
+  if (!tipo) return null;
+
+  return {
+    id: randomUUID(),
+    status: 'rascunho',
+    criadoEm: nowIso(),
+    atualizadoEm: nowIso(),
+    passoAtual: 13,
+    statusPorPasso: todosOsPassosCompletos([13]),
+    edital: {
+      tipo,
+      identificacao: {
+        numero: 26,
+        ano: 2025,
+        dataEdital: '2025-12-23',
+        sigla: 'CEPS/UNIFESSPA',
+        nomeProcesso: 'Sistema de Seleção Unificada — SiSU 2026',
+        anoIngresso: 2026,
+        periodoIngresso: '1S',
+      },
+      vagas: { cursos: CURSOS_SISU_2026 },
+      distribuicaoModalidades: {
+        modalidades: ['AC', 'V', 'LB_PPI', 'LB_Q', 'LB_PcD', 'LB_EP', 'LI_PPI', 'LI_Q', 'LI_PcD', 'LI_EP'],
+        concorrenciaDupla: true,
+        percentuaisIbgeCodigo: 'PARA_2022',
+        estrategiaBalanceamentoCodigo: 'REDUZIR_AC',
+        cascataRemanejamentoCodigo: 'PORTARIA_MEC_704_2025',
+      },
+      etapas: [
+        etapa({
+          ordem: 1,
+          tipoEtapaCodigo: 'INSCRICAO_CANDIDATOS',
+          nomeCustomizado: 'Inscrição no portal SiSU/MEC',
+          janelaInicio: '2026-01-20',
+          janelaFim: '2026-01-24',
+          pertenceCalculo: false,
+        }),
+        etapa({
+          ordem: 2,
+          tipoEtapaCodigo: 'IMPORTACAO_NOTAS_ENEM',
+          nomeCustomizado: 'Importação de notas — ENEM 2023/2024/2025 (melhor média)',
+          janelaInicio: '2026-01-30',
+          janelaFim: '2026-01-31',
+        }),
+        etapa({
+          ordem: 3,
+          tipoEtapaCodigo: 'DIVULGACAO_RESULTADO_PARCIAL',
+          nomeCustomizado: 'Chamada regular — resultado SiSU',
+          janelaInicio: '2026-02-04',
+          pertenceCalculo: false,
+        }),
+        etapa({
+          ordem: 4,
+          tipoEtapaCodigo: 'HOMOLOGACAO_INSCRICOES',
+          nomeCustomizado: 'Habilitação ao vínculo institucional (CRCA)',
+          janelaInicio: '2026-02-09',
+          janelaFim: '2026-02-13',
+          recurso: { inicio: '2026-02-16', fim: '2026-02-18' },
+          pertenceCalculo: false,
+        }),
+        etapa({
+          ordem: 5,
+          tipoEtapaCodigo: 'DIVULGACAO_RESULTADO_FINAL',
+          nomeCustomizado: 'Resultado final + lista de espera',
+          janelaInicio: '2026-02-25',
+          pertenceCalculo: false,
+        }),
+      ],
+      formula: {
+        agregacao: 'MEDIA_PONDERADA_ENEM',
+        fator: null,
+        precisao: 'ARREDONDAR_PARA_CIMA_2_CASAS_SE_3A_GTE_5',
+      },
+      bonus: null,
+      desempate: [
+        { codigo: 'IDOSO_60', ordem: 1 },
+        { codigo: 'MAIOR_NOTA_REDACAO', ordem: 2 },
+        { codigo: 'MAIOR_IDADE', ordem: 3 },
+      ],
+      eliminacao: {
+        notasMinimas: {},
+        clausulas: ['NOTA_REDACAO_ZERO', 'NOTA_REDACAO_BRANCA'],
+      },
+      documentos: gerarDocumentosSisu2026(),
+      // SiSU não tem prova presencial (classifica pela nota do ENEM), então o candidato
+      // não escolhe cidade na inscrição — habilitação é documental no CRCA dos 5 campi.
+      cidades: [],
+      atendimento: [],
+    },
+  };
+}
+
+// =====================================================
 // Loaders
 // =====================================================
 export function loadDemoEditais() {
-  const rascunhos = new Collection(Keys.EDITAIS_RASCUNHO);
-  const demos = [montarPseEducacaoCampo(), montarPsConveniosCanaa()].filter(Boolean);
+  const rascunhos = new Collection(Keys.EDITAIS_RASCUNHOS);
+  const demos = [montarPseEducacaoCampo(), montarPsConveniosCanaa(), montarSisu2026()].filter(Boolean);
   for (const demo of demos) {
     rascunhos.upsert(demo);
   }
@@ -447,6 +613,7 @@ export async function loadDemoModelos() {
   const fontes = [
     { nome: 'PSE Educação do Campo — modelo padrão', state: montarPseEducacaoCampo() },
     { nome: 'PS Convênios — modelo padrão', state: montarPsConveniosCanaa() },
+    { nome: 'SiSU — modelo padrão (baseado no Edital 26/2025)', state: montarSisu2026() },
   ].filter((m) => m.state);
 
   for (const { nome, state } of fontes) {
@@ -461,7 +628,7 @@ export async function loadDemoModelos() {
         janela: { inicio: null, fim: null },
         recurso: e.recurso ? { inicio: null, fim: null } : null,
       })),
-      locais: (snapshot.locais || []).map((l) => ({ ...l, sessoes: [] })),
+      cidades: snapshot.cidades || [],
     };
     delete sanitized.edital_uuid;
 
