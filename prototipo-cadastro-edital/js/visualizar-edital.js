@@ -502,52 +502,60 @@ function renderEliminacao(snapshot) {
 }
 
 function renderDocumentos(snapshot) {
-  const docs = snapshot.documentos_por_modalidade || [];
+  const docs = snapshot.documentos || [];
   if (docs.length === 0) {
-    return section('📄 Documentos por modalidade', el('p', { class: 'text-muted' }, 'Nenhum documento configurado.'));
-  }
-
-  // Agrupa por modalidade
-  const porModalidade = new Map();
-  for (const d of docs) {
-    if (!porModalidade.has(d.modalidade)) porModalidade.set(d.modalidade, []);
-    porModalidade.get(d.modalidade).push(d);
+    return section('📄 Documentos do edital', el('p', { class: 'text-muted' }, 'Nenhum documento incluído na lista de documentação necessária.'));
   }
 
   const conteudo = el('div');
-  for (const [mod, items] of porModalidade) {
-    conteudo.appendChild(
-      el(
-        'div',
-        { style: 'margin-bottom: 1rem' },
-        el('h3', { style: 'font-size: 0.875rem; font-weight: 600; margin: 0 0 0.5rem' }, `Modalidade ${mod}`),
-        el(
-          'ul',
-          { style: 'list-style: none; padding: 0; margin: 0; display: flex; gap: 0.375rem; flex-wrap: wrap' },
-          ...items.map((d) =>
-            el(
-              'li',
-              {
-                style: `background: ${d.obrigatorio ? '#fff8e1' : 'var(--color-secondary-01)'}; padding: 0.375rem 0.75rem; border-radius: 4px; font-size: 0.8125rem; border: 1px solid ${d.obrigatorio ? '#fdb913' : 'var(--color-secondary-04)'}`,
-              },
-              d.documento?.nome || d.documento?.codigo || '?',
-              d.obrigatorio ? el('span', { style: 'margin-left: 0.25rem; color: #b8860b' }, '*') : null
-            )
-          )
-        )
-      )
-    );
-  }
   conteudo.appendChild(
     el(
       'p',
-      { class: 'text-small text-muted', style: 'margin-top: 0.5rem' },
-      el('span', { style: 'color: #b8860b' }, '*'),
-      ' Documento obrigatório para a modalidade.'
+      { class: 'text-small text-muted', style: 'margin-bottom: 0.75rem' },
+      'Cada documento abaixo lista as modalidades que devem entregar e as etapas em que é obrigatório.'
     )
   );
 
-  return section('📄 Documentos por modalidade', conteudo);
+  for (const d of docs) {
+    const nome = d.documento?.nome || d.documento?.codigo || '?';
+    const card = el('div', {
+      style:
+        'background: var(--bg-surface); border: 1px solid var(--border-default); border-radius: 6px; padding: 0.75rem 1rem; margin-bottom: 0.5rem',
+    });
+    card.appendChild(el('div', { style: 'font-weight: 600; margin-bottom: 0.375rem' }, nome));
+
+    // Modalidades
+    const mods = d.modalidades || [];
+    card.appendChild(
+      el(
+        'div',
+        { style: 'display: flex; gap: 0.25rem; flex-wrap: wrap; margin-bottom: 0.375rem' },
+        el('span', { class: 'text-small text-muted', style: 'margin-right: 0.25rem' }, 'Modalidades:'),
+        ...mods.map((m) => el('span', { class: 'tag tag-info', style: 'font-size: 0.75rem' }, m))
+      )
+    );
+
+    // Etapas obrigatórias
+    const etapasLinha = el(
+      'div',
+      { style: 'display: flex; gap: 0.25rem; flex-wrap: wrap; align-items: center' },
+      el('span', { class: 'text-small text-muted', style: 'margin-right: 0.25rem' }, 'Obrigatório em:')
+    );
+    if (d.todas_etapas) {
+      etapasLinha.appendChild(el('span', { class: 'tag tag-success', style: 'font-size: 0.75rem' }, 'Todas as etapas'));
+    } else {
+      for (const e of d.etapas_obrigatorias || []) {
+        etapasLinha.appendChild(
+          el('span', { class: 'tag tag-success', style: 'font-size: 0.75rem' }, `Etapa ${e.ordem}${e.nome ? ' — ' + e.nome : ' — ' + e.tipo_etapa_codigo}`)
+        );
+      }
+    }
+    card.appendChild(etapasLinha);
+
+    conteudo.appendChild(card);
+  }
+
+  return section('📄 Documentos do edital', conteudo);
 }
 
 function renderCidades(snapshot) {

@@ -128,14 +128,31 @@ export function buildSnapshot(state) {
 
     eliminacao: { ...ed.eliminacao },
 
-    documentos_por_modalidade: (ed.documentos || []).map((d) => {
-      const def = denormSingle(Keys.TIPOS_DOCUMENTO, (t) => t.codigo === d.tipoDocumentoCodigo);
-      return {
-        documento: def,
-        modalidade: d.modalidade,
-        obrigatorio: d.obrigatorio,
-      };
-    }),
+    // Lista plana de documentos do edital (apenas os incluídos). Cada entrada traz
+    // as modalidades que devem entregar e as etapas (denormalizadas) em que o
+    // documento é obrigatório — [] = obrigatório em todas as etapas do edital.
+    documentos: (ed.documentos || [])
+      .filter((d) => d.incluido)
+      .map((d) => {
+        const def = denormSingle(Keys.TIPOS_DOCUMENTO, (t) => t.codigo === d.tipoDocumentoCodigo);
+        const etapasObrig = (d.etapasObrigatorias || [])
+          .map((codigo) => {
+            const etapa = (ed.etapas || []).find((e) => e.tipoEtapaCodigo === codigo);
+            if (!etapa) return null;
+            return {
+              tipo_etapa_codigo: codigo,
+              ordem: etapa.ordem,
+              nome: etapa.nomeCustomizado || null,
+            };
+          })
+          .filter(Boolean);
+        return {
+          documento: def,
+          modalidades: [...(d.modalidades || [])],
+          etapas_obrigatorias: etapasObrig,
+          todas_etapas: (d.etapasObrigatorias || []).length === 0,
+        };
+      }),
 
     // Cidades onde o candidato pode optar por fazer a prova na inscrição, com a lista
     // de cursos do edital que aceitam prova em cada cidade. O local exato (sala/prédio)

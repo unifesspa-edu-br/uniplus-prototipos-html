@@ -49,14 +49,11 @@ const AVALIADORES = {
       p.modalidade === '*'
         ? state.edital.distribuicaoModalidades?.modalidades || []
         : [p.modalidade];
-    return modalidades.every((mod) =>
-      docs.some(
-        (d) =>
-          d.tipoDocumentoCodigo === p.tipo_documento &&
-          d.modalidade === mod &&
-          d.obrigatorio === true
-      )
+    const entrada = docs.find(
+      (d) => d.tipoDocumentoCodigo === p.tipo_documento && d.incluido
     );
+    if (!entrada) return false;
+    return modalidades.every((mod) => (entrada.modalidades || []).includes(mod));
   },
 
   ATENDIMENTO_PCD_DISPONIVEL: (state, p) => {

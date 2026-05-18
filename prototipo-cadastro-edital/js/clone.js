@@ -70,10 +70,15 @@ export function snapshotToWizardState(snapshot, options = {}) {
         etapaReferencia: d.etapa_referencia,
       })),
       eliminacao: { ...snapshot.eliminacao },
-      documentos: (snapshot.documentos_por_modalidade || []).map((d) => ({
+      documentos: (snapshot.documentos || []).map((d) => ({
         tipoDocumentoCodigo: d.documento?.codigo,
-        modalidade: d.modalidade,
-        obrigatorio: d.obrigatorio,
+        incluido: true,
+        modalidades: [...(d.modalidades || [])],
+        etapasObrigatorias: d.todas_etapas
+          ? []
+          : (d.etapas_obrigatorias || [])
+              .map((e) => e.tipo_etapa_codigo)
+              .filter(Boolean),
       })),
       cidades: (snapshot.cidades || [])
         .filter((c) => c.cidade?.codigo)

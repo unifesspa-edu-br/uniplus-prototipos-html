@@ -54,6 +54,20 @@ function etapa({
   };
 }
 
+/**
+ * Constrói uma entrada de documento incluído no edital.
+ * - modalidades: lista de modalidades que devem entregar (subset das modalidades do edital).
+ * - etapasObrigatorias: lista de tipoEtapaCodigo onde é obrigatório; [] = todas as etapas.
+ */
+function doc({ codigo, modalidades, etapasObrigatorias = [] }) {
+  return {
+    tipoDocumentoCodigo: codigo,
+    incluido: true,
+    modalidades,
+    etapasObrigatorias,
+  };
+}
+
 // =====================================================
 // Demo 1: PSE Educação do Campo 2026 — Marabá
 // =====================================================
@@ -167,22 +181,18 @@ function montarPseEducacaoCampo() {
           'CONDUTA_INADEQUADA',
         ],
       },
+      // Documentos obrigatórios na inscrição; identidade e cota ficam exigidos até a
+      // homologação (etapas explícitas). COMPROVANTE_PROFESSOR_RURAL e demais tipos não
+      // listados ficam fora do edital (não fazem parte da documentação necessária).
       documentos: [
-        { tipoDocumentoCodigo: 'RG', modalidade: 'AC', obrigatorio: true },
-        { tipoDocumentoCodigo: 'RG', modalidade: 'V', obrigatorio: true },
-        { tipoDocumentoCodigo: 'CPF', modalidade: 'AC', obrigatorio: true },
-        { tipoDocumentoCodigo: 'CPF', modalidade: 'V', obrigatorio: true },
-        { tipoDocumentoCodigo: 'HISTORICO_MEDIO', modalidade: 'AC', obrigatorio: true },
-        { tipoDocumentoCodigo: 'HISTORICO_MEDIO', modalidade: 'V', obrigatorio: true },
-        { tipoDocumentoCodigo: 'CERTIFICADO_CONCLUSAO_EM', modalidade: 'AC', obrigatorio: true },
-        { tipoDocumentoCodigo: 'CERTIFICADO_CONCLUSAO_EM', modalidade: 'V', obrigatorio: true },
-        { tipoDocumentoCodigo: 'DECLARACAO_PERTENCIMENTO_TERRITORIAL', modalidade: 'AC', obrigatorio: true },
-        { tipoDocumentoCodigo: 'DECLARACAO_PERTENCIMENTO_TERRITORIAL', modalidade: 'V', obrigatorio: true },
-        { tipoDocumentoCodigo: 'COMPROVANTE_PROFESSOR_RURAL', modalidade: 'AC', obrigatorio: false },
-        { tipoDocumentoCodigo: 'COMPROVANTE_PROFESSOR_RURAL', modalidade: 'V', obrigatorio: false },
-        { tipoDocumentoCodigo: 'LAUDO_MEDICO_PCD', modalidade: 'V', obrigatorio: true },
-        { tipoDocumentoCodigo: 'COMPROVANTE_RESIDENCIA', modalidade: 'AC', obrigatorio: true },
-        { tipoDocumentoCodigo: 'COMPROVANTE_RESIDENCIA', modalidade: 'V', obrigatorio: true },
+        doc({ codigo: 'RG', modalidades: ['AC', 'V'], etapasObrigatorias: ['INSCRICAO_CANDIDATOS', 'HOMOLOGACAO_INSCRICOES'] }),
+        doc({ codigo: 'CPF', modalidades: ['AC', 'V'], etapasObrigatorias: ['INSCRICAO_CANDIDATOS', 'HOMOLOGACAO_INSCRICOES'] }),
+        doc({ codigo: 'HISTORICO_MEDIO', modalidades: ['AC', 'V'], etapasObrigatorias: ['HOMOLOGACAO_INSCRICOES'] }),
+        doc({ codigo: 'CERTIFICADO_CONCLUSAO_EM', modalidades: ['AC', 'V'], etapasObrigatorias: ['HOMOLOGACAO_INSCRICOES'] }),
+        doc({ codigo: 'DECLARACAO_PERTENCIMENTO_TERRITORIAL', modalidades: ['AC', 'V'], etapasObrigatorias: ['INSCRICAO_CANDIDATOS', 'HOMOLOGACAO_INSCRICOES'] }),
+        doc({ codigo: 'COMPROVANTE_RESIDENCIA', modalidades: ['AC', 'V'], etapasObrigatorias: ['INSCRICAO_CANDIDATOS'] }),
+        doc({ codigo: 'LAUDO_MEDICO_PCD', modalidades: ['V'], etapasObrigatorias: ['INSCRICAO_CANDIDATOS', 'HOMOLOGACAO_INSCRICOES'] }),
+        doc({ codigo: 'FOTO_3X4', modalidades: ['AC', 'V'], etapasObrigatorias: ['INSCRICAO_CANDIDATOS'] }),
       ],
       // Em Marabá faz prova só para o curso de Marabá; idem Rondon. Capacidades realistas
       // baseadas no histórico do campus.
@@ -387,36 +397,24 @@ function montarPsConveniosCanaa() {
 }
 
 function gerarDocumentosPsConvenios() {
-  const todasModalidades = ['AC', 'V', 'LB_PPI', 'LB_Q', 'LB_PcD', 'LB_EP', 'LI_PPI', 'LI_Q', 'LI_PcD', 'LI_EP'];
-  const docs = [];
+  const todas = ['AC', 'V', 'LB_PPI', 'LB_Q', 'LB_PcD', 'LB_EP', 'LI_PPI', 'LI_Q', 'LI_PcD', 'LI_EP'];
+  // PS Convênios: docs comuns exigidos na inscrição e na homologação; cota-específicos
+  // exigidos na inscrição e (no caso de PcD/PPI/Q) reforçados na homologação para verificação.
+  return [
+    doc({ codigo: 'RG', modalidades: todas, etapasObrigatorias: ['INSCRICAO_CANDIDATOS', 'HOMOLOGACAO_INSCRICOES'] }),
+    doc({ codigo: 'CPF', modalidades: todas, etapasObrigatorias: ['INSCRICAO_CANDIDATOS', 'HOMOLOGACAO_INSCRICOES'] }),
+    doc({ codigo: 'HISTORICO_MEDIO', modalidades: todas, etapasObrigatorias: ['HOMOLOGACAO_INSCRICOES'] }),
+    doc({ codigo: 'CERTIFICADO_CONCLUSAO_EM', modalidades: todas, etapasObrigatorias: ['HOMOLOGACAO_INSCRICOES'] }),
+    doc({ codigo: 'COMPROVANTE_RESIDENCIA', modalidades: todas, etapasObrigatorias: ['INSCRICAO_CANDIDATOS', 'DIVULGACAO_BONIFICACAO'] }),
+    doc({ codigo: 'FOTO_3X4', modalidades: todas, etapasObrigatorias: ['INSCRICAO_CANDIDATOS'] }),
 
-  for (const mod of todasModalidades) {
-    docs.push({ tipoDocumentoCodigo: 'RG', modalidade: mod, obrigatorio: true });
-    docs.push({ tipoDocumentoCodigo: 'CPF', modalidade: mod, obrigatorio: true });
-    docs.push({ tipoDocumentoCodigo: 'HISTORICO_MEDIO', modalidade: mod, obrigatorio: true });
-    docs.push({ tipoDocumentoCodigo: 'CERTIFICADO_CONCLUSAO_EM', modalidade: mod, obrigatorio: true });
-    docs.push({ tipoDocumentoCodigo: 'COMPROVANTE_RESIDENCIA', modalidade: mod, obrigatorio: true });
-    docs.push({ tipoDocumentoCodigo: 'FOTO_3X4', modalidade: mod, obrigatorio: true });
-  }
+    doc({ codigo: 'LAUDO_MEDICO_PCD', modalidades: ['V', 'LB_PcD', 'LI_PcD'], etapasObrigatorias: ['INSCRICAO_CANDIDATOS', 'HOMOLOGACAO_INSCRICOES'] }),
+    doc({ codigo: 'TERMO_AUTODECLARACAO_PCD', modalidades: ['V', 'LB_PcD', 'LI_PcD'], etapasObrigatorias: ['INSCRICAO_CANDIDATOS'] }),
 
-  for (const mod of ['V', 'LB_PcD', 'LI_PcD']) {
-    docs.push({ tipoDocumentoCodigo: 'LAUDO_MEDICO_PCD', modalidade: mod, obrigatorio: true });
-    docs.push({ tipoDocumentoCodigo: 'TERMO_AUTODECLARACAO_PCD', modalidade: mod, obrigatorio: true });
-  }
-
-  for (const mod of ['LB_PPI', 'LI_PPI']) {
-    docs.push({ tipoDocumentoCodigo: 'DECLARACAO_AUTORRECONHECIMENTO', modalidade: mod, obrigatorio: true });
-  }
-
-  for (const mod of ['LB_Q', 'LI_Q']) {
-    docs.push({ tipoDocumentoCodigo: 'DECLARACAO_QUILOMBOLA', modalidade: mod, obrigatorio: true });
-  }
-
-  for (const mod of ['LB_PPI', 'LB_Q', 'LB_PcD', 'LB_EP']) {
-    docs.push({ tipoDocumentoCodigo: 'COMPROVANTE_RENDA', modalidade: mod, obrigatorio: true });
-  }
-
-  return docs;
+    doc({ codigo: 'DECLARACAO_AUTORRECONHECIMENTO', modalidades: ['LB_PPI', 'LI_PPI'], etapasObrigatorias: ['INSCRICAO_CANDIDATOS'] }),
+    doc({ codigo: 'DECLARACAO_QUILOMBOLA', modalidades: ['LB_Q', 'LI_Q'], etapasObrigatorias: ['INSCRICAO_CANDIDATOS'] }),
+    doc({ codigo: 'COMPROVANTE_RENDA', modalidades: ['LB_PPI', 'LB_Q', 'LB_PcD', 'LB_EP'], etapasObrigatorias: ['INSCRICAO_CANDIDATOS', 'HOMOLOGACAO_INSCRICOES'] }),
+  ];
 }
 
 // =====================================================
@@ -475,29 +473,21 @@ const CURSOS_SISU_2026 = [
 ];
 
 function gerarDocumentosSisu2026() {
-  // Homologação institucional no CRCA — docs comuns + docs por modalidade de cota.
+  // SiSU: a inscrição é feita no portal do MEC; a habilitação ao vínculo institucional
+  // (CRCA) consome todos os documentos na etapa HOMOLOGACAO_INSCRICOES.
   const todas = ['AC', 'V', 'LB_PPI', 'LB_Q', 'LB_PcD', 'LB_EP', 'LI_PPI', 'LI_Q', 'LI_PcD', 'LI_EP'];
-  const docs = [];
-  for (const mod of todas) {
-    docs.push({ tipoDocumentoCodigo: 'RG', modalidade: mod, obrigatorio: true });
-    docs.push({ tipoDocumentoCodigo: 'CPF', modalidade: mod, obrigatorio: true });
-    docs.push({ tipoDocumentoCodigo: 'HISTORICO_MEDIO', modalidade: mod, obrigatorio: true });
-    docs.push({ tipoDocumentoCodigo: 'CERTIFICADO_CONCLUSAO_EM', modalidade: mod, obrigatorio: true });
-    docs.push({ tipoDocumentoCodigo: 'FOTO_3X4', modalidade: mod, obrigatorio: true });
-  }
-  for (const mod of ['V', 'LB_PcD', 'LI_PcD']) {
-    docs.push({ tipoDocumentoCodigo: 'LAUDO_MEDICO_PCD', modalidade: mod, obrigatorio: true });
-  }
-  for (const mod of ['LB_PPI', 'LI_PPI']) {
-    docs.push({ tipoDocumentoCodigo: 'DECLARACAO_AUTORRECONHECIMENTO', modalidade: mod, obrigatorio: true });
-  }
-  for (const mod of ['LB_Q', 'LI_Q']) {
-    docs.push({ tipoDocumentoCodigo: 'DECLARACAO_QUILOMBOLA', modalidade: mod, obrigatorio: true });
-  }
-  for (const mod of ['LB_PPI', 'LB_Q', 'LB_PcD', 'LB_EP']) {
-    docs.push({ tipoDocumentoCodigo: 'COMPROVANTE_RENDA', modalidade: mod, obrigatorio: true });
-  }
-  return docs;
+  return [
+    doc({ codigo: 'RG', modalidades: todas, etapasObrigatorias: ['HOMOLOGACAO_INSCRICOES'] }),
+    doc({ codigo: 'CPF', modalidades: todas, etapasObrigatorias: ['HOMOLOGACAO_INSCRICOES'] }),
+    doc({ codigo: 'HISTORICO_MEDIO', modalidades: todas, etapasObrigatorias: ['HOMOLOGACAO_INSCRICOES'] }),
+    doc({ codigo: 'CERTIFICADO_CONCLUSAO_EM', modalidades: todas, etapasObrigatorias: ['HOMOLOGACAO_INSCRICOES'] }),
+    doc({ codigo: 'FOTO_3X4', modalidades: todas, etapasObrigatorias: ['HOMOLOGACAO_INSCRICOES'] }),
+
+    doc({ codigo: 'LAUDO_MEDICO_PCD', modalidades: ['V', 'LB_PcD', 'LI_PcD'], etapasObrigatorias: ['HOMOLOGACAO_INSCRICOES'] }),
+    doc({ codigo: 'DECLARACAO_AUTORRECONHECIMENTO', modalidades: ['LB_PPI', 'LI_PPI'], etapasObrigatorias: ['HOMOLOGACAO_INSCRICOES'] }),
+    doc({ codigo: 'DECLARACAO_QUILOMBOLA', modalidades: ['LB_Q', 'LI_Q'], etapasObrigatorias: ['HOMOLOGACAO_INSCRICOES'] }),
+    doc({ codigo: 'COMPROVANTE_RENDA', modalidades: ['LB_PPI', 'LB_Q', 'LB_PcD', 'LB_EP'], etapasObrigatorias: ['HOMOLOGACAO_INSCRICOES'] }),
+  ];
 }
 
 function montarSisu2026() {
