@@ -57,15 +57,40 @@ const AVALIADORES = {
   },
 
   ATENDIMENTO_PCD_DISPONIVEL: (state, p) => {
-    const atendimento = state.edital.atendimento || [];
-    const requeridas = p.necessidades || [];
-    return requeridas.every((n) =>
-      atendimento.some((a) => a.necessidadeEspecialCodigo === n)
-    );
+    // Gate: tipos de edital sem prova presencial (SiSU, transferências, portador
+    // de diploma) não aplicam regras de atendimento especializado — a regra é
+    // considerada atendida automaticamente. O candidato participa por nota ENEM
+    // ou análise documental, sem aplicação física de prova adaptada.
+    //
+    // O `state.edital.tipo` persistido guarda apenas `{ codigo, nome }` (ver
+    // `wizard.js:novoEstadoEdital`), então recarregamos o cadastro pelo código
+    // para ler `exige_prova_presencial` na fonte da verdade.
+    const tipoCodigo = state.edital.tipo?.codigo;
+    if (tipoCodigo) {
+      const tipoEdital = new Collection(Keys.TIPOS_EDITAL).byCodigo(tipoCodigo);
+      if (tipoEdital && tipoEdital.exige_prova_presencial === false) return true;
+    }
+    const oferta = state.edital.atendimentoEspecializado?.oferta || {};
+    // Compat: aceita estrutura antiga (sem `oferta`) caso o rascunho não tenha sido migrado.
+    const oferecidos =
+      oferta.recursos_oferecidos ||
+      state.edital.atendimentoEspecializado?.recursos_oferecidos ||
+      [];
+    const requeridos = p.recursos || [];
+    return requeridos.every((r) => oferecidos.includes(r));
   },
 
   ATENDIMENTO_GESTANTE_OBRIGATORIO: (state, p) => {
-    // mesma lógica do anterior
+    // mesma lógica: exige que todos os recursos requeridos estejam oferecidos.
+    // O gate de `exige_prova_presencial` está em `ATENDIMENTO_PCD_DISPONIVEL`.
+    return AVALIADORES.ATENDIMENTO_PCD_DISPONIVEL(state, p);
+  },
+
+  ATENDIMENTO_LACTANTE_OBRIGATORIO: (state, p) => {
+    // mesma lógica que gestante/PcD: recursos requeridos × recursos oferecidos.
+    // Regra separada de gestante porque o Edital ENEM 52/2025 item 4.2.1 distingue
+    // o acompanhante para o lactente como recurso específico de lactantes.
+    // O gate de `exige_prova_presencial` está em `ATENDIMENTO_PCD_DISPONIVEL`.
     return AVALIADORES.ATENDIMENTO_PCD_DISPONIVEL(state, p);
   },
 

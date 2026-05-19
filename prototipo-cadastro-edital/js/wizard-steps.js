@@ -1,4 +1,4 @@
-// wizard-steps.js — definição dos 12 passos do wizard.
+// wizard-steps.js — definição dos 13 passos do wizard.
 // Cada passo é implementado em js/steps/passo-NN-*.js.
 
 export const STEPS = [
@@ -13,7 +13,7 @@ export const STEPS = [
   { id: 9, codigo: 'eliminacao', titulo: 'Eliminação', icone: '🚫', modulo: './steps/passo-09-eliminacao.js' },
   { id: 10, codigo: 'documentos', titulo: 'Documentos', icone: '📄', modulo: './steps/passo-10-documentos.js' },
   { id: 11, codigo: 'cidades', titulo: 'Cidades de prova', icone: '📍', modulo: './steps/passo-11-cidades.js' },
-  { id: 12, codigo: 'atendimento', titulo: 'Atendimento especial', icone: 'img/Accessibility_logo.svg', modulo: './steps/passo-12-atendimento.js' },
+  { id: 12, codigo: 'atendimento', titulo: 'Atendimento especializado', icone: 'img/Accessibility_logo.svg', modulo: './steps/passo-12-atendimento.js' },
   { id: 13, codigo: 'revisao', titulo: 'Revisão e publicação', icone: '✅', modulo: './steps/passo-13-revisao.js' },
 ];
 

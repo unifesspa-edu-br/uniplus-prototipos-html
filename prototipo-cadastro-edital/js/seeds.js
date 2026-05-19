@@ -1,13 +1,17 @@
-// seeds.js — popula as 12 configurações com dados realistas a partir de data/*.json
+// seeds.js — popula as configurações com dados realistas a partir de data/*.json
 
 import { Storage, Collection, Keys, randomUUID } from './storage.js';
 
 const SEEDS = [
+  { url: 'data/seed-unidades.json', key: Keys.UNIDADES },
   { url: 'data/seed-tipos-edital.json', key: Keys.TIPOS_EDITAL },
   { url: 'data/seed-modalidades.json', key: Keys.MODALIDADES },
   { url: 'data/seed-tipos-etapa.json', key: Keys.TIPOS_ETAPA },
-  { url: 'data/seed-cidades-prova.json', key: Keys.CIDADES_PROVA },
-  { url: 'data/seed-necessidades.json', key: Keys.NECESSIDADES },
+  { url: 'data/seed-cidades.json', key: Keys.CIDADES },
+  { url: 'data/seed-campus.json', key: Keys.CAMPUS },
+  { url: 'data/seed-tipos-deficiencia.json', key: Keys.TIPOS_DEFICIENCIA },
+  { url: 'data/seed-condicoes-atendimento-especializado.json', key: Keys.CONDICOES_ATENDIMENTO_ESPECIALIZADO },
+  { url: 'data/seed-recursos-acessibilidade.json', key: Keys.RECURSOS_ACESSIBILIDADE },
   { url: 'data/seed-tipos-documento.json', key: Keys.TIPOS_DOCUMENTO },
   { url: 'data/seed-criterios-desempate.json', key: Keys.CRITERIOS_DESEMPATE },
   { url: 'data/seed-obrigatoriedades.json', key: Keys.OBRIGATORIEDADES },
@@ -31,6 +35,19 @@ export async function loadSeeds() {
       atualizadoEm: new Date().toISOString(),
       ...raw,
     }));
+    // Normalização defensiva para Unidade: `parent_codigo` vazio/espaços vira `null`.
+    // Espelha a normalização em `configuracao.js:validarUnidade` para CSV/seed imports
+    // e mantém invariante "parent === null = raiz", evitando FK fantasma.
+    if (key === Keys.UNIDADES) {
+      for (const item of items) {
+        if (typeof item.parent_codigo === 'string') {
+          const trimmed = item.parent_codigo.trim();
+          item.parent_codigo = trimmed === '' ? null : trimmed;
+        } else if (item.parent_codigo === undefined) {
+          item.parent_codigo = null;
+        }
+      }
+    }
     new Collection(key).replaceAll(items);
   }
   Storage.set(Keys.SEEDS_LOADED, {

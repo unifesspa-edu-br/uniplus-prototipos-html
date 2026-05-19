@@ -15,15 +15,15 @@ const TURNO_LABEL = {
 };
 
 /** Constrói o label legível de uma entrada de Cursos. */
-function rotuloCurso(curso, cidadePorCodigo) {
-  const campus = cidadePorCodigo[curso.campus_codigo]?.nome || curso.campus_codigo;
+function rotuloCurso(curso, campusPorCodigo) {
+  const campus = campusPorCodigo[curso.campus_codigo]?.nome || curso.campus_codigo;
   return `${curso.nome} — ${GRAU_ABREV[curso.grau] || curso.grau} — ${campus} — ${TURNO_LABEL[curso.turno] || curso.turno}`;
 }
 
 /** Resolve um cursoCodigo no shape denormalizado que a matriz consome. */
-function denormalizar(curso, cidadePorCodigo) {
+function denormalizar(curso, campusPorCodigo) {
   if (!curso) return null;
-  const campus = cidadePorCodigo[curso.campus_codigo]?.nome || curso.campus_codigo;
+  const campus = campusPorCodigo[curso.campus_codigo]?.nome || curso.campus_codigo;
   return {
     codigo: curso.codigo,
     curso: curso.nome,
@@ -39,18 +39,18 @@ export async function render(container, ctx) {
   const dm = state.edital.distribuicaoModalidades;
 
   const cursosDisponiveis = new Collection(Keys.CURSOS).list({ includeInactive: false });
-  const cidades = new Collection(Keys.CIDADES_PROVA).list({ includeInactive: true });
-  const cidadePorCodigo = Object.fromEntries(cidades.map((l) => [l.codigo, l]));
+  const campusList = new Collection(Keys.CAMPUS).list({ includeInactive: true });
+  const campusPorCodigo = Object.fromEntries(campusList.map((c) => [c.codigo, c]));
   const cursoPorCodigo = Object.fromEntries(cursosDisponiveis.map((c) => [c.codigo, c]));
 
   // Opções do select, ordenadas por campus + nome
   const opcoes = [...cursosDisponiveis]
     .sort((a, b) => {
-      const ca = cidadePorCodigo[a.campus_codigo]?.nome || a.campus_codigo;
-      const cb = cidadePorCodigo[b.campus_codigo]?.nome || b.campus_codigo;
+      const ca = campusPorCodigo[a.campus_codigo]?.nome || a.campus_codigo;
+      const cb = campusPorCodigo[b.campus_codigo]?.nome || b.campus_codigo;
       return ca.localeCompare(cb, 'pt-BR') || a.nome.localeCompare(b.nome, 'pt-BR');
     })
-    .map((c) => ({ value: c.codigo, label: rotuloCurso(c, cidadePorCodigo) }));
+    .map((c) => ({ value: c.codigo, label: rotuloCurso(c, campusPorCodigo) }));
 
   function updateVagas(patch) {
     updateState({ vagas: { ...v, ...patch } });
@@ -194,7 +194,7 @@ export async function render(container, ctx) {
   const cursosDenorm = v.cursos
     .map((linha) => {
       const curso = cursoPorCodigo[linha.cursoCodigo];
-      const dn = denormalizar(curso, cidadePorCodigo);
+      const dn = denormalizar(curso, campusPorCodigo);
       if (!dn) return null;
       return { ...dn, vagas: linha.vagas || 0 };
     })

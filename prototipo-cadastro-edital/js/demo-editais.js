@@ -89,6 +89,7 @@ function montarPseEducacaoCampo() {
         ano: 2026,
         dataEdital: '2026-04-01',
         sigla: 'CEPS/UNIFESSPA',
+        unidadeDonaCodigo: 'CEPS',
         nomeProcesso:
           'Processo Seletivo Especial — Licenciatura em Educação do Campo 2026',
         anoIngresso: 2026,
@@ -200,28 +201,26 @@ function montarPseEducacaoCampo() {
         { cidadeCodigo: 'MARABA', cursoCodigos: ['MARABA-EDUCACAO-CAMPO-LIC'], capacidadeMaxima: 120 },
         { cidadeCodigo: 'RONDON', cursoCodigos: ['RONDON-EDUCACAO-CAMPO-LIC'], capacidadeMaxima: 80 },
       ],
-      atendimento: [
-        {
-          necessidadeEspecialCodigo: 'GRAVIDEZ',
-          recursosDisponibilizados: ['SALA_TERREA', 'MOBILIARIO_ADEQUADO'],
+      // No novo modelo, o edital separa três listas:
+      //   - oferta.condicoes_aceitas: quais CondicaoAtendimentoEspecializado o edital aceita
+      //   - oferta.deficiencias_aceitas: dentre as PcD (TipoDeficiencia), quais são reconhecidas
+      //   - oferta.recursos_oferecidos: quais RecursoAcessibilidade o edital provê
+      // A SolicitacaoAtendimentoEspecializado (workflow de candidato) é decisão de F3 —
+      // não está modelada neste protótipo.
+      atendimentoEspecializado: {
+        oferta: {
+          condicoes_aceitas: ['PCD', 'DEFICIT_ATENCAO', 'GESTANTE', 'LACTANTE'],
+          deficiencias_aceitas: ['BAIXA_VISAO', 'DEFICIENCIA_FISICA', 'AUTISMO_ASPERGER_RETT'],
+          recursos_oferecidos: [
+            'SALA_FACIL_ACESSO',
+            'MESA_SEM_BRACO',
+            'APOIO_PERNAS_PES',
+            'ACOMPANHANTE_LACTANTE',
+            'PROVA_AMPLIADA',
+            'TEMPO_ADICIONAL',
+          ],
         },
-        {
-          necessidadeEspecialCodigo: 'AMAMENTACAO',
-          recursosDisponibilizados: ['BERCARIO', 'TEMPO_ADICIONAL'],
-        },
-        {
-          necessidadeEspecialCodigo: 'CADEIRANTE',
-          recursosDisponibilizados: ['SALA_TERREA', 'MOBILIARIO_ADAPTADO', 'BANHEIRO_ACESSIVEL'],
-        },
-        {
-          necessidadeEspecialCodigo: 'BAIXA_VISAO',
-          recursosDisponibilizados: ['PROVA_AMPLIADA', 'ILUMINACAO_REFORCADA', 'TEMPO_ADICIONAL'],
-        },
-        {
-          necessidadeEspecialCodigo: 'MOBILIDADE_REDUZIDA',
-          recursosDisponibilizados: ['SALA_TERREA', 'MOBILIARIO_ADEQUADO'],
-        },
-      ],
+      },
     },
   };
 }
@@ -247,6 +246,7 @@ function montarPsConveniosCanaa() {
         ano: 2026,
         dataEdital: '2026-03-15',
         sigla: 'CEPS/UNIFESSPA',
+        unidadeDonaCodigo: 'CEPS',
         nomeProcesso: 'Processo Seletivo Convênio Canaã dos Carajás 2026',
         anoIngresso: 2026,
         periodoIngresso: '1S',
@@ -362,36 +362,30 @@ function montarPsConveniosCanaa() {
           capacidadeMaxima: 400,
         },
       ],
-      atendimento: [
-        {
-          necessidadeEspecialCodigo: 'GRAVIDEZ',
-          recursosDisponibilizados: ['SALA_TERREA', 'MOBILIARIO_ADEQUADO'],
+      atendimentoEspecializado: {
+        oferta: {
+          condicoes_aceitas: ['PCD', 'DISLEXIA', 'DEFICIT_ATENCAO', 'DISCALCULIA', 'GESTANTE', 'LACTANTE', 'IDOSO'],
+          deficiencias_aceitas: [
+            'BAIXA_VISAO',
+            'CEGUEIRA',
+            'SURDEZ',
+            'DEFICIENCIA_FISICA',
+            'DEFICIENCIA_AUDITIVA',
+            'AUTISMO_ASPERGER_RETT',
+          ],
+          recursos_oferecidos: [
+            'SALA_FACIL_ACESSO',
+            'MESA_SEM_BRACO',
+            'APOIO_PERNAS_PES',
+            'ACOMPANHANTE_LACTANTE',
+            'PROVA_AMPLIADA',
+            'PROVA_BRAILE',
+            'TRADUTOR_INTERPRETE_LIBRAS',
+            'AUXILIO_LEITURA',
+            'TEMPO_ADICIONAL',
+          ],
         },
-        {
-          necessidadeEspecialCodigo: 'AMAMENTACAO',
-          recursosDisponibilizados: ['BERCARIO', 'TEMPO_ADICIONAL'],
-        },
-        {
-          necessidadeEspecialCodigo: 'CADEIRANTE',
-          recursosDisponibilizados: ['SALA_TERREA', 'MOBILIARIO_ADAPTADO', 'BANHEIRO_ACESSIVEL'],
-        },
-        {
-          necessidadeEspecialCodigo: 'BAIXA_VISAO',
-          recursosDisponibilizados: ['PROVA_AMPLIADA', 'ILUMINACAO_REFORCADA', 'TEMPO_ADICIONAL'],
-        },
-        {
-          necessidadeEspecialCodigo: 'CEGUEIRA',
-          recursosDisponibilizados: ['LEDOR', 'PROVA_BRAILE', 'TEMPO_ADICIONAL'],
-        },
-        {
-          necessidadeEspecialCodigo: 'SURDEZ',
-          recursosDisponibilizados: ['INTERPRETE_LIBRAS'],
-        },
-        {
-          necessidadeEspecialCodigo: 'MOBILIDADE_REDUZIDA',
-          recursosDisponibilizados: ['SALA_TERREA', 'MOBILIARIO_ADEQUADO'],
-        },
-      ],
+      },
     },
   };
 }
@@ -508,6 +502,7 @@ function montarSisu2026() {
         ano: 2025,
         dataEdital: '2025-12-23',
         sigla: 'CEPS/UNIFESSPA',
+        unidadeDonaCodigo: 'CEPS',
         nomeProcesso: 'Sistema de Seleção Unificada — SiSU 2026',
         anoIngresso: 2026,
         periodoIngresso: '1S',
@@ -579,7 +574,9 @@ function montarSisu2026() {
       // SiSU não tem prova presencial (classifica pela nota do ENEM), então o candidato
       // não escolhe cidade na inscrição — habilitação é documental no CRCA dos 5 campi.
       cidades: [],
-      atendimento: [],
+      atendimentoEspecializado: {
+        oferta: { condicoes_aceitas: [], deficiencias_aceitas: [], recursos_oferecidos: [] },
+      },
     },
   };
 }

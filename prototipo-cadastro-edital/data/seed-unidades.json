@@ -1,0 +1,182 @@
+[
+  {
+    "codigo": "UNIFESSPA",
+    "nome": "Universidade Federal do Sul e Sudeste do Pará",
+    "sigla": "UNIFESSPA",
+    "parent_codigo": null,
+    "tipo": "REITORIA",
+    "unidade_academica": false,
+    "ativo": true
+  },
+  {
+    "codigo": "PROEG",
+    "nome": "Pró-Reitoria de Ensino de Graduação",
+    "sigla": "PROEG",
+    "parent_codigo": "UNIFESSPA",
+    "tipo": "PRO_REITORIA",
+    "unidade_academica": false,
+    "ativo": true
+  },
+  {
+    "codigo": "PROEX",
+    "nome": "Pró-Reitoria de Extensão e Assuntos Estudantis",
+    "sigla": "PROEX",
+    "parent_codigo": "UNIFESSPA",
+    "tipo": "PRO_REITORIA",
+    "unidade_academica": false,
+    "ativo": true
+  },
+  {
+    "codigo": "CEPS",
+    "nome": "Centro de Processos Seletivos",
+    "sigla": "CEPS",
+    "parent_codigo": "UNIFESSPA",
+    "tipo": "CENTRO",
+    "unidade_academica": false,
+    "ativo": true
+  },
+  {
+    "codigo": "CRCA",
+    "nome": "Centro de Registro e Controle Acadêmico",
+    "sigla": "CRCA",
+    "parent_codigo": "UNIFESSPA",
+    "tipo": "CENTRO",
+    "unidade_academica": false,
+    "ativo": true
+  },
+  {
+    "codigo": "CTIC",
+    "nome": "Centro de Tecnologia da Informação e Comunicação",
+    "sigla": "CTIC",
+    "parent_codigo": "UNIFESSPA",
+    "tipo": "CENTRO",
+    "unidade_academica": false,
+    "ativo": true
+  },
+  {
+    "codigo": "ICH",
+    "nome": "Instituto de Ciências Humanas",
+    "sigla": "ICH",
+    "parent_codigo": "UNIFESSPA",
+    "tipo": "INSTITUTO",
+    "unidade_academica": true,
+    "ativo": true
+  },
+  {
+    "codigo": "FAHIST",
+    "nome": "Faculdade de História — Marabá",
+    "sigla": "FAHIST",
+    "parent_codigo": "ICH",
+    "tipo": "FACULDADE",
+    "unidade_academica": true,
+    "ativo": true
+  },
+  {
+    "codigo": "FACGEO",
+    "nome": "Faculdade de Geografia — Marabá",
+    "sigla": "FACGEO",
+    "parent_codigo": "ICH",
+    "tipo": "FACULDADE",
+    "unidade_academica": true,
+    "ativo": true
+  },
+  {
+    "codigo": "FECAMP",
+    "nome": "Faculdade de Educação do Campo",
+    "sigla": "FECAMP",
+    "parent_codigo": "ICH",
+    "tipo": "FACULDADE",
+    "unidade_academica": true,
+    "ativo": true
+  },
+  {
+    "codigo": "ICE",
+    "nome": "Instituto de Ciências Exatas",
+    "sigla": "ICE",
+    "parent_codigo": "UNIFESSPA",
+    "tipo": "INSTITUTO",
+    "unidade_academica": true,
+    "ativo": true
+  },
+  {
+    "codigo": "ICSA",
+    "nome": "Instituto de Ciências Sociais Aplicadas",
+    "sigla": "ICSA",
+    "parent_codigo": "UNIFESSPA",
+    "tipo": "INSTITUTO",
+    "unidade_academica": true,
+    "ativo": true
+  },
+  {
+    "codigo": "IEA",
+    "nome": "Instituto de Engenharia do Araguaia",
+    "sigla": "IEA",
+    "parent_codigo": "UNIFESSPA",
+    "tipo": "INSTITUTO",
+    "unidade_academica": true,
+    "ativo": true
+  },
+  {
+    "codigo": "IEDAR",
+    "nome": "Instituto de Estudos em Desenvolvimento Agrário e Regional",
+    "sigla": "IEDAR",
+    "parent_codigo": "UNIFESSPA",
+    "tipo": "INSTITUTO",
+    "unidade_academica": true,
+    "ativo": true
+  },
+  {
+    "codigo": "IEDS",
+    "nome": "Instituto de Estudos em Direito e Sociedade",
+    "sigla": "IEDS",
+    "parent_codigo": "UNIFESSPA",
+    "tipo": "INSTITUTO",
+    "unidade_academica": true,
+    "ativo": true
+  },
+  {
+    "codigo": "IESB",
+    "nome": "Instituto de Estudos em Saúde e Biológicas",
+    "sigla": "IESB",
+    "parent_codigo": "UNIFESSPA",
+    "tipo": "INSTITUTO",
+    "unidade_academica": true,
+    "ativo": true
+  },
+  {
+    "codigo": "IETU",
+    "nome": "Instituto de Estudos do Trópico Úmido",
+    "sigla": "IETU",
+    "parent_codigo": "UNIFESSPA",
+    "tipo": "INSTITUTO",
+    "unidade_academica": true,
+    "ativo": true
+  },
+  {
+    "codigo": "IEX",
+    "nome": "Instituto de Estudos do Xingu",
+    "sigla": "IEX",
+    "parent_codigo": "UNIFESSPA",
+    "tipo": "INSTITUTO",
+    "unidade_academica": true,
+    "ativo": true
+  },
+  {
+    "codigo": "IGE",
+    "nome": "Instituto de Geociências e Engenharias",
+    "sigla": "IGE",
+    "parent_codigo": "UNIFESSPA",
+    "tipo": "INSTITUTO",
+    "unidade_academica": true,
+    "ativo": true
+  },
+  {
+    "codigo": "ILLA",
+    "nome": "Instituto de Linguística, Letras e Artes",
+    "sigla": "ILLA",
+    "parent_codigo": "UNIFESSPA",
+    "tipo": "INSTITUTO",
+    "unidade_academica": true,
+    "ativo": true
+  }
+]

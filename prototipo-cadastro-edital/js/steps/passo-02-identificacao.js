@@ -1,10 +1,25 @@
-// Passo 2: Identificação — número, ano, data, sigla, nome, ingresso, PDF.
+// Passo 2: Identificação — número, ano, data, sigla, unidade dona, nome, ingresso, PDF.
 
+import { Collection, Keys } from '../storage.js';
 import { el, field, input, textarea, select } from '../dom.js';
 
 export async function render(container, ctx) {
   const { state, updateState, setStepStatus } = ctx;
   const ident = state.edital.identificacao;
+
+  // Default da unidade dona: CEPS (mantém o comportamento histórico do protótipo).
+  if (!ident.unidadeDonaCodigo) {
+    const padrao = new Collection(Keys.UNIDADES).byCodigo('CEPS');
+    if (padrao) {
+      ident.unidadeDonaCodigo = padrao.codigo;
+    }
+  }
+
+  const unidades = new Collection(Keys.UNIDADES).list({ includeInactive: false });
+  const opcoesUnidades = unidades.map((u) => ({
+    value: u.codigo,
+    label: `${u.sigla || u.codigo} — ${u.nome}`,
+  }));
 
   function update(campo, valor) {
     const novoIdent = { ...ident, [campo]: valor };
@@ -14,7 +29,8 @@ export async function render(container, ctx) {
 
   function avaliarStatus() {
     const i = state.edital.identificacao;
-    const completo = i.numero && i.ano && i.dataEdital && i.sigla && i.nomeProcesso;
+    const completo =
+      i.numero && i.ano && i.dataEdital && i.sigla && i.nomeProcesso && i.unidadeDonaCodigo;
     setStepStatus(completo ? 'concluido' : 'emProgresso');
   }
 
@@ -29,6 +45,18 @@ export async function render(container, ctx) {
   grid.appendChild(field('Ano', input(ident.ano, (v) => update('ano', v ? Number(v) : null), { type: 'number' }), 'Ex.: 2026'));
   grid.appendChild(field('Data do edital', input(ident.dataEdital, (v) => update('dataEdital', v), { type: 'date' })));
   grid.appendChild(field('Sigla órgão expedidor', input(ident.sigla || 'CEPS/UNIFESSPA', (v) => update('sigla', v))));
+  grid.appendChild(
+    field(
+      'Unidade dona do processo',
+      select(
+        ident.unidadeDonaCodigo,
+        opcoesUnidades,
+        (v) => update('unidadeDonaCodigo', v || null),
+        { placeholder: '— selecione —' }
+      ),
+      'Unidade institucional responsável pelo edital (CEPS, CRCA, PROEX…). Vem de Configurações › Unidades institucionais.'
+    )
+  );
   grid.appendChild(field('Ano de ingresso', input(ident.anoIngresso, (v) => update('anoIngresso', v ? Number(v) : null), { type: 'number' }), 'Ex.: 2026'));
   grid.appendChild(
     field(

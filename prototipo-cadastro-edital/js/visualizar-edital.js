@@ -192,12 +192,17 @@ function renderActions(item, snapshot) {
 
 function renderIdentificacao(snapshot) {
   const ident = snapshot.identificacao || {};
+  const unidade = snapshot.unidade_dona || null;
+  const unidadeStr = unidade
+    ? `${unidade.sigla || unidade.codigo}${unidade.nome ? ' — ' + unidade.nome : ''}`
+    : null;
   return section(
     '📋 Identificação',
     infoGrid([
       ['Número do edital', ident.numero ? `${ident.numero}/${ident.ano}` : null],
       ['Data do edital', fmtDate(ident.dataEdital)],
       ['Sigla', ident.sigla],
+      ['Unidade dona', unidadeStr],
       ['Ano de ingresso', ident.anoIngresso],
       ['Período de ingresso', NOMES_PERIODO[ident.periodoIngresso] || ident.periodoIngresso],
       [
@@ -231,6 +236,15 @@ function renderVagasModalidades(snapshot) {
       [
         { label: 'Curso', key: 'curso' },
         { label: 'Grau', key: 'grau' },
+        {
+          label: 'Unidade ofertante',
+          // Prioridade: objeto denormalizado > sigla literal congelada (fallback
+          // quando a Unidade foi removida do cadastro após a publicação).
+          render: (v) =>
+            v.unidade_ofertante?.sigla ||
+            v.unidade_ofertante_sigla ||
+            el('span', { class: 'text-muted' }, '—'),
+        },
         { label: 'Campus', key: 'campus' },
         { label: 'Turno', key: 'turno' },
         { label: 'Vagas', key: 'vagas', width: '80px' },
@@ -616,32 +630,104 @@ function renderCidades(snapshot) {
 }
 
 function renderAtendimento(snapshot) {
-  const atendimento = snapshot.atendimento_especial || [];
-  return section(
-    el('span', {}, iconNode('img/Accessibility_logo.svg'), ' Atendimento especial'),
-    atendimento.length === 0
-      ? el('p', { class: 'text-muted' }, 'Nenhuma necessidade configurada.')
-      : el(
+  const atendimento = snapshot.atendimento_especializado || {};
+  // Compatibilidade em camadas:
+  //   1. Formato canônico: `atendimento_especializado.oferta.{...}`.
+  //   2. Formato intermediário: `atendimento_especializado.{...}` (listas no topo).
+  //   3. Formato legado pré-C7: `snapshot.atendimento_especial` array. Mostrado
+  //      como aviso defensivo — não há mapeamento automático para a configuração nova.
+  const oferta = atendimento.oferta || {
+    condicoes_aceitas: atendimento.condicoes_aceitas || [],
+    deficiencias_aceitas: atendimento.deficiencias_aceitas || [],
+    recursos_oferecidos: atendimento.recursos_oferecidos || [],
+  };
+  const condicoes = oferta.condicoes_aceitas || [];
+  const deficiencias = oferta.deficiencias_aceitas || [];
+  const recursos = oferta.recursos_oferecidos || [];
+  const legadoArr = Array.isArray(snapshot.atendimento_especial)
+    ? snapshot.atendimento_especial
+    : null;
+
+  if (
+    condicoes.length === 0 &&
+    deficiencias.length === 0 &&
+    recursos.length === 0 &&
+    (!legadoArr || legadoArr.length === 0)
+  ) {
+    return section(
+      el('span', {}, iconNode('img/Accessibility_logo.svg'), ' Atendimento especializado'),
+      el('p', { class: 'text-muted' }, 'Nenhuma condição, deficiência ou recurso configurado para a oferta deste edital.')
+    );
+  }
+
+  const cardLista = (items) =>
+    el(
+      'div',
+      { style: 'display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 0.5rem; margin-bottom: 1rem' },
+      ...items.map((d) =>
+        el(
           'div',
-          { style: 'display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 0.75rem' },
-          ...atendimento.map((a) =>
-            el(
-              'div',
-              {
-                style:
-                  'background: var(--color-secondary-01); padding: 0.75rem 1rem; border-radius: 4px; border-left: 3px solid var(--primary)',
-              },
-              el('strong', {}, a.necessidade?.nome || a.necessidade?.codigo),
-              a.recursos_disponibilizados?.length
-                ? el(
-                    'div',
-                    { style: 'margin-top: 0.375rem; display: flex; gap: 0.25rem; flex-wrap: wrap' },
-                    ...a.recursos_disponibilizados.map((r) => el('span', { class: 'tag', style: 'font-size: 0.7rem' }, r))
-                  )
-                : null
-            )
+          {
+            style:
+              'background: var(--color-secondary-01); padding: 0.5rem 0.75rem; border-radius: 4px; border-left: 3px solid var(--primary)',
+          },
+          el('div', { style: 'font-weight: 600; font-size: 0.875rem' }, d.nome || d.codigo),
+          d.descricao
+            ? el('div', { class: 'text-small text-muted', style: 'margin-top: 0.125rem' }, d.descricao)
+            : null,
+          d.base_legal
+            ? el('div', { class: 'text-small text-muted', style: 'margin-top: 0.125rem; font-style: italic' }, d.base_legal)
+            : null
+        )
+      )
+    );
+
+  // Aviso defensivo para snapshots pré-C7 (formato legado `atendimento_especial`).
+  // Não tenta migrar — apenas mostra para o operador entender a divergência sem crash.
+  const avisoLegado =
+    legadoArr && legadoArr.length > 0
+      ? el(
+          'div',
+          {
+            style:
+              'background: var(--color-warning-pastel, #fff7e6); border-left: 3px solid var(--color-warning, #e0a800); padding: 0.5rem 0.75rem; border-radius: 4px; margin-bottom: 0.75rem',
+          },
+          el(
+            'div',
+            { class: 'text-small', style: 'font-weight: 600; margin-bottom: 0.125rem' },
+            'Snapshot legado detectado (pré-C7).'
+          ),
+          el(
+            'div',
+            { class: 'text-small text-muted' },
+            `Este edital foi publicado com o formato antigo "atendimento_especial" (${legadoArr.length} item(ns)). Visualização preservada por compatibilidade; re-cadastre a oferta no passo 12 ao clonar.`
           )
         )
+      : null;
+
+  return section(
+    el('span', {}, iconNode('img/Accessibility_logo.svg'), ' Atendimento especializado'),
+    el(
+      'p',
+      { class: 'text-small text-muted', style: 'margin: 0 0 0.75rem' },
+      'Configuração da oferta do edital (vocabulário canônico INEP, Edital ENEM 52/2025). A solicitação do candidato é processo posterior, gerenciado pelo CEPS.'
+    ),
+    avisoLegado,
+
+    el('h3', { style: 'font-size: 0.875rem; font-weight: 600; margin: 0 0 0.5rem' }, 'Condições aceitas (item 4.2.1)'),
+    condicoes.length === 0
+      ? el('p', { class: 'text-muted text-small mb-4' }, 'Nenhuma condição selecionada.')
+      : cardLista(condicoes),
+
+    el('h3', { style: 'font-size: 0.875rem; font-weight: 600; margin: 0 0 0.5rem' }, 'Deficiências reconhecidas (PcD)'),
+    deficiencias.length === 0
+      ? el('p', { class: 'text-muted text-small mb-4' }, 'Nenhuma deficiência selecionada.')
+      : cardLista(deficiencias),
+
+    el('h3', { style: 'font-size: 0.875rem; font-weight: 600; margin: 0 0 0.5rem' }, 'Recursos de acessibilidade oferecidos (item 4.2.2)'),
+    recursos.length === 0
+      ? el('p', { class: 'text-muted text-small' }, 'Nenhum recurso selecionado.')
+      : cardLista(recursos)
   );
 }
 

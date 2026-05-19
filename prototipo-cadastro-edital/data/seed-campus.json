@@ -1,0 +1,74 @@
+[
+  {
+    "codigo": "MARABA",
+    "nome": "Campus de Marabá",
+    "cidade_codigo": "MARABA",
+    "endereco": "Folha 31, Quadra 07, Lote Especial, s/n.º - Nova Marabá",
+    "cep": "68507-590",
+    "latitude": -5.3681,
+    "longitude": -49.0856,
+    "tipo_campus": "UNIFESSPA",
+    "observacoes": "Sede principal da Unifesspa.",
+    "ativo": true
+  },
+  {
+    "codigo": "SANTANA",
+    "nome": "Campus de Santana do Araguaia",
+    "cidade_codigo": "SANTANA",
+    "endereco": null,
+    "cep": null,
+    "latitude": -9.3322,
+    "longitude": -50.3506,
+    "tipo_campus": "UNIFESSPA",
+    "observacoes": "",
+    "ativo": true
+  },
+  {
+    "codigo": "SAO_FELIX",
+    "nome": "Campus de São Félix do Xingu",
+    "cidade_codigo": "SAO_FELIX",
+    "endereco": null,
+    "cep": null,
+    "latitude": -6.6442,
+    "longitude": -51.9981,
+    "tipo_campus": "UNIFESSPA",
+    "observacoes": "",
+    "ativo": true
+  },
+  {
+    "codigo": "RONDON",
+    "nome": "Campus de Rondon do Pará",
+    "cidade_codigo": "RONDON",
+    "endereco": null,
+    "cep": null,
+    "latitude": -4.7783,
+    "longitude": -48.0683,
+    "tipo_campus": "UNIFESSPA",
+    "observacoes": "",
+    "ativo": true
+  },
+  {
+    "codigo": "XINGUARA",
+    "nome": "Campus de Xinguara",
+    "cidade_codigo": "XINGUARA",
+    "endereco": null,
+    "cep": null,
+    "latitude": -7.0961,
+    "longitude": -49.9472,
+    "tipo_campus": "UNIFESSPA",
+    "observacoes": "",
+    "ativo": true
+  },
+  {
+    "codigo": "CANAA_CONVENIO",
+    "nome": "Polo de Canaã dos Carajás (convênio)",
+    "cidade_codigo": "CANAA",
+    "endereco": null,
+    "cep": null,
+    "latitude": -6.4972,
+    "longitude": -49.8775,
+    "tipo_campus": "CONVENIO",
+    "observacoes": "Polo de oferta em convênio com a Prefeitura/empresas mineradoras. Não é campus próprio Unifesspa, mas hospeda cursos do edital de PS Convênios.",
+    "ativo": true
+  }
+]

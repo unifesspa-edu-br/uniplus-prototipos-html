@@ -28,8 +28,15 @@ export function snapshotToWizardState(snapshot, options = {}) {
         ? { codigo: tipoLocal.codigo, nome: tipoLocal.nome }
         : null,
       identificacao: options.manterIdentificacao
-        ? { ...snapshot.identificacao }
-        : { sigla: snapshot.identificacao?.sigla || 'CEPS/UNIFESSPA' },
+        ? {
+            ...snapshot.identificacao,
+            unidadeDonaCodigo:
+              snapshot.identificacao?.unidadeDonaCodigo ?? snapshot.unidade_dona?.codigo ?? null,
+          }
+        : {
+            sigla: snapshot.identificacao?.sigla || 'CEPS/UNIFESSPA',
+            unidadeDonaCodigo: snapshot.unidade_dona?.codigo ?? null,
+          },
       vagas: {
         // Round-trip via `codigo` da entrada Curso. Sem manterVagas, descarta tudo.
         cursos: options.manterVagas
@@ -87,10 +94,39 @@ export function snapshotToWizardState(snapshot, options = {}) {
           cursoCodigos: (c.cursos || []).map((curso) => curso.codigo).filter(Boolean),
           capacidadeMaxima: c.capacidade_maxima ?? null,
         })),
-      atendimento: (snapshot.atendimento_especial || []).map((a) => ({
-        necessidadeEspecialCodigo: a.necessidade?.codigo,
-        recursosDisponibilizados: [...(a.recursos_disponibilizados || [])],
-      })),
+      atendimentoEspecializado: (() => {
+        // Compatibilidade em camadas:
+        //   1. Formato canônico atual: `atendimento_especializado.oferta.{...}`.
+        //   2. Formato intermediário: `atendimento_especializado.{...}` (sem `oferta`).
+        //   3. Formato legado pré-C7 (rodada anterior): `atendimento_especial[]` —
+        //      array de objetos `{ necessidade: { codigo } }`. Sem mapeamento direto
+        //      para a configuração nova (RecursoAcessibilidade); preserva-se como
+        //      observação para o usuário ver e re-cadastrar manualmente.
+        const fonte =
+          snapshot.atendimento_especializado?.oferta ||
+          snapshot.atendimento_especializado ||
+          {};
+        const legadoArr = Array.isArray(snapshot.atendimento_especial)
+          ? snapshot.atendimento_especial
+          : null;
+        const observacoesMigracao = legadoArr && legadoArr.length > 0
+          ? `Snapshot legado pré-C7: ${legadoArr.length} item(ns) em "atendimento_especial" não foram migrados automaticamente. Re-cadastre no passo 12.`
+          : null;
+        return {
+          oferta: {
+            condicoes_aceitas: (fonte.condicoes_aceitas || [])
+              .map((c) => c?.codigo)
+              .filter(Boolean),
+            deficiencias_aceitas: (fonte.deficiencias_aceitas || [])
+              .map((d) => d?.codigo)
+              .filter(Boolean),
+            recursos_oferecidos: (fonte.recursos_oferecidos || [])
+              .map((r) => r?.codigo)
+              .filter(Boolean),
+          },
+          ...(observacoesMigracao ? { observacoes_migracao: observacoesMigracao } : {}),
+        };
+      })(),
     },
   };
 

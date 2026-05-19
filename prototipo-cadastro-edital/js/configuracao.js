@@ -2,6 +2,7 @@
 
 import { Collection } from './storage.js';
 import { CONFIGURACOES, getConfiguracao } from './configuracao-schemas.js';
+import { TIPOS_UNIDADE_VALIDOS } from './vocabulario-unidades.js';
 import { Toast } from './toast.js';
 import { iconNode } from './dom.js';
 
@@ -583,7 +584,85 @@ function buildItemFromForm(form) {
     }
     item[field.campo] = value;
   }
+  // Validações específicas por configuração.
+  if (currentSlug === 'unidades') {
+    validarUnidade(item);
+  }
   return item;
+}
+
+// `TIPOS_UNIDADE_VALIDOS` é importada de `vocabulario-unidades.js` (fonte única).
+// Validação aqui é defesa em profundidade contra entradas que pulem o formulário
+// (import, console, seeds adulterados).
+
+/**
+ * Valida integridade da hierarquia de Unidade:
+ *   - código único (ignorando a própria entrada em edição);
+ *   - tipo obrigatório e dentro do enum canônico (decisão TL 2026-05-18);
+ *   - parent_codigo (se informado) deve existir e ser diferente do código atual;
+ *   - sem ciclos (subindo a cadeia parent → parent → ... até null ou auto-loop).
+ * Lança Error com mensagem humanizada (não vaza stack).
+ */
+function validarUnidade(item) {
+  const itens = currentCollection.list({ includeInactive: true });
+  const codigo = item.codigo;
+  // Normalização defensiva: strings vazias, espaços-em-branco e undefined viram null
+  // antes da validação (e antes de persistir). Evita FK inválida vinda de CSV import,
+  // formulários onde o usuário esvaziou o campo, ou seeds adulterados.
+  let parent = item.parent_codigo;
+  if (typeof parent === 'string') {
+    parent = parent.trim();
+    if (parent === '') parent = null;
+  } else if (parent === undefined) {
+    parent = null;
+  }
+  item.parent_codigo = parent;
+
+  if (codigo) {
+    const conflito = itens.find((u) => u.codigo === codigo && u.id !== item.id);
+    if (conflito) {
+      throw new Error(`Já existe uma unidade com o código "${codigo}". Escolha outro.`);
+    }
+  }
+
+  // Tipo: obrigatório no MVP + restrito ao enum canônico.
+  if (!item.tipo) {
+    throw new Error('Tipo da unidade é obrigatório. Selecione um dos valores da lista.');
+  }
+  if (!TIPOS_UNIDADE_VALIDOS.has(item.tipo)) {
+    throw new Error(
+      `Tipo "${item.tipo}" não é um valor aceito. Valores válidos: ${[...TIPOS_UNIDADE_VALIDOS].join(', ')}.`
+    );
+  }
+
+  if (parent) {
+    if (parent === codigo) {
+      throw new Error('Unidade pai não pode ser ela mesma.');
+    }
+    // Monta índice das entradas existentes + reflete o item atual sendo salvo,
+    // para que a detecção de ciclo considere o estado pós-save.
+    const porCodigo = new Map();
+    for (const u of itens) {
+      if (u.id !== item.id) porCodigo.set(u.codigo, u);
+    }
+    porCodigo.set(codigo, item);
+
+    const parentObj = porCodigo.get(parent);
+    if (!parentObj) {
+      throw new Error(`Unidade pai "${parent}" não foi encontrada.`);
+    }
+
+    // Sobe a cadeia parent → parent → ... e detecta loop.
+    const visitados = new Set([codigo]);
+    let atual = parentObj;
+    while (atual && atual.parent_codigo) {
+      if (visitados.has(atual.parent_codigo)) {
+        throw new Error(`Loop detectado na hierarquia (${atual.codigo} → ${atual.parent_codigo}).`);
+      }
+      visitados.add(atual.parent_codigo);
+      atual = porCodigo.get(atual.parent_codigo);
+    }
+  }
 }
 
 function openForm(item = null) {

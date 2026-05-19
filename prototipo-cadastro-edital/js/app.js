@@ -12,12 +12,16 @@ function updateStats() {
   });
   const modelos = new Collection(Keys.MODELOS).count({ includeInactive: true });
 
-  const configuracoesCount = [
+  const chavesConfig = [
+    Keys.UNIDADES,
     Keys.TIPOS_EDITAL,
     Keys.MODALIDADES,
     Keys.TIPOS_ETAPA,
-    Keys.CIDADES_PROVA,
-    Keys.NECESSIDADES,
+    Keys.CIDADES,
+    Keys.CAMPUS,
+    Keys.TIPOS_DEFICIENCIA,
+    Keys.CONDICOES_ATENDIMENTO_ESPECIALIZADO,
+    Keys.RECURSOS_ACESSIBILIDADE,
     Keys.TIPOS_DOCUMENTO,
     Keys.CRITERIOS_DESEMPATE,
     Keys.OBRIGATORIEDADES,
@@ -25,14 +29,18 @@ function updateStats() {
     Keys.ESTRATEGIAS_BALANCEAMENTO,
     Keys.CASCATAS_REMANEJAMENTO,
     Keys.CURSOS,
-  ].reduce((sum, k) => sum + new Collection(k).count({ includeInactive: false }), 0);
+  ];
+  const configuracoesCount = chavesConfig.reduce(
+    (sum, k) => sum + new Collection(k).count({ includeInactive: false }),
+    0
+  );
 
   setStats(
     'editais',
     `${editaisRascunho} rascunho(s) · ${editaisPublicado} publicado(s)`
   );
   setStats('modelos', `${modelos} modelo(s)`);
-  setStats('configuracoes', `${configuracoesCount} entradas em 8 configurações`);
+  setStats('configuracoes', `${configuracoesCount} entradas em ${chavesConfig.length} configurações`);
 }
 
 function setStats(name, value) {

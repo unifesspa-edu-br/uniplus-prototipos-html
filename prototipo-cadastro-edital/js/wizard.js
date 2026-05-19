@@ -44,7 +44,13 @@ function novoEstadoEdital() {
       eliminacao: { notasMinimas: {}, clausulas: [] },
       documentos: [],
       cidades: [],
-      atendimento: [],
+      atendimentoEspecializado: {
+        oferta: {
+          condicoes_aceitas: [],
+          deficiencias_aceitas: [],
+          recursos_oferecidos: [],
+        },
+      },
     },
   };
 }

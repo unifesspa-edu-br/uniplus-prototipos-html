@@ -1,7 +1,8 @@
-// configuracao-schemas.js — define schema declarativo para cada uma das 8 configurações.
+// configuracao-schemas.js — define schema declarativo para cada configuração.
 // O CRUD genérico em configuracao.js consome esses schemas para renderizar tabelas e formulários.
 
 import { Keys } from './storage.js';
+import { TIPOS_UNIDADE_OPTIONS } from './vocabulario-unidades.js';
 
 /**
  * Tipos de campo suportados:
@@ -33,11 +34,50 @@ const CATEGORIA_OBRIG_OPTS = [
   { value: 'DESEMPATE', label: 'Desempate' },
   { value: 'DOCUMENTO', label: 'Documento' },
   { value: 'BONUS', label: 'Bônus' },
-  { value: 'ATENDIMENTO', label: 'Atendimento especial' },
+  { value: 'ATENDIMENTO', label: 'Atendimento especializado' },
   { value: 'OUTROS', label: 'Outros' },
 ];
 
 const _RAW_CONFIGURACOES = {
+  unidades: {
+    titulo: 'Unidades institucionais',
+    descricao: 'Cadastro hierárquico das unidades Unifesspa (Reitoria, Pró-Reitorias, Centros, Institutos, Faculdades, Departamentos, Coordenações). Cada unidade pode ter <strong>uma unidade pai</strong> e múltiplas filhas. Em produção, ~690 unidades reais migráveis dos sistemas legados. O <strong>edital tem uma unidade dona</strong> (ex.: CEPS para PSIQ/PSE EC; CRCA para Transferências).',
+    icone: '🏢',
+    key: Keys.UNIDADES,
+    colunas: [
+      { campo: 'codigo', label: 'Código' },
+      { campo: 'sigla', label: 'Sigla' },
+      { campo: 'nome', label: 'Nome' },
+      { campo: 'parent_codigo', label: 'Unidade pai' },
+      { campo: 'tipo', label: 'Tipo' },
+      { campo: 'unidade_academica', label: 'Acadêmica?', tipo: 'bool' },
+    ],
+    campos: [
+      { campo: 'codigo', label: 'Código', tipo: 'text', required: true, hint: 'Identificador único, ex.: PROEG, CEPS, ICH, FAHIST.' },
+      { campo: 'nome', label: 'Nome completo', tipo: 'text', required: true },
+      { campo: 'sigla', label: 'Sigla', tipo: 'text', required: true },
+      {
+        campo: 'parent_codigo',
+        label: 'Unidade pai',
+        tipo: 'ref',
+        refKey: 'unidades',
+        refValue: 'codigo',
+        refLabel: 'sigla',
+        hint: 'Deixe vazio para a unidade raiz (Reitoria). Caso contrário, escolha a unidade hierarquicamente superior.',
+      },
+      {
+        campo: 'tipo',
+        label: 'Tipo',
+        tipo: 'select',
+        required: true,
+        hint: 'Classifica a unidade na hierarquia institucional. Obrigatório no MVP.',
+        // options vêm de vocabulario-unidades.js — fonte única compartilhada com validador.
+        options: TIPOS_UNIDADE_OPTIONS,
+      },
+      { campo: 'unidade_academica', label: 'Unidade acadêmica?', tipo: 'checkbox', hint: 'Marque se a unidade oferta cursos diretamente (Institutos, Faculdades).' },
+    ],
+  },
+
   'tipos-edital': {
     titulo: 'Tipos de edital',
     descricao: 'Templates por tipo de processo seletivo. Define defaults aplicados ao iniciar o wizard.',
@@ -47,6 +87,7 @@ const _RAW_CONFIGURACOES = {
       { campo: 'codigo', label: 'Código' },
       { campo: 'nome', label: 'Nome' },
       { campo: 'permite_duas_opcoes_curso', label: '2 opções', tipo: 'bool' },
+      { campo: 'exige_prova_presencial', label: 'Prova presencial', tipo: 'bool' },
       { campo: 'vagas_suplementares', label: 'Suplementares', tipo: 'bool' },
       { campo: 'base_legal_referencia', label: 'Base legal' },
     ],
@@ -55,7 +96,7 @@ const _RAW_CONFIGURACOES = {
       { campo: 'nome', label: 'Nome', tipo: 'text', required: true },
       { campo: 'descricao', label: 'Descrição', tipo: 'textarea' },
       { campo: 'permite_duas_opcoes_curso', label: 'Permite 2 opções de curso?', tipo: 'checkbox' },
-      { campo: 'exige_prova_presencial', label: 'Exige prova presencial?', tipo: 'checkbox' },
+      { campo: 'exige_prova_presencial', label: 'Exige prova presencial?', tipo: 'checkbox', hint: 'Quando marcado, o edital exige prova local — habilita as obrigatoriedades de atendimento especializado (PcD, gestante, lactante). Tipos como SiSU/Transferência usam nota ENEM ou histórico, sem prova presencial.' },
       { campo: 'vagas_suplementares', label: 'Tem vagas suplementares?', tipo: 'checkbox' },
       { campo: 'defaults', label: 'Defaults (JSON)', tipo: 'json', hint: 'Sub-objeto com etapas/fórmula/modalidades/desempate sugeridos.' },
       { campo: 'base_legal_referencia', label: 'Base legal', tipo: 'text' },
@@ -163,36 +204,101 @@ const _RAW_CONFIGURACOES = {
     ],
   },
 
-  'cidades-prova': {
-    titulo: 'Cidades de prova',
-    descricao: 'Cidades disponíveis para o candidato escolher na inscrição. <strong>O local exato (sala/prédio) é definido depois, pelo módulo de ensalamento</strong> — fora do escopo da fase de inscrição. Cada cidade aparece como opção para o candidato no momento da inscrição.',
+  cidades: {
+    titulo: 'Cidades',
+    descricao: 'Cadastro de cidades reutilizável por qualquer parte do sistema (cidade do candidato, cidade onde fica o campus, cidade aceita para aplicação de prova no edital). Inclui metadados enriquecidos (IBGE, DDD, lat/long, mesorregião e dados do Censo) para preparar o terreno de operações futuras (georef, distância, ensalamento). <strong>Não confunda com "cidades de prova" — esse é um uso contextual no edital onde o admin escolhe quais Cidades cadastradas aceitam aplicação de prova.</strong>',
     icone: '📍',
-    key: Keys.CIDADES_PROVA,
+    key: Keys.CIDADES,
     colunas: [
       { campo: 'codigo', label: 'Código' },
       { campo: 'nome', label: 'Cidade' },
       { campo: 'uf', label: 'UF' },
-      { campo: 'municipio_ibge_id', label: 'ID IBGE' },
+      { campo: 'ibge_id', label: 'ID IBGE' },
+      { campo: 'regiao', label: 'Região' },
     ],
     campos: [
       { campo: 'codigo', label: 'Código', tipo: 'text', required: true, hint: 'Identificador único, ex.: MARABA, SAO_FELIX.' },
-      { campo: 'nome', label: 'Cidade', tipo: 'text', required: true, hint: 'Nome da cidade como aparecerá para o candidato.' },
+      { campo: 'nome', label: 'Cidade', tipo: 'text', required: true, hint: 'Nome da cidade.' },
       { campo: 'uf', label: 'UF', tipo: 'text', maxlength: 2, required: true },
-      { campo: 'municipio_ibge_id', label: 'ID IBGE do município', tipo: 'text', hint: 'Código IBGE de 7 dígitos. Opcional.' },
+      { campo: 'ibge_id', label: 'ID IBGE do município', tipo: 'text', hint: 'Código IBGE de 7 dígitos.' },
+      { campo: 'ddd', label: 'DDD', tipo: 'text', maxlength: 3, hint: 'DDD principal do município. Ex.: 94 (sudeste do Pará).' },
+      { campo: 'latitude', label: 'Latitude', tipo: 'number', step: '0.000001', hint: 'Latitude do município (graus decimais, WGS-84).' },
+      { campo: 'longitude', label: 'Longitude', tipo: 'number', step: '0.000001', hint: 'Longitude do município (graus decimais, WGS-84).' },
+      {
+        campo: 'regiao',
+        label: 'Região',
+        tipo: 'select',
+        options: [
+          { value: 'NORTE', label: 'Norte' },
+          { value: 'NORDESTE', label: 'Nordeste' },
+          { value: 'CENTRO_OESTE', label: 'Centro-Oeste' },
+          { value: 'SUDESTE', label: 'Sudeste' },
+          { value: 'SUL', label: 'Sul' },
+        ],
+        hint: 'Macrorregião IBGE.',
+      },
+      { campo: 'mesorregiao', label: 'Mesorregião', tipo: 'text', hint: 'Mesorregião IBGE.' },
+      { campo: 'microrregiao', label: 'Microrregião', tipo: 'text', hint: 'Microrregião IBGE.' },
+      { campo: 'populacao_residente', label: 'População residente (Censo)', tipo: 'number' },
+      { campo: 'densidade_demografica', label: 'Densidade demográfica (hab/km²)', tipo: 'number', step: '0.01' },
+      { campo: 'area_territorial_km2', label: 'Área territorial (km²)', tipo: 'number', step: '0.01' },
       { campo: 'observacoes', label: 'Observações', tipo: 'textarea' },
     ],
   },
 
-  necessidades: {
-    titulo: 'Necessidades especiais',
-    descricao: 'Atendimento diferenciado durante a prova: gravidez, PcD, baixa visão, mobilidade reduzida, etc.',
-    icone: 'img/Accessibility_logo.svg',
-    key: Keys.NECESSIDADES,
+  campus: {
+    titulo: 'Campus',
+    descricao: 'Unidades físicas Unifesspa (e polos de convênio externos). Cada campus está localizado em uma <strong>Cidade</strong> cadastrada. Cursos são oferecidos em um campus específico.',
+    icone: '🏛️',
+    key: Keys.CAMPUS,
+    colunas: [
+      { campo: 'codigo', label: 'Código' },
+      { campo: 'nome', label: 'Nome' },
+      { campo: 'cidade_codigo', label: 'Cidade' },
+      { campo: 'tipo_campus', label: 'Tipo' },
+      { campo: 'endereco', label: 'Endereço' },
+    ],
+    campos: [
+      { campo: 'codigo', label: 'Código', tipo: 'text', required: true, hint: 'Identificador único, ex.: MARABA, SANTANA, CANAA_CONVENIO.' },
+      { campo: 'nome', label: 'Nome', tipo: 'text', required: true },
+      {
+        campo: 'cidade_codigo',
+        label: 'Cidade',
+        tipo: 'ref',
+        refKey: 'cidades',
+        refValue: 'codigo',
+        refLabel: 'nome',
+        required: true,
+        hint: 'Cidade onde o campus está localizado. Vem de Configurações › Cidades.',
+      },
+      {
+        campo: 'tipo_campus',
+        label: 'Tipo de campus',
+        tipo: 'select',
+        options: [
+          { value: 'UNIFESSPA', label: 'Campus próprio Unifesspa' },
+          { value: 'CONVENIO', label: 'Polo / convênio externo' },
+        ],
+        hint: 'Distingue campus institucional de polo/convênio. Polos de convênio podem oferecer cursos mas não são campus próprios — em F3 isso pode evoluir para uma entidade Polo/LocalOferta separada.',
+      },
+      { campo: 'endereco', label: 'Endereço', tipo: 'text' },
+      { campo: 'cep', label: 'CEP', tipo: 'text', maxlength: 9 },
+      { campo: 'latitude', label: 'Latitude', tipo: 'number', step: '0.000001', hint: 'Latitude da entrada principal do campus (WGS-84). Opcional.' },
+      { campo: 'longitude', label: 'Longitude', tipo: 'number', step: '0.000001', hint: 'Longitude da entrada principal do campus (WGS-84). Opcional.' },
+      { campo: 'observacoes', label: 'Observações', tipo: 'textarea' },
+    ],
+  },
+
+  'tipos-deficiencia': {
+    titulo: 'Tipos de deficiência (PcD)',
+    descricao: 'Configuração restrita de deficiências reconhecidas como PcD (Lei 13.146/2015 — LBI; Resolução 64/2015 CONSEPE/Unifesspa). <strong>Não confunda</strong> com Condições de atendimento especializado (dislexia, TDAH, gestante, lactante, idoso, diabetes etc. — item 4.2.1 do edital ENEM) nem com Recursos de acessibilidade (adaptações na prova). A solicitação do candidato é processo posterior, modelado em fase futura.',
+    icone: '♿',
+    key: Keys.TIPOS_DEFICIENCIA,
     colunas: [
       { campo: 'codigo', label: 'Código' },
       { campo: 'nome', label: 'Nome' },
       { campo: 'exige_laudo', label: 'Laudo?', tipo: 'bool' },
-      { campo: 'recursos_requeridos', label: 'Recursos', tipo: 'tags' },
+      { campo: 'validade_laudo_dias', label: 'Validade (dias)' },
       { campo: 'base_legal', label: 'Base legal' },
     ],
     campos: [
@@ -201,12 +307,59 @@ const _RAW_CONFIGURACOES = {
       { campo: 'descricao', label: 'Descrição', tipo: 'textarea' },
       { campo: 'exige_laudo', label: 'Exige laudo?', tipo: 'checkbox' },
       { campo: 'validade_laudo_dias', label: 'Validade do laudo (dias)', tipo: 'number' },
+      { campo: 'base_legal', label: 'Base legal', tipo: 'text' },
+    ],
+  },
+
+  'condicoes-atendimento-especializado': {
+    titulo: 'Condições de atendimento especializado',
+    descricao: 'Categorias de candidato reconhecidas pelo INEP para fins de atendimento especializado (Edital ENEM 52/2025 item 4.2.1). Inclui PcD, transtornos funcionais específicos (dislexia, TDAH, discalculia), condições de saúde (diabetes, classe hospitalar), gestante, lactante, idoso e outra condição específica. <strong>Não confunda</strong> com Tipos de deficiência (configuração PcD da LBI) nem com Recursos de acessibilidade (adaptações na prova).',
+    icone: '🧩',
+    key: Keys.CONDICOES_ATENDIMENTO_ESPECIALIZADO,
+    colunas: [
+      { campo: 'codigo', label: 'Código' },
+      { campo: 'nome', label: 'Nome' },
+      { campo: 'descricao', label: 'Descrição', truncate: 80 },
+      { campo: 'exige_laudo', label: 'Laudo?', tipo: 'bool' },
+      { campo: 'base_legal', label: 'Base legal' },
+    ],
+    campos: [
+      { campo: 'codigo', label: 'Código', tipo: 'text', required: true, hint: 'Ex.: PCD, DISLEXIA, DEFICIT_ATENCAO, GESTANTE, LACTANTE, IDOSO.' },
+      { campo: 'nome', label: 'Nome', tipo: 'text', required: true },
+      { campo: 'descricao', label: 'Descrição', tipo: 'textarea' },
+      { campo: 'exige_laudo', label: 'Exige laudo?', tipo: 'checkbox' },
+      { campo: 'base_legal', label: 'Base legal', tipo: 'text' },
+    ],
+  },
+
+  'recursos-acessibilidade': {
+    titulo: 'Recursos de acessibilidade',
+    descricao: 'Configuração de adaptações disponíveis para o candidato durante a aplicação da prova (vocabulário canônico INEP — Edital ENEM 52/2025 item 4.2.2 + extensões institucionais Unifesspa). O campo <strong>Origem</strong> distingue recursos oficiais do INEP de extensões locais. O edital oferece um subconjunto desses recursos no passo de <strong>atendimento especializado</strong>.',
+    icone: '🛠️',
+    key: Keys.RECURSOS_ACESSIBILIDADE,
+    colunas: [
+      { campo: 'codigo', label: 'Código' },
+      { campo: 'nome', label: 'Nome' },
+      { campo: 'origem', label: 'Origem' },
+      { campo: 'descricao', label: 'Descrição', truncate: 80 },
+      { campo: 'fonte_normativa', label: 'Fonte normativa' },
+    ],
+    campos: [
+      { campo: 'codigo', label: 'Código', tipo: 'text', required: true },
+      { campo: 'nome', label: 'Nome', tipo: 'text', required: true },
+      { campo: 'descricao', label: 'Descrição', tipo: 'textarea' },
       {
-        campo: 'recursos_requeridos',
-        label: 'Recursos requeridos',
-        tipo: 'multi-tag',
-        hint: 'Ex.: SALA_TERREA, LEDOR, PROVA_AMPLIADA, INTERPRETE_LIBRAS, TEMPO_ADICIONAL',
+        campo: 'origem',
+        label: 'Origem',
+        tipo: 'select',
+        required: true,
+        options: [
+          { value: 'INEP', label: 'INEP (vocabulário oficial — item 4.2.2 do edital ENEM)' },
+          { value: 'UNIFESSPA_LOCAL', label: 'Unifesspa (extensão institucional local)' },
+        ],
+        hint: 'INEP = recurso oficial reconhecido pelo INEP. UNIFESSPA_LOCAL = extensão institucional que vai além do item 4.2.2.',
       },
+      { campo: 'fonte_normativa', label: 'Fonte normativa', tipo: 'text', hint: 'Ex.: "Edital ENEM 52/2025 item 4.2.2" ou "Resolução institucional Unifesspa".' },
       { campo: 'base_legal', label: 'Base legal', tipo: 'text' },
     ],
   },
@@ -310,13 +463,14 @@ const _RAW_CONFIGURACOES = {
 
   cursos: {
     titulo: 'Cursos',
-    descricao: 'Cada combinação <strong>(nome, grau, campus, turno)</strong> é uma entrada única. O mesmo nome (ex.: História, Engenharia Civil) pode ter múltiplas entradas — uma por campus + grau. Editais cadastram vagas referenciando entradas daqui.',
+    descricao: 'Cada combinação <strong>(nome, grau, campus, turno)</strong> é uma entrada única. O mesmo nome (ex.: História, Engenharia Civil) pode ter múltiplas entradas — uma por campus + grau. Editais cadastram vagas referenciando entradas daqui. <strong>Unidade ofertante</strong> (faculdade/instituto dono do curso) é distinta de <strong>Campus</strong> (localização física): um curso pode ser ofertado pelo ICH e ter aulas no campus de Xinguara, por exemplo.',
     icone: '🎓',
     key: Keys.CURSOS,
     colunas: [
       { campo: 'codigo', label: 'Código' },
       { campo: 'nome', label: 'Nome' },
       { campo: 'grau', label: 'Grau' },
+      { campo: 'unidade_ofertante_codigo', label: 'Unidade ofertante' },
       { campo: 'campus_codigo', label: 'Campus' },
       { campo: 'turno', label: 'Turno' },
     ],
@@ -335,14 +489,24 @@ const _RAW_CONFIGURACOES = {
         ],
       },
       {
-        campo: 'campus_codigo',
-        label: 'Cidade do campus',
+        campo: 'unidade_ofertante_codigo',
+        label: 'Unidade ofertante',
         tipo: 'ref',
-        refKey: 'cidades-prova',
+        refKey: 'unidades',
+        refValue: 'codigo',
+        refLabel: 'sigla',
+        required: true,
+        hint: 'Faculdade/Instituto responsável pela oferta do curso (acadêmico). Distinto de Campus (localização física).',
+      },
+      {
+        campo: 'campus_codigo',
+        label: 'Campus',
+        tipo: 'ref',
+        refKey: 'campus',
         refValue: 'codigo',
         refLabel: 'nome',
         required: true,
-        hint: 'Cidade onde fica o campus que oferece o curso. Vem de Configurações › Cidades de prova.',
+        hint: 'Campus Unifesspa onde o curso é oferecido. Vem de Configurações › Campus.',
       },
       {
         campo: 'turno',
@@ -466,18 +630,22 @@ const _RAW_CONFIGURACOES = {
 
 /**
  * Ordem canônica das configurações no hub — agrupa por afinidade:
- *   1. Catalogação base (entidades de domínio + vocabulários)
+ *   1. Unidade institucional + cadastros base (entidades de domínio + vocabulários)
  *   2. Insumos legais e demográficos
  *   3. Estratégias / regras de cálculo
  */
 const ORDEM_CONFIGURACOES = [
+  'unidades',
   'tipos-edital',
   'tipos-etapa',
   'modalidades',
   'cursos',
-  'cidades-prova',
+  'cidades',
+  'campus',
   'tipos-documento',
-  'necessidades',
+  'tipos-deficiencia',
+  'condicoes-atendimento-especializado',
+  'recursos-acessibilidade',
   'criterios-desempate',
   'obrigatoriedades',
   'percentuais-ibge',

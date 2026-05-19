@@ -26,6 +26,37 @@ Os seeds carregam automaticamente apenas na **primeira visita** (sentinela `unip
 
 ## Arquitetura
 
+### Entidades de cadastro (institucionais e de vocabulário)
+
+Cadastros próprios neste protótipo (CRUD admin no MVP — integração Kafka/SIGAA é overlay futuro complementar, **não substituto**):
+
+- **`Unidade`** (hierárquica, auto-FK `parent_codigo`) — Reitoria → Pró-Reitoria → Centro/Instituto → Faculdade → Departamento → Coordenação. Edital tem `unidadeDonaCodigo` (CEPS, CRCA, PROEX…). Cada `Unidade` tem `tipo` obrigatório classificando sua natureza institucional (`REITORIA`, `PRO_REITORIA`, `CENTRO`, `INSTITUTO`, `FACULDADE`, `DEPARTAMENTO`, `COORDENACAO`, `DIRETORIA`, `DIVISAO`, `NUCLEO`, `OUTRO`) — permite filtrar e aplicar regras por classe sem depender da posição hierárquica (ex.: "edital pertence a uma Unidade do tipo `INSTITUTO` ou superior"). O `tipo` é independente de `parent.tipo` — sem inferência implícita pela árvore. **Institutos reais Unifesspa (11)**: ICH, ICE, ICSA, IEA, IEDAR, IEDS, IESB, IETU, IEX, IGE, ILLA — ver `.compozy/governanca/configuracao-edital-mvp/fase-0-diagnostico/fonte-cursos-unifesspa-real.md`.
+- **`Cidade`** — cadastro genérico reutilizável (cidade do candidato, cidade do campus, cidade aceita para prova no edital), com 13 campos enriquecidos (IBGE, DDD, lat/long, mesorregião e dados do Censo). "Cidades de prova" é uso contextual no edital, não entidade.
+- **`Campus`** (FK Cidade) — Curso aponta para Campus, não direto para Cidade. Tem `tipo_campus` (UNIFESSPA ou CONVENIO) e lat/long.
+- **`Curso`** (FK Campus + FK Unidade ofertante) — combinação única (nome × grau × campus × turno). A unidade ofertante (instituto/faculdade) é independente do campus físico.
+- **`TipoDeficiencia`** — configuração restrita de PcD (Lei 13.146/2015 — LBI + Resolução 64/2015 CONSEPE/Unifesspa).
+- **`CondicaoAtendimentoEspecializado`** — categorias do item 4.2.1 do edital ENEM (PcD, dislexia, TDAH, discalculia, diabetes, classe hospitalar, gestante, lactante, idoso, outra condição específica).
+- **`RecursoAcessibilidade`** — configuração de adaptações na prova (item 4.2.2 do edital ENEM + extensões locais Unifesspa, distinguidas pelo campo `origem`).
+
+**Vocabulário canônico INEP/MEC: "Atendimento Especializado"** (Edital ENEM nº 52/2025). Regra de caixa:
+
+- **Title Case** ("Atendimento Especializado") **apenas em**: títulos de tela, sidebar do wizard, label de campo na configuração.
+- **minúsculas** ("atendimento especializado") **em texto corrido**: parágrafos, descrições, hints, mensagens de erro, comentários em código.
+
+Termos descartados sem tolerância: "atendimento diferenciado", "atendimento especial", "necessidade especial".
+
+O estado do edital separa OFERTA (configurada aqui no protótipo) de SOLICITAÇÃO (decisão de F3):
+
+```js
+state.edital.atendimentoEspecializado.oferta = {
+  condicoes_aceitas:     [...códigos],  // CondicaoAtendimentoEspecializado
+  deficiencias_aceitas:  [...códigos],  // TipoDeficiencia (para PcD)
+  recursos_oferecidos:   [...códigos],  // RecursoAcessibilidade
+};
+```
+
+A `SolicitacaoAtendimentoEspecializado` (workflow de candidato) é decisão de F3 e NÃO está modelada neste protótipo.
+
 ### Premissa central: obrigatoriedades como dado, não código
 
 A regra "PSIQ precisa de banca de heteroidentificação", "SiSU exige importação ENEM", etc., **não** é hardcoded em ifs. Vive na configuração `OBRIGATORIEDADES` (seed em `data/seed-obrigatoriedades.json`), com `regra_codigo` que mapeia para um avaliador em `js/validator.js:AVALIADORES`. Quando a lei muda, edita-se a configuração (CRUD em `configuracao.html?slug=obrigatoriedades`) — sem deploy.

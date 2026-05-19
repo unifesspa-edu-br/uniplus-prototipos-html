@@ -149,10 +149,10 @@
     "categoria": "ATENDIMENTO",
     "regra_codigo": "ATENDIMENTO_PCD_DISPONIVEL",
     "parametros": {
-      "necessidades": ["CADEIRANTE", "BAIXA_VISAO", "CEGUEIRA", "SURDEZ"]
+      "recursos": ["SALA_FACIL_ACESSO", "PROVA_AMPLIADA", "PROVA_BRAILE", "TRADUTOR_INTERPRETE_LIBRAS", "AUXILIO_LEITURA", "TEMPO_ADICIONAL"]
     },
-    "descricao": "Editais devem oferecer atendimento especial para PcD: cadeirante, baixa visão, cegueira e surdez (mínimo).",
-    "base_legal": "Lei 13.146/2015 (LBI)",
+    "descricao": "Editais devem oferecer recursos mínimos de atendimento especializado para PcD: sala de fácil acesso, prova ampliada, prova em braile, intérprete de Libras, auxílio para leitura e tempo adicional.",
+    "base_legal": "Lei 13.146/2015 (LBI); Edital ENEM 52/2025",
     "data_vigencia_inicio": "2016-01-02",
     "data_vigencia_fim": null
   },
@@ -161,10 +161,22 @@
     "categoria": "ATENDIMENTO",
     "regra_codigo": "ATENDIMENTO_GESTANTE_OBRIGATORIO",
     "parametros": {
-      "necessidades": ["GRAVIDEZ", "AMAMENTACAO"]
+      "recursos": ["MESA_SEM_BRACO", "APOIO_PERNAS_PES", "SALA_FACIL_ACESSO"]
     },
-    "descricao": "Editais com prova presencial devem oferecer atendimento para gestantes e lactantes.",
-    "base_legal": "Constituição Federal art. 6º; Lei 13.872/2019",
+    "descricao": "Editais com prova presencial devem oferecer recursos de atendimento especializado para gestantes: mesa sem braço, apoio para pernas e pés e sala de fácil acesso (item 4.2.1 do Edital ENEM 52/2025).",
+    "base_legal": "Constituição Federal art. 6º; Edital ENEM 52/2025 item 4.2.1",
+    "data_vigencia_inicio": "2019-09-17",
+    "data_vigencia_fim": null
+  },
+  {
+    "tipo_edital_codigo": "*",
+    "categoria": "ATENDIMENTO",
+    "regra_codigo": "ATENDIMENTO_LACTANTE_OBRIGATORIO",
+    "parametros": {
+      "recursos": ["ACOMPANHANTE_LACTANTE", "MESA_SEM_BRACO", "APOIO_PERNAS_PES", "SALA_FACIL_ACESSO", "TEMPO_ADICIONAL"]
+    },
+    "descricao": "Editais com prova presencial devem oferecer recursos de atendimento especializado para lactantes: acompanhante para o lactente, mesa sem braço, apoio para pernas e pés, sala de fácil acesso e tempo adicional para amamentação (item 4.2.1 do Edital ENEM 52/2025; Lei 13.872/2019).",
+    "base_legal": "Lei 13.872/2019; Edital ENEM 52/2025 item 4.2.1",
     "data_vigencia_inicio": "2019-09-17",
     "data_vigencia_fim": null
   }

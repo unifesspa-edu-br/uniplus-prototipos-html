@@ -185,11 +185,15 @@ export class Collection {
  */
 export const Keys = {
   // Configurações
+  UNIDADES: 'configuracao.unidades',
   TIPOS_EDITAL: 'configuracao.tipos-edital',
   MODALIDADES: 'configuracao.modalidades',
   TIPOS_ETAPA: 'configuracao.tipos-etapa',
-  CIDADES_PROVA: 'configuracao.cidades-prova',
-  NECESSIDADES: 'configuracao.necessidades',
+  CIDADES: 'configuracao.cidades',
+  CAMPUS: 'configuracao.campus',
+  TIPOS_DEFICIENCIA: 'configuracao.tipos-deficiencia',
+  CONDICOES_ATENDIMENTO_ESPECIALIZADO: 'configuracao.condicoes-atendimento-especializado',
+  RECURSOS_ACESSIBILIDADE: 'configuracao.recursos-acessibilidade',
   TIPOS_DOCUMENTO: 'configuracao.tipos-documento',
   CRITERIOS_DESEMPATE: 'configuracao.criterios-desempate',
   OBRIGATORIEDADES: 'configuracao.obrigatoriedades',
@@ -205,5 +209,5 @@ export const Keys = {
 
   // App
   PREFERENCES: 'app.preferences',
-  SEEDS_LOADED: 'app.seeds-loaded-v13',
+  SEEDS_LOADED: 'app.seeds-loaded-v15',
 };

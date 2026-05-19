@@ -22,8 +22,10 @@ const TURNO_LABEL = {
 export async function render(container, ctx) {
   const { state, updateState, setStepStatus } = ctx;
 
-  const cidadesDisponiveis = new Collection(Keys.CIDADES_PROVA).list({ includeInactive: false });
+  const cidadesDisponiveis = new Collection(Keys.CIDADES).list({ includeInactive: false });
   const cursosCatalogo = new Collection(Keys.CURSOS).list({ includeInactive: true });
+  const campusList = new Collection(Keys.CAMPUS).list({ includeInactive: true });
+  const campusPorCodigo = Object.fromEntries(campusList.map((c) => [c.codigo, c]));
   const cidadesPorCodigo = Object.fromEntries(cidadesDisponiveis.map((c) => [c.codigo, c]));
   const cursoPorCodigo = Object.fromEntries(cursosCatalogo.map((c) => [c.codigo, c]));
 
@@ -94,8 +96,11 @@ export async function render(container, ctx) {
   }
 
   function rotuloCurso(curso) {
-    const cidade = cidadesPorCodigo[curso.campus_codigo]?.nome || curso.campus_codigo;
-    return `${curso.nome} — ${GRAU_ABREV[curso.grau] || curso.grau} — ${cidade} — ${TURNO_LABEL[curso.turno] || curso.turno}`;
+    const campus = campusPorCodigo[curso.campus_codigo];
+    const campusNome = campus?.nome || curso.campus_codigo;
+    const cidadeNome = campus ? cidadesPorCodigo[campus.cidade_codigo]?.nome : null;
+    const local = cidadeNome ? `${campusNome} · ${cidadeNome}` : campusNome;
+    return `${curso.nome} — ${GRAU_ABREV[curso.grau] || curso.grau} — ${local} — ${TURNO_LABEL[curso.turno] || curso.turno}`;
   }
 
   container.innerHTML = '';
@@ -110,7 +115,7 @@ export async function render(container, ctx) {
       ' para todos os cursos do edital). ',
       el('strong', {}, 'O local exato (sala/prédio) não é definido aqui '),
       '— isso é feito pelo módulo de ensalamento depois das inscrições. Para incluir uma cidade nova, vá em ',
-      el('a', { href: 'configuracao.html?slug=cidades-prova' }, 'Configurações › Cidades de prova'),
+      el('a', { href: 'configuracao.html?slug=cidades' }, 'Configurações › Cidades'),
       '.'
     )
   );
@@ -120,7 +125,7 @@ export async function render(container, ctx) {
       el(
         'div',
         { class: 'tag tag-warning', style: 'padding: 0.75rem; display: block' },
-        'Nenhuma cidade cadastrada. Cadastre antes em Configurações › Cidades de prova.'
+        'Nenhuma cidade cadastrada. Cadastre antes em Configurações › Cidades.'
       )
     );
     avaliarStatus();
