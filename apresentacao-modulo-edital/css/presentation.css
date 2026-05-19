@@ -1,0 +1,993 @@
+/* ============================================
+   Tema Gov.br DS — paleta institucional
+   ============================================ */
+:root {
+  --govbr-azul: #1351b4;
+  --govbr-azul-claro: #5992ed;
+  --govbr-azul-escuro: #071d41;
+  --govbr-amarelo: #ffcd07;
+  --govbr-verde: #168821;
+  --govbr-vermelho: #c52727;
+  --govbr-cinza-1: #f8f8f8;
+  --govbr-cinza-2: #ededed;
+  --govbr-cinza-3: #cccccc;
+  --govbr-cinza-4: #888888;
+  --govbr-cinza-5: #4a4a4a;
+  --govbr-texto: #1c1c1c;
+  --negocio-cor: #168821;
+  --tecnica-cor: #1351b4;
+  --apendice-cor: #5b4209;
+}
+
+/* ============================================
+   Overrides reveal.js — base limpa
+   ============================================ */
+.reveal {
+  font-family: 'Rawline', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  color: var(--govbr-texto);
+  font-size: 26px;
+}
+
+.reveal .slides {
+  text-align: left;
+}
+
+.reveal .slides section {
+  padding: 1rem 2rem;
+}
+
+.reveal h1, .reveal h2, .reveal h3, .reveal h4 {
+  text-transform: none;
+  letter-spacing: normal;
+  color: var(--govbr-azul-escuro);
+  font-weight: 600;
+}
+
+.reveal h1 { font-size: 2.4rem; margin-bottom: 1rem; }
+.reveal h2 {
+  font-size: 1.8rem;
+  margin-bottom: 1.2rem;
+  border-bottom: 3px solid var(--govbr-amarelo);
+  padding-bottom: 0.4rem;
+}
+.reveal h3 { font-size: 1.3rem; margin-bottom: 0.8rem; color: var(--govbr-azul); }
+.reveal h4 { font-size: 1.1rem; margin-bottom: 0.5rem; color: var(--govbr-azul); }
+
+.reveal p, .reveal li {
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+.reveal code {
+  background: #f4f4f4;
+  padding: 0.1em 0.4em;
+  border-radius: 3px;
+  font-size: 0.85em;
+  color: var(--govbr-azul-escuro);
+}
+
+.reveal pre {
+  font-size: 0.7em;
+  box-shadow: 0 2px 8px rgba(0,0,0,.08);
+}
+
+.reveal ul, .reveal ol {
+  padding-left: 1.5rem;
+}
+
+.reveal table {
+  font-size: 0.78rem;
+  border-collapse: collapse;
+  margin: 1rem 0;
+  width: 100%;
+}
+
+.reveal table th {
+  background: var(--govbr-azul);
+  color: white;
+  padding: 0.5rem 0.7rem;
+  text-align: left;
+  font-weight: 600;
+}
+
+.reveal table td {
+  padding: 0.45rem 0.7rem;
+  border-bottom: 1px solid var(--govbr-cinza-2);
+  vertical-align: top;
+}
+
+.reveal table tbody tr:hover {
+  background: var(--govbr-cinza-1);
+}
+
+.reveal kbd {
+  background: var(--govbr-cinza-2);
+  padding: 0.1em 0.4em;
+  border-radius: 3px;
+  border: 1px solid var(--govbr-cinza-3);
+  font-size: 0.85em;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+
+/* ============================================
+   CAPA
+   ============================================ */
+.slide-capa {
+  background: linear-gradient(135deg, var(--govbr-azul) 0%, var(--govbr-azul-escuro) 100%);
+  color: white !important;
+  padding: 3rem !important;
+  text-align: center;
+}
+
+.slide-capa h1 {
+  color: white !important;
+  font-size: 3rem !important;
+  margin: 2rem 0 1rem;
+}
+
+.capa-marca {
+  margin-bottom: 2rem;
+}
+
+.capa-logo {
+  font-size: 5rem;
+  font-weight: 700;
+  letter-spacing: -2px;
+  color: var(--govbr-amarelo);
+  line-height: 1;
+}
+
+.capa-subtitulo {
+  font-size: 1.1rem;
+  opacity: 0.9;
+  margin-top: 0.5rem;
+}
+
+.capa-tagline {
+  font-size: 1.3rem;
+  opacity: 0.95;
+  margin: 1.5rem 0 2rem;
+}
+
+.capa-meta {
+  background: rgba(0,0,0,0.25);
+  border-radius: 8px;
+  padding: 1.5rem;
+  display: inline-block;
+  text-align: left;
+  margin: 1rem 0;
+}
+
+.capa-meta div {
+  font-size: 0.95rem;
+  margin: 0.4rem 0;
+}
+
+.capa-meta strong {
+  color: var(--govbr-amarelo);
+  display: inline-block;
+  min-width: 8em;
+}
+
+.capa-instrucoes {
+  position: absolute;
+  bottom: 1.5rem;
+  left: 0;
+  right: 0;
+  text-align: center;
+  font-size: 0.75rem;
+  opacity: 0.7;
+}
+
+/* ============================================
+   AGENDA — duas trilhas
+   ============================================ */
+.agenda-duas-trilhas {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  margin-top: 1rem;
+}
+
+.trilha-card {
+  border: 2px solid;
+  border-radius: 8px;
+  padding: 1.5rem;
+  position: relative;
+}
+
+.trilha-negocio {
+  border-color: var(--negocio-cor);
+  background: rgba(22, 136, 33, 0.04);
+}
+
+.trilha-tecnica {
+  border-color: var(--tecnica-cor);
+  background: rgba(19, 81, 180, 0.04);
+}
+
+.trilha-numero {
+  position: absolute;
+  top: -0.7rem;
+  left: 1rem;
+  background: white;
+  padding: 0 0.6rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--govbr-cinza-4);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.trilha-card h3 {
+  margin-top: 0;
+  color: inherit;
+}
+
+.trilha-negocio h3 { color: var(--negocio-cor); }
+.trilha-tecnica h3 { color: var(--tecnica-cor); }
+
+.trilha-publico {
+  margin-top: 1rem;
+  font-style: italic;
+  color: var(--govbr-cinza-4);
+  font-size: 0.85rem;
+  border-top: 1px solid var(--govbr-cinza-2);
+  padding-top: 0.7rem;
+}
+
+/* ============================================
+   DIVISOR de seção
+   ============================================ */
+.slide-divisor {
+  text-align: center;
+  padding: 4rem 3rem !important;
+  color: white !important;
+}
+
+.slide-negocio-cor {
+  background: linear-gradient(135deg, var(--negocio-cor) 0%, #0a5b1e 100%);
+}
+
+.slide-tecnica-cor {
+  background: linear-gradient(135deg, var(--tecnica-cor) 0%, var(--govbr-azul-escuro) 100%);
+}
+
+.slide-apendice-cor {
+  background: linear-gradient(135deg, var(--apendice-cor) 0%, #3d2c06 100%);
+}
+
+.divisor-conteudo h1 {
+  color: white !important;
+  font-size: 3.5rem !important;
+}
+
+.divisor-numero {
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 3px;
+  opacity: 0.8;
+  margin-bottom: 1rem;
+}
+
+.divisor-subtitulo {
+  font-size: 1.4rem;
+  opacity: 0.95;
+}
+
+/* ============================================
+   Blocos genéricos
+   ============================================ */
+.dois-blocos {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+}
+
+.bloco-problema, .bloco-solucao {
+  padding: 1.2rem;
+  border-radius: 6px;
+  border-top: 4px solid;
+}
+
+.bloco-problema {
+  background: rgba(197, 39, 39, 0.05);
+  border-color: var(--govbr-vermelho);
+}
+
+.bloco-solucao {
+  background: rgba(22, 136, 33, 0.05);
+  border-color: var(--negocio-cor);
+}
+
+.bloco-problema h3 { color: var(--govbr-vermelho); margin-top: 0; }
+.bloco-solucao h3 { color: var(--negocio-cor); margin-top: 0; }
+
+.centro-destaque {
+  text-align: center;
+  font-size: 1.05rem;
+  background: rgba(19, 81, 180, 0.06);
+  padding: 1rem 1.5rem;
+  border-radius: 6px;
+  border-left: 4px solid var(--govbr-azul);
+  margin: 1rem auto;
+  max-width: 90%;
+}
+
+.base-legal-destaque {
+  border-left-color: var(--govbr-amarelo);
+  background: rgba(255, 205, 7, 0.1);
+}
+
+.rodape-explicativo {
+  font-size: 0.82rem;
+  font-style: italic;
+  color: var(--govbr-cinza-5);
+  margin-top: 1rem;
+  padding: 0.6rem 1rem;
+  background: var(--govbr-cinza-1);
+  border-radius: 4px;
+}
+
+/* ============================================
+   Módulos / Cards
+   ============================================ */
+.grid-modulos {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.modulo-card {
+  background: white;
+  border: 1px solid var(--govbr-cinza-3);
+  border-radius: 8px;
+  padding: 1rem;
+  text-align: center;
+  position: relative;
+}
+
+.modulo-card.destaque {
+  border-color: var(--govbr-azul);
+  border-width: 2px;
+  background: rgba(19, 81, 180, 0.04);
+}
+
+.modulo-icone {
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
+}
+
+.modulo-card h4 {
+  margin: 0.5rem 0;
+  color: var(--govbr-azul-escuro);
+}
+
+.modulo-card p {
+  font-size: 0.78rem;
+  color: var(--govbr-cinza-5);
+  margin: 0.3rem 0;
+}
+
+.modulo-status {
+  font-size: 0.7rem !important;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--govbr-cinza-4) !important;
+  margin-top: 0.5rem;
+  font-weight: 600;
+}
+
+.modulo-card.destaque .modulo-status {
+  color: var(--govbr-azul) !important;
+}
+
+/* ============================================
+   Escopo (dentro/fora)
+   ============================================ */
+.escopo-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+}
+
+.escopo-coluna {
+  padding: 1.2rem;
+  border-radius: 6px;
+}
+
+.escopo-dentro {
+  background: rgba(22, 136, 33, 0.06);
+  border-left: 4px solid var(--negocio-cor);
+}
+
+.escopo-fora {
+  background: rgba(136, 136, 136, 0.06);
+  border-left: 4px solid var(--govbr-cinza-4);
+}
+
+.escopo-dentro h3 { color: var(--negocio-cor); margin-top: 0; }
+.escopo-fora h3 { color: var(--govbr-cinza-5); margin-top: 0; }
+
+/* ============================================
+   Atores table
+   ============================================ */
+.tabela-atores th:nth-child(1),
+.tabela-atores td:nth-child(1) { width: 18%; font-weight: 600; }
+.tabela-atores th:nth-child(2),
+.tabela-atores td:nth-child(2) { width: 15%; }
+
+/* ============================================
+   Wizard steps
+   ============================================ */
+.wizard-steps {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 0.4rem;
+  margin: 1.5rem 0;
+}
+
+.step {
+  background: white;
+  border: 1px solid var(--govbr-cinza-3);
+  border-radius: 6px;
+  padding: 0.5rem 0.3rem;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  font-size: 0.7rem;
+}
+
+.step.destaque {
+  background: rgba(255, 205, 7, 0.15);
+  border-color: var(--govbr-amarelo);
+  border-width: 2px;
+}
+
+.step-num {
+  background: var(--govbr-azul);
+  color: white;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  margin: 0 auto;
+}
+
+.step.destaque .step-num {
+  background: var(--govbr-amarelo);
+  color: var(--govbr-azul-escuro);
+}
+
+.step-nome {
+  font-weight: 500;
+  color: var(--govbr-cinza-5);
+}
+
+/* ============================================
+   Vocabulário grid
+   ============================================ */
+.vocabulario-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.8rem;
+  margin-top: 0.5rem;
+}
+
+.termo-card {
+  background: white;
+  border: 1px solid var(--govbr-cinza-3);
+  border-radius: 6px;
+  padding: 0.8rem;
+  border-top: 4px solid var(--govbr-azul);
+}
+
+.termo-card h4 {
+  margin: 0 0 0.4rem;
+  color: var(--govbr-azul-escuro);
+}
+
+.termo-card p {
+  font-size: 0.78rem;
+  margin: 0.3rem 0;
+  line-height: 1.4;
+}
+
+.termo-justificativa {
+  font-style: italic;
+  color: var(--govbr-cinza-5);
+  border-top: 1px solid var(--govbr-cinza-2);
+  padding-top: 0.4rem;
+  margin-top: 0.4rem !important;
+  font-size: 0.72rem !important;
+}
+
+/* ============================================
+   Comparativo termos
+   ============================================ */
+.comparativo-termos {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  margin: 1rem 0;
+}
+
+.lado-adotado, .lado-descartado {
+  padding: 1rem 1.2rem;
+  border-radius: 6px;
+}
+
+.lado-adotado {
+  background: rgba(22, 136, 33, 0.05);
+  border-left: 4px solid var(--negocio-cor);
+}
+
+.lado-descartado {
+  background: rgba(197, 39, 39, 0.05);
+  border-left: 4px solid var(--govbr-vermelho);
+  opacity: 0.85;
+}
+
+.lado-adotado h3 { color: var(--negocio-cor); margin-top: 0; }
+.lado-descartado h3 { color: var(--govbr-vermelho); margin-top: 0; }
+
+.lado-descartado li {
+  text-decoration: line-through;
+  color: var(--govbr-cinza-5);
+}
+
+/* ============================================
+   Programas table + Tabelas grandes
+   ============================================ */
+.tabela-programas, .tabela-decisoes, .tabela-normas, .tabela-permissoes, .tabela-lgpd, .tabela-dicionario {
+  font-size: 0.72rem;
+}
+
+.tabela-permissoes th, .tabela-permissoes td {
+  text-align: center;
+}
+
+.tabela-permissoes td:first-child,
+.tabela-permissoes td:nth-child(2) {
+  text-align: left;
+  font-weight: 500;
+}
+
+.atores-header {
+  background: var(--govbr-azul-escuro) !important;
+}
+
+/* ============================================
+   Cotas grid
+   ============================================ */
+.cotas-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 0.7rem;
+  margin: 1rem 0;
+}
+
+.cota-card {
+  background: white;
+  border-radius: 8px;
+  padding: 0.8rem 0.6rem;
+  text-align: center;
+  border: 2px solid var(--govbr-cinza-3);
+}
+
+.cota-card h4 {
+  font-size: 1.2rem;
+  margin: 0 0 0.3rem;
+  color: var(--govbr-azul);
+}
+
+.cota-card p {
+  font-size: 0.75rem;
+  margin: 0.3rem 0;
+}
+
+.cota-mini-lista {
+  list-style: none;
+  padding: 0 !important;
+  margin: 0.3rem 0 0;
+  font-size: 0.65rem;
+}
+
+.cota-mini-lista li {
+  padding: 0.1rem 0;
+  color: var(--govbr-cinza-5);
+}
+
+.cota-bx { border-color: #168821; }
+.cota-li { border-color: #1351b4; }
+.cota-psiq { border-color: #bd8a04; }
+
+/* ============================================
+   RN08
+   ============================================ */
+.rn08-explica {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  margin: 1rem 0;
+}
+
+.rn08-coluna {
+  padding: 1rem;
+  background: var(--govbr-cinza-1);
+  border-radius: 6px;
+}
+
+.rn08-coluna h3 {
+  margin-top: 0;
+}
+
+.rn08-citacao {
+  background: var(--govbr-azul-escuro);
+  color: white;
+  padding: 1rem 1.5rem;
+  border-radius: 6px;
+  font-style: italic;
+  text-align: center;
+  font-size: 0.95rem;
+  margin-top: 1rem;
+}
+
+.rn08-citacao strong {
+  color: var(--govbr-amarelo);
+  font-style: normal;
+}
+
+/* ============================================
+   Fechamento (Negócio/Técnico)
+   ============================================ */
+.fechamento-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+  margin: 1rem 0;
+}
+
+.fechamento-card {
+  background: white;
+  border-radius: 8px;
+  padding: 1.2rem;
+  border-top: 4px solid var(--govbr-azul);
+  box-shadow: 0 1px 4px rgba(0,0,0,.06);
+}
+
+.fechamento-card h4 {
+  margin-top: 0;
+  color: var(--govbr-azul-escuro);
+}
+
+.fechamento-card p {
+  font-size: 0.85rem;
+  margin: 0;
+}
+
+/* ============================================
+   Config regra lista
+   ============================================ */
+.config-regra-lista {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.5rem;
+  margin: 1rem 0;
+  font-size: 0.78rem;
+}
+
+.config-card {
+  background: white;
+  padding: 0.6rem 0.9rem;
+  border-radius: 4px;
+  border-left: 3px solid var(--govbr-azul);
+}
+
+.config-card strong {
+  color: var(--govbr-azul-escuro);
+}
+
+/* ============================================
+   Mermaid container — caber sempre na viewport
+   ============================================ */
+.mermaid {
+  text-align: center;
+  margin: 0.5rem 0;
+  background: white;
+  padding: 0.5rem;
+  border-radius: 6px;
+  border: 1px solid var(--govbr-cinza-2);
+  /* Limita altura ao espaço disponível depois do header (~150px) e rodapé (~50px).
+     Slide reveal tem 900px de altura de design; deixa ~700px para o diagrama. */
+  max-height: 720px;
+  overflow: auto;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+}
+
+.mermaid svg {
+  max-width: 100% !important;
+  max-height: 700px !important;
+  height: auto !important;
+  width: auto !important;
+}
+
+/* Quando o slide só tem o diagrama (ex: arquitetura), pode usar altura maior */
+.reveal .slides section.slide-diagrama-completo .mermaid {
+  max-height: 780px;
+}
+
+.reveal .slides section.slide-diagrama-completo .mermaid svg {
+  max-height: 760px !important;
+}
+
+/* ============================================
+   Código explicativo (codigo + texto)
+   ============================================ */
+.codigo-explica {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr;
+  gap: 1rem;
+  margin: 1rem 0;
+}
+
+.codigo-explica pre {
+  margin: 0;
+  font-size: 0.65rem;
+  max-height: 480px;
+  overflow: auto;
+}
+
+.codigo-explica.codigo-lado-completo {
+  grid-template-columns: 1fr 1fr;
+}
+
+.codigo-explicacao {
+  padding: 0.8rem 1rem;
+  background: rgba(19, 81, 180, 0.04);
+  border-radius: 6px;
+  border-left: 3px solid var(--govbr-azul);
+}
+
+.codigo-explicacao h4 {
+  margin-top: 0;
+}
+
+.codigo-explicacao li {
+  font-size: 0.8rem;
+  margin: 0.3rem 0;
+}
+
+.codigo-lado {
+  background: #272822;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+/* ============================================
+   OIDC
+   ============================================ */
+.oidc-modelo {
+  background: rgba(19, 81, 180, 0.06);
+  padding: 1rem 1.2rem;
+  border-radius: 6px;
+  margin: 1rem 0;
+}
+
+.oidc-modelo h3 {
+  margin-top: 0;
+}
+
+.oidc-modelo li {
+  font-size: 0.82rem;
+  margin: 0.4rem 0;
+}
+
+.oidc-fluxo {
+  margin-top: 1rem;
+}
+
+.oidc-fluxo h3 {
+  margin-bottom: 0.5rem;
+}
+
+/* ============================================
+   Regras de autorização
+   ============================================ */
+.regras-autorizacao {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.8rem;
+  margin: 1rem 0;
+}
+
+.regra-card {
+  background: white;
+  border: 1px solid var(--govbr-cinza-3);
+  border-radius: 6px;
+  padding: 0.9rem;
+  border-top: 3px solid var(--govbr-azul);
+}
+
+.regra-card h4 {
+  margin: 0 0 0.5rem;
+  font-size: 0.95rem;
+}
+
+.regra-card p {
+  font-size: 0.78rem;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.regra-r8 {
+  background: rgba(255, 205, 7, 0.12);
+  border-top-color: var(--govbr-amarelo);
+}
+
+/* ============================================
+   Roadmap
+   ============================================ */
+.roadmap {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+  margin: 1.5rem 0;
+}
+
+.fase-card {
+  background: white;
+  border-radius: 8px;
+  padding: 1rem;
+  border-left: 5px solid;
+}
+
+.fase-concluida {
+  border-color: var(--negocio-cor);
+  background: rgba(22, 136, 33, 0.05);
+}
+
+.fase-proxima {
+  border-color: var(--govbr-amarelo);
+  background: rgba(255, 205, 7, 0.08);
+}
+
+.fase-futura {
+  border-color: var(--govbr-cinza-3);
+  background: var(--govbr-cinza-1);
+  opacity: 0.85;
+}
+
+.fase-card h4 {
+  margin: 0 0 0.5rem;
+  color: var(--govbr-azul-escuro);
+}
+
+.fase-card p {
+  font-size: 0.78rem;
+  margin: 0;
+}
+
+/* ============================================
+   Glossário
+   ============================================ */
+.glossario-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.4rem 1rem;
+  margin-top: 0.5rem;
+}
+
+.termo-item {
+  padding: 0.4rem 0;
+  border-bottom: 1px solid var(--govbr-cinza-2);
+  font-size: 0.78rem;
+}
+
+.termo-item dt {
+  font-weight: 600;
+  color: var(--govbr-azul-escuro);
+  display: inline;
+}
+
+.termo-item dt::after {
+  content: ' — ';
+  color: var(--govbr-cinza-4);
+}
+
+.termo-item dd {
+  display: inline;
+  margin: 0;
+  color: var(--govbr-cinza-5);
+}
+
+/* ============================================
+   Referências
+   ============================================ */
+.referencias-list, .artefatos-list {
+  font-size: 0.85rem;
+  list-style: none;
+  padding-left: 0;
+}
+
+.referencias-list li, .artefatos-list li {
+  padding: 0.35rem 0 0.35rem 1.5rem;
+  border-bottom: 1px solid var(--govbr-cinza-2);
+  position: relative;
+}
+
+.referencias-list li::before {
+  content: '🔗';
+  position: absolute;
+  left: 0;
+  font-size: 0.8rem;
+}
+
+.artefatos-list li::before {
+  content: '📄';
+  position: absolute;
+  left: 0;
+  font-size: 0.8rem;
+}
+
+.referencias-list a {
+  color: var(--govbr-azul);
+  text-decoration: none;
+  border-bottom: 1px dotted var(--govbr-azul-claro);
+}
+
+.referencias-list a:hover {
+  background: rgba(19, 81, 180, 0.06);
+}
+
+/* ============================================
+   Encerramento
+   ============================================ */
+.slide-encerramento {
+  text-align: center;
+  background: linear-gradient(135deg, var(--govbr-azul-escuro) 0%, #000 100%);
+  color: white !important;
+  padding: 4rem 3rem !important;
+}
+
+.slide-encerramento h1 {
+  color: var(--govbr-amarelo) !important;
+  font-size: 5rem !important;
+  margin-bottom: 1.5rem;
+}
+
+.encerramento-tagline {
+  font-size: 1.3rem;
+  opacity: 0.95;
+  margin-bottom: 2rem;
+}
+
+.encerramento-creditos {
+  font-size: 1rem;
+  opacity: 0.85;
+  margin-bottom: 2rem;
+  line-height: 1.7;
+}
+
+.encerramento-perguntas {
+  font-size: 1.1rem;
+  font-style: italic;
+  color: var(--govbr-amarelo);
+}
+
+/* ============================================
+   Responsividade básica
+   ============================================ */
+@media (max-width: 1280px) {
+  .reveal { font-size: 22px; }
+  .vocabulario-grid { grid-template-columns: repeat(2, 1fr); }
+  .grid-modulos { grid-template-columns: repeat(2, 1fr); }
+  .fechamento-grid, .regras-autorizacao, .roadmap { grid-template-columns: 1fr; }
+}

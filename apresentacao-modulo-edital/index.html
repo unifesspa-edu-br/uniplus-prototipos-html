@@ -1,0 +1,1060 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Uni+ — Módulo de Configuração de Edital</title>
+
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='4' fill='%231351b4'/%3E%3Ctext x='16' y='22' text-anchor='middle' font-family='sans-serif' font-size='18' font-weight='bold' fill='%23ffcd07'%3EU+%3C/text%3E%3C/svg%3E">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reset.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reveal.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/theme/white.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/plugin/highlight/monokai.css">
+  <link rel="stylesheet" href="css/presentation.css">
+</head>
+<body>
+
+<div class="reveal">
+  <div class="slides">
+
+    <!-- ============================================ -->
+    <!-- CAPA                                          -->
+    <!-- ============================================ -->
+    <section class="slide-capa">
+      <div class="capa-marca">
+        <div class="capa-logo">Uni+</div>
+        <div class="capa-subtitulo">Universidade Federal do Sul e Sudeste do Pará</div>
+      </div>
+      <h1>Módulo de Configuração de Edital</h1>
+      <p class="capa-tagline">Proposta de modelagem — Trilhas de Negócio e Técnica</p>
+      <div class="capa-meta">
+        <div><strong>Audiência</strong> Time técnico CTIC · P.O. Jairo (CEPS) · P.O. Rebeca (CRCA)</div>
+        <div><strong>Origem</strong> Entrevista <code>configuracao-edital-mvp</code> · Fase 0 aprovada</div>
+        <div><strong>Data</strong> 2026-05-19</div>
+      </div>
+      <p class="capa-instrucoes">Use ← → para navegar · <kbd>F</kbd> tela cheia · <kbd>S</kbd> notas do palestrante · <kbd>Esc</kbd> visão geral</p>
+    </section>
+
+    <!-- ============================================ -->
+    <!-- AGENDA                                        -->
+    <!-- ============================================ -->
+    <section>
+      <h2>Agenda</h2>
+      <div class="agenda-duas-trilhas">
+        <div class="trilha-card trilha-negocio">
+          <div class="trilha-numero">Parte 1</div>
+          <h3>Trilha de Negócio</h3>
+          <ul>
+            <li>Problema e contexto institucional</li>
+            <li>Atores e fluxo de configuração</li>
+            <li>Vocabulário institucional</li>
+            <li>Programas de oferta Unifesspa</li>
+            <li>Modalidades e cotas</li>
+            <li>Garantias de auditabilidade</li>
+            <li>Conformidade legal</li>
+          </ul>
+          <p class="trilha-publico">Para P.O., gestores, equipe pedagógica</p>
+        </div>
+        <div class="trilha-card trilha-tecnica">
+          <div class="trilha-numero">Parte 2</div>
+          <h3>Trilha Técnica</h3>
+          <ul>
+            <li>Arquitetura geral</li>
+            <li>Modelo de dados (DER)</li>
+            <li>Dicionário de dados</li>
+            <li>Snapshot RN08 (canonicalização SHA-256)</li>
+            <li>Obrigatoriedades data-driven</li>
+            <li>Permissionamento OIDC</li>
+            <li>Matriz de permissões granular</li>
+            <li>LGPD by-design</li>
+          </ul>
+          <p class="trilha-publico">Para desenvolvedores, arquitetos, DevOps</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================ -->
+    <!-- PARTE 1 — NEGÓCIO                             -->
+    <!-- ============================================ -->
+    <section class="slide-divisor slide-negocio-cor">
+      <div class="divisor-conteudo">
+        <p class="divisor-numero">Parte 1</p>
+        <h1>Trilha de Negócio</h1>
+        <p class="divisor-subtitulo">O que estamos construindo e por quê</p>
+      </div>
+    </section>
+
+    <!-- 1.1 — Problema -->
+    <section>
+      <h2>1.1 Por que estamos aqui</h2>
+      <div class="dois-blocos">
+        <div class="bloco-problema">
+          <h3>Hoje (sistemas legados)</h3>
+          <ul>
+            <li><strong>COC</strong> (Cadastro On-line do Calouro): PHP 7.4, MVC sem framework</li>
+            <li><strong>UDOCS</strong> (Unifesspa Documentos): PHP 8 / Symfony 5.3</li>
+            <li>Cada processo seletivo (SiSU, PSIQ, PSE EC, PSVR, PS Convênios, Transferências, Portador Diploma) tem caminho específico no código</li>
+            <li>Lei muda → deploy obrigatório</li>
+            <li>Sem rastreabilidade de "qual edital usava qual regra"</li>
+          </ul>
+        </div>
+        <div class="bloco-solucao">
+          <h3>Uni+ — Plataforma unificada</h3>
+          <ul>
+            <li>Um único sistema configurável para todos os tipos de processo</li>
+            <li><strong>Regras como dado, não código</strong> — admin edita configuração, sem deploy</li>
+            <li>Snapshot congelado por edital → mudanças não retroagem</li>
+            <li>Vocabulário canônico INEP/MEC desde o início</li>
+            <li>Arquitetura preparada para Kafka, observabilidade, multi-módulo</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- 1.2 — Conceito Uni+ -->
+    <section>
+      <h2>1.2 Conceito Uni+ — visão executiva</h2>
+      <p class="centro-destaque">
+        Plataforma de processos institucionais da Unifesspa. Primeiro módulo: <strong>Seleção</strong> (CEPS).
+        Próximos: Ingresso (CRCA), Auxílio Estudantil, Projetos de Pesquisa.
+      </p>
+      <div class="grid-modulos">
+        <div class="modulo-card destaque">
+          <div class="modulo-icone">📋</div>
+          <h4>Seleção</h4>
+          <p>Configuração de editais, inscrição, homologação, prova, classificação, recursos, resultado</p>
+          <p class="modulo-status">Em desenvolvimento</p>
+        </div>
+        <div class="modulo-card">
+          <div class="modulo-icone">🎓</div>
+          <h4>Ingresso</h4>
+          <p>Chamadas de vagas, confirmação, habilitação, migração para SIGAA</p>
+          <p class="modulo-status">Próximo</p>
+        </div>
+        <div class="modulo-card">
+          <div class="modulo-icone">💰</div>
+          <h4>Auxílio</h4>
+          <p>Editais de bolsa, análise socioeconômica, acompanhamento</p>
+          <p class="modulo-status">Futuro</p>
+        </div>
+        <div class="modulo-card">
+          <div class="modulo-icone">🔬</div>
+          <h4>Pesquisa</h4>
+          <p>Editais PIBIC/PIBITI, projetos, comitês de ética</p>
+          <p class="modulo-status">Futuro</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 1.3 — Escopo Módulo Edital -->
+    <section>
+      <h2>1.3 Módulo de Configuração de Edital — escopo</h2>
+      <div class="escopo-grid">
+        <div class="escopo-coluna escopo-dentro">
+          <h3>Dentro do escopo</h3>
+          <ul>
+            <li>Cadastro de tipos de edital</li>
+            <li>Configuração de modalidades de concorrência (cotas)</li>
+            <li>Definição de etapas (administrativas + avaliativas)</li>
+            <li>Cadastro de vagas por curso × cota</li>
+            <li>Fórmula de cálculo + critérios de desempate</li>
+            <li>Bônus regional configurável</li>
+            <li>Documentos exigidos por modalidade</li>
+            <li>Cidades aceitas para aplicação de prova</li>
+            <li>Atendimento especializado oferecido</li>
+            <li>Snapshot congelado na publicação</li>
+          </ul>
+        </div>
+        <div class="escopo-coluna escopo-fora">
+          <h3>Fora do escopo</h3>
+          <ul>
+            <li>Inscrição do candidato (módulo separado)</li>
+            <li>Ensalamento (módulo separado pós-MVP)</li>
+            <li>Aplicação de prova</li>
+            <li>Processamento de notas e classificação</li>
+            <li>Recursos administrativos</li>
+            <li>Divulgação de resultados</li>
+            <li>Matrícula (vai para Ingresso/CRCA)</li>
+            <li>Análise socioeconômica</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- 1.4 — Atores -->
+    <section>
+      <h2>1.4 Quem configura, quem aprova</h2>
+      <table class="tabela-atores">
+        <thead>
+          <tr><th>Ator</th><th>Unidade</th><th>O que faz na configuração</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Admin CEPS</td><td>CEPS</td><td>Configura editais de Seleção (PSIQ, PSE EC, PSVR, PS Convênios)</td></tr>
+          <tr><td>Admin CRCA</td><td>CRCA</td><td>Configura editais de Transferência (MOBIN/MOBEX) e Portador de Diploma</td></tr>
+          <tr><td>P.O. (Diretor CEPS/CRCA)</td><td>CEPS/CRCA</td><td>Aprova publicação de edital (gate antes do snapshot)</td></tr>
+          <tr><td>Auditor</td><td>PROEG / PROEX</td><td>Visualiza edital publicado, exporta snapshot</td></tr>
+          <tr><td>Admin Plataforma</td><td>CTIC</td><td>Edita configurações globais (modalidades, percentuais IBGE, cascatas de remanejamento, vocabulário)</td></tr>
+          <tr><td>Candidato</td><td>—</td><td>Apenas <strong>consome</strong> o edital publicado (não configura)</td></tr>
+        </tbody>
+      </table>
+      <p class="rodape-explicativo">Cada ator opera num escopo específico — a separação é explícita, sem herança automática por hierarquia institucional.</p>
+    </section>
+
+    <!-- 1.5 — Fluxo do wizard -->
+    <section>
+      <h2>1.5 Fluxo de configuração — wizard de 13 passos</h2>
+      <div class="wizard-steps">
+        <div class="step"><span class="step-num">1</span><span class="step-nome">Tipo do edital</span></div>
+        <div class="step"><span class="step-num">2</span><span class="step-nome">Identificação</span></div>
+        <div class="step"><span class="step-num">3</span><span class="step-nome">Modalidades</span></div>
+        <div class="step"><span class="step-num">4</span><span class="step-nome">Vagas</span></div>
+        <div class="step"><span class="step-num">5</span><span class="step-nome">Etapas</span></div>
+        <div class="step"><span class="step-num">6</span><span class="step-nome">Fórmula</span></div>
+        <div class="step"><span class="step-num">7</span><span class="step-nome">Bônus</span></div>
+        <div class="step"><span class="step-num">8</span><span class="step-nome">Desempate</span></div>
+        <div class="step"><span class="step-num">9</span><span class="step-nome">Eliminação</span></div>
+        <div class="step"><span class="step-num">10</span><span class="step-nome">Documentos</span></div>
+        <div class="step"><span class="step-num">11</span><span class="step-nome">Cidades</span></div>
+        <div class="step"><span class="step-num">12</span><span class="step-nome">Atendimento especializado</span></div>
+        <div class="step destaque"><span class="step-num">13</span><span class="step-nome">Revisão e publicação</span></div>
+      </div>
+      <p class="rodape-explicativo">
+        Cada passo é independente, salvo automaticamente. Validador dinâmico avisa pendências em tempo real.
+        Passo 13 gera <strong>snapshot SHA-256 congelado</strong> — base da auditabilidade do edital.
+      </p>
+    </section>
+
+    <!-- 1.6 — Vocabulário institucional -->
+    <section>
+      <h2>1.6 Vocabulário institucional</h2>
+      <p>Decisões binding de Fase 0 (entrevista <code>configuracao-edital-mvp</code>):</p>
+      <div class="vocabulario-grid">
+        <div class="termo-card">
+          <h4>Unidade</h4>
+          <p>Entidade hierárquica institucional (Reitoria → Pró-Reitoria → Centro → Instituto → Faculdade → Departamento → Coordenação).</p>
+          <p class="termo-justificativa">Decisão R5 (2026-05-17): substitui "Área" (que era roster fechado de 5). Realidade Unifesspa = ~690 unidades reais.</p>
+        </div>
+        <div class="termo-card">
+          <h4>Cidade</h4>
+          <p>Cadastro único reutilizável (não é "cidade de prova" — esse é uso contextual no edital).</p>
+          <p class="termo-justificativa">Decisão TL 2026-05-18: serve cidade do candidato, do campus, de prova, de convênio.</p>
+        </div>
+        <div class="termo-card">
+          <h4>Campus</h4>
+          <p>Entidade própria com FK para Cidade. Curso aponta para Campus, não direto para Cidade.</p>
+          <p class="termo-justificativa">Decisão TL 2026-05-18: separa unidade física Unifesspa da cidade-município.</p>
+        </div>
+        <div class="termo-card">
+          <h4>Configuração</h4>
+          <p>Substitui "Parametrização" no domínio. "Parametrização" fica reservado para parâmetros de sistema (DevOps/CI/CD).</p>
+          <p class="termo-justificativa">Decisão R6 (2026-05-17).</p>
+        </div>
+        <div class="termo-card">
+          <h4>LocalOferta</h4>
+          <p>Entidade técnica unificadora (futura F3) que absorve câmpus sede + curso fora de sede + convênio + polo EaD.</p>
+          <p class="termo-justificativa">Decisão TL 2026-05-19: vocabulário institucional ("curso fora de sede") vive na tipologia.</p>
+        </div>
+        <div class="termo-card">
+          <h4>OfertaCurso</h4>
+          <p>Unidade canônica que o edital abre vagas: tupla (Curso × LocalOferta × Modalidade × FormatoPedagógico).</p>
+          <p class="termo-justificativa">Proposta F3: resolve "mesmo curso em vários locais com modalidades diferentes".</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 1.7 — Vocabulário INEP -->
+    <section>
+      <h2>1.7 Vocabulário canônico INEP/MEC</h2>
+      <div class="comparativo-termos">
+        <div class="lado-adotado">
+          <h3>✅ Uni+ adota</h3>
+          <ul>
+            <li><strong>"Atendimento Especializado"</strong> — adaptações na prova (PcD + outras condições)</li>
+            <li><strong>"Tratamento pelo nome social"</strong> — categoria separada com prazo próprio</li>
+            <li><strong>"Recursos de Acessibilidade"</strong> — adaptações solicitáveis (Libras, prova ampliada, braille...)</li>
+          </ul>
+        </div>
+        <div class="lado-descartado">
+          <h3>❌ Descartados</h3>
+          <ul>
+            <li>"atendimento diferenciado" (cronogramas CEPS legados)</li>
+            <li>"Atendimento Especial" (UI COC legado)</li>
+            <li>"necessidade especial" (invenção)</li>
+            <li>"atendimentos especializados" (plural)</li>
+          </ul>
+        </div>
+      </div>
+      <p class="centro-destaque base-legal-destaque">
+        <strong>Razão</strong>: alinhar com INEP padroniza ediais Uni+ com SiSU/ENEM e Edital INEP nº 52/2025 (referência federal).
+      </p>
+    </section>
+
+    <!-- 1.8 — Programas Unifesspa -->
+    <section>
+      <h2>1.8 Programas de oferta Unifesspa</h2>
+      <table class="tabela-programas">
+        <thead>
+          <tr><th>Programa</th><th>Natureza</th><th>Base legal/convênio</th><th>Onde acontece</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><strong>Regular</strong></td><td>Oferta padrão no câmpus credenciado</td><td>Decreto 9.235/2017</td><td>5 campi sede</td></tr>
+          <tr><td><strong>Forma Pará</strong></td><td>Convênio Unifesspa + Governo PA + município</td><td>Convênio publicado em DOE 2020</td><td>~24 municípios sem campus</td></tr>
+          <tr><td><strong>PARFOR</strong></td><td>Formação inicial de professores em serviço</td><td>CAPES — Política Nacional Formação Docentes</td><td>Variável</td></tr>
+          <tr><td><strong>PARFOR Equidade</strong></td><td>PARFOR com viés inclusivo</td><td>CAPES — Programa Equidade</td><td>Variável</td></tr>
+          <tr><td><strong>Pronera</strong></td><td>Educação na Reforma Agrária</td><td>INCRA — Decreto 7.352/2010</td><td>Áreas de assentamento</td></tr>
+          <tr><td><strong>Pepeti</strong></td><td>Convênio regional Canaã/Vale</td><td>Convênio específico Prefeitura/empresa</td><td>Canaã dos Carajás</td></tr>
+          <tr><td><strong>Intensivo</strong></td><td>Mesmo curso, ritmo concentrado</td><td>Resolução CONSEPE Unifesspa</td><td>Campus sede</td></tr>
+        </tbody>
+      </table>
+      <p class="rodape-explicativo">Cada programa abre <strong>edital próprio com regras próprias</strong>. O Uni+ precisa configurar e auditar todos.</p>
+    </section>
+
+    <!-- 1.9 — Modalidades e Cotas -->
+    <section>
+      <h2>1.9 Modalidades e cotas — Lei 12.711/2012 atualizada pela 14.723/2023</h2>
+      <div class="cotas-grid">
+        <div class="cota-card">
+          <h4>AC</h4>
+          <p>Ampla concorrência</p>
+        </div>
+        <div class="cota-card">
+          <h4>V</h4>
+          <p>Pessoa com deficiência em ampla concorrência</p>
+        </div>
+        <div class="cota-card cota-bx">
+          <h4>LB_*</h4>
+          <p>Renda familiar ≤ 1 SM per capita</p>
+          <ul class="cota-mini-lista">
+            <li>LB_PPI (pretos/pardos/indígenas)</li>
+            <li>LB_Q (quilombolas)</li>
+            <li>LB_PcD (deficiência)</li>
+            <li>LB_EP (escola pública)</li>
+          </ul>
+        </div>
+        <div class="cota-card cota-li">
+          <h4>LI_*</h4>
+          <p>Independente de renda</p>
+          <ul class="cota-mini-lista">
+            <li>LI_PPI / LI_Q / LI_PcD / LI_EP</li>
+          </ul>
+        </div>
+        <div class="cota-card cota-psiq">
+          <h4>PSIQ_*</h4>
+          <p>Processo seletivo indígena / quilombola</p>
+          <ul class="cota-mini-lista">
+            <li>PSIQ_I / PSIQ_Q (vagas suplementares)</li>
+          </ul>
+        </div>
+      </div>
+      <p class="rodape-explicativo">
+        <strong>Concorrência dupla obrigatória</strong> (Lei 14.723/2023 art. 3º): cotista concorre simultaneamente em AC e na cota — classificado na situação mais favorável.
+      </p>
+    </section>
+
+    <!-- 1.10 — Snapshot RN08 -->
+    <section>
+      <h2>1.10 Snapshot RN08 — auditabilidade do edital</h2>
+      <div class="rn08-explica">
+        <div class="rn08-coluna">
+          <h3>Como funciona</h3>
+          <ul>
+            <li>No momento da publicação do edital, o sistema <strong>congela</strong> uma cópia completa de todas as configurações referenciadas (modalidades, etapas, cidades, vagas...)</li>
+            <li>Cada snapshot recebe um <strong>hash SHA-256</strong> único, calculado de forma determinística</li>
+            <li>Alterações posteriores em configurações <strong>não retroagem</strong> para editais já publicados</li>
+            <li>Auditor pode exportar o snapshot completo como JSON e validar o hash a qualquer momento</li>
+          </ul>
+        </div>
+        <div class="rn08-coluna">
+          <h3>Por que importa</h3>
+          <ul>
+            <li>Conformidade com Lei 14.129/2021 (Governo Digital) — transparência ativa</li>
+            <li>Defesa jurídica contra alegações de "as regras mudaram durante o processo"</li>
+            <li>Reprodutibilidade — qualquer auditor pode re-classificar candidatos com o snapshot exato do dia da publicação</li>
+            <li>LGPD — trilha de auditoria do que era visível no momento</li>
+          </ul>
+        </div>
+      </div>
+      <p class="rn08-citacao">
+        <strong>RN08 (regra de negócio)</strong>: "Todos os parâmetros configuráveis ficam congelados ao serem vinculados a um edital. Alterações retroativas são proibidas para preservar integridade dos resultados e auditabilidade."
+      </p>
+    </section>
+
+    <!-- 1.11 — Conformidade legal -->
+    <section>
+      <h2>1.11 Conformidade legal — base normativa</h2>
+      <table class="tabela-normas">
+        <thead>
+          <tr><th>Norma</th><th>O que regula</th><th>Onde aparece no Uni+</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Lei 13.709/2018 (LGPD)</td><td>Proteção de dados pessoais</td><td>Masking de CPF em logs; matriz de dados sensíveis (F3)</td></tr>
+          <tr><td>Lei 12.711/2012 + 14.723/2023</td><td>Sistema de cotas + concorrência dupla</td><td>Modalidades, distribuição de vagas, cascata de remanejamento</td></tr>
+          <tr><td>Lei 13.146/2015 (LBI)</td><td>Estatuto da Pessoa com Deficiência</td><td>TipoDeficiencia, atendimento especializado</td></tr>
+          <tr><td>Lei 10.741/2003 (Estatuto do Idoso)</td><td>Prioridade idoso 60+</td><td>Critério de desempate obrigatório</td></tr>
+          <tr><td>Lei 14.129/2021</td><td>Governo Digital — transparência</td><td>Snapshot RN08, exportação JSON pública</td></tr>
+          <tr><td>Edital INEP nº 52/2025</td><td>Vocabulário canônico (ENEM)</td><td>Termos: Atendimento Especializado, Recursos de Acessibilidade</td></tr>
+          <tr><td>Decreto 9.235/2017</td><td>Regulação Educação Superior</td><td>LocalOferta: câmpus sede × fora de sede × convênio</td></tr>
+          <tr><td>Portaria MEC 506/2025</td><td>Formatos EaD/semipresencial</td><td>FormatoPedagogico em OfertaCurso (F3)</td></tr>
+          <tr><td>Resolução 64/2015 CONSEPE</td><td>Lista PcD institucional Unifesspa</td><td>TipoDeficiencia seed</td></tr>
+          <tr><td>e-MAG 3.1 + WCAG 2.1 AA</td><td>Acessibilidade digital</td><td>Frontend Gov.br DS, testes de acessibilidade</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- 1.12 — Fechamento Negócio -->
+    <section>
+      <h2>1.12 Fechamento — Trilha de Negócio</h2>
+      <div class="fechamento-grid">
+        <div class="fechamento-card">
+          <h4>Para o P.O.</h4>
+          <p>Você ganha controle total da configuração do edital sem depender de deploy. Mudança de lei = edição de configuração. Snapshot garante auditabilidade.</p>
+        </div>
+        <div class="fechamento-card">
+          <h4>Para a equipe pedagógica</h4>
+          <p>Cada programa (Forma Pará, PARFOR, Pronera, Pepeti) tem fluxo próprio respeitado. Vocabulário alinha com INEP/ENEM — ediais falam a mesma língua do MEC.</p>
+        </div>
+        <div class="fechamento-card">
+          <h4>Para o Auditor</h4>
+          <p>Cada edital publicado tem identidade SHA-256 única. Snapshot exportável. Trilha de obrigatoriedades legais visível.</p>
+        </div>
+      </div>
+      <p class="centro-destaque">
+        <strong>Próximo passo de Negócio</strong>: validar com P.O. Jairo + Rebeca o glossário e os 13 passos do wizard antes de F3 fechar modelo conceitual.
+      </p>
+    </section>
+
+    <!-- ============================================ -->
+    <!-- PARTE 2 — TÉCNICA                             -->
+    <!-- ============================================ -->
+    <section class="slide-divisor slide-tecnica-cor">
+      <div class="divisor-conteudo">
+        <p class="divisor-numero">Parte 2</p>
+        <h1>Trilha Técnica</h1>
+        <p class="divisor-subtitulo">Arquitetura, modelo de dados, permissionamento, LGPD</p>
+      </div>
+    </section>
+
+    <!-- 2.1 — Arquitetura -->
+    <section>
+      <h2>2.1 Arquitetura geral</h2>
+      <div class="mermaid">
+graph TB
+    classDef frontend fill:#e3f0ff,stroke:#1351b4,color:#1351b4
+    classDef backend fill:#fff8d6,stroke:#bd8a04,color:#5b4209
+    classDef infra fill:#e8f7ee,stroke:#168821,color:#0a5b1e
+    classDef externo fill:#fde2e2,stroke:#c52727,color:#7d1a1a
+
+    A[Admin CEPS/CRCA]:::frontend
+    C[Candidato]:::frontend
+    A --&gt; UW[uniplus-web<br/>Angular 21 + PrimeNG unstyled + Gov.br DS]:::frontend
+    C --&gt; UW
+    UW --&gt; KC[Keycloak 26.5<br/>OIDC + Gov.br broker]:::infra
+    UW --&gt; API[uniplus-api<br/>.NET 10 + Wolverine + Clean Arch]:::backend
+    API --&gt; KC
+    API --&gt; PG[(PostgreSQL 18<br/>read+write split)]:::infra
+    API --&gt; RD[(Redis 8<br/>cache config)]:::infra
+    API --&gt; KAF[Kafka 4.2 KRaft<br/>eventos]:::infra
+    API --&gt; MIN[MinIO<br/>S3 documentos]:::infra
+    KAF --&gt; SIGAA[SIGAA<br/>sync futuro]:::externo
+    KC --&gt; GOV[Gov.br Login Único]:::externo
+    API --&gt; OTEL[OpenTelemetry<br/>Loki + Tempo + Prometheus]:::infra
+      </div>
+    </section>
+
+    <!-- 2.2 — Decisões binding -->
+    <section>
+      <h2>2.2 Decisões binding (R5/R6/R7/R8 + RN08)</h2>
+      <table class="tabela-decisoes">
+        <thead>
+          <tr><th>ID</th><th>Decisão</th><th>Origem</th><th>Impacto técnico</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>R5</td><td>"Área" → <strong>Unidade</strong> hierárquica</td><td>2026-05-17</td><td>Entidade com auto-FK <code>parent_codigo</code>, até 6 níveis, ~690 entradas reais</td></tr>
+          <tr><td>R6</td><td>"Configuração" substitui "Parametrização" no domínio</td><td>2026-05-17</td><td>Vocabulário em ADRs, código, UI, docs</td></tr>
+          <tr><td>R7</td><td>Vocabulário OIDC canônico v3.3.2</td><td>2026-05-17</td><td><code>UnidadesAdministradas</code>, <code>IsPlataformaAdmin</code>, <code>EquipeProcessoSeletivo</code>, <code>EscopoAuditoria</code></td></tr>
+          <tr><td>R8</td><td>Sem herança automática por hierarquia</td><td>2026-05-17</td><td>Autorização sempre explícita; PROEG pai não vê CEPS filha por default</td></tr>
+          <tr><td>RN08</td><td>Snapshot congelado por SHA-256</td><td>Anterior</td><td><code>canonicalStringify</code> + <code>crypto.subtle.digest</code>; arrays ordenados determinístico</td></tr>
+          <tr><td>ADR-0058</td><td>Obrigatoriedade legal data-driven</td><td>Anterior</td><td>14 regras em <code>seed-obrigatoriedades.json</code> + avaliadores em <code>validator.js</code></td></tr>
+          <tr><td>TL 2026-05-18</td><td>CRUD MVP para Unidade/Curso/Campus/Cidade</td><td>Recente</td><td>Não depende de Kafka/SIGAA para MVP</td></tr>
+          <tr><td>TL 2026-05-19</td><td><code>LocalOferta</code> como entidade técnica unificadora</td><td>Recente</td><td>Tipologia: CAMPUS_SEDE, CONVENIO_INTERIORIZACAO, POLO_EAD, etc.</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- 2.3 — DER Cadastros Institucionais -->
+    <section>
+      <h2>2.3 DER — Cadastros institucionais</h2>
+      <div class="mermaid">
+erDiagram
+    Unidade ||--o{ Unidade : "parent_id (hierarquia até 6 níveis)"
+    Cidade ||--o{ Campus : "FK cidade_id"
+    Campus ||--o{ Curso : "FK campus_id (sede acadêmica)"
+    Unidade ||--o{ Curso : "FK unidade_ofertante_id (faculdade dona)"
+
+    Unidade {
+        uuid id PK
+        string codigo UK "ex: PROEG, CEPS, ICH, FAHIST"
+        string nome
+        string sigla
+        uuid parent_id FK "auto-FK"
+        enum tipo "REITORIA|PRO_REITORIA|CENTRO|INSTITUTO|FACULDADE|DEPARTAMENTO|COORDENACAO|DIRETORIA|DIVISAO|NUCLEO|OUTRO"
+        boolean unidade_academica
+        boolean ativo
+    }
+    Cidade {
+        uuid id PK
+        string codigo UK
+        string nome
+        string uf
+        string ibge_id UK "código IBGE 7 dígitos"
+        string ddd
+        decimal latitude "10,7"
+        decimal longitude "10,7"
+        enum regiao "NORTE|NORDESTE|CO|SE|SUL"
+        string mesorregiao
+        string microrregiao
+        int populacao_residente
+        decimal densidade_demografica
+        decimal area_territorial_km2
+    }
+    Campus {
+        uuid id PK
+        string codigo UK
+        string nome
+        uuid cidade_id FK
+        string endereco
+        string cep
+        decimal latitude
+        decimal longitude
+    }
+    Curso {
+        uuid id PK
+        string codigo UK
+        string nome
+        enum grau "BACH|LIC|TECNOLOGO|DUPLO"
+        uuid campus_id FK
+        uuid unidade_ofertante_id FK
+        enum turno "MAT|VES|NOT|INT"
+        string e_mec_codigo
+        int duracao_semestres
+    }
+      </div>
+    </section>
+
+    <!-- 2.4 — DER Configurações de Regra -->
+    <section>
+      <h2>2.4 DER — Configurações de regra (12 entidades)</h2>
+      <div class="config-regra-lista">
+        <div class="config-card"><strong>TipoEdital</strong> (8): SISU, PSIQ, PSE_EC, PSVR, PS_CONVENIOS, TRANSF_INT/EXT, PORTADOR_DIPLOMA</div>
+        <div class="config-card"><strong>Modalidade</strong> (12): AC, V, LB_PPI, LB_Q, LB_PcD, LB_EP, LI_PPI, LI_Q, LI_PcD, LI_EP, PSIQ_I, PSIQ_Q</div>
+        <div class="config-card"><strong>TipoEtapa</strong> (14): INSCRICAO, HOMOLOGACAO, PROVA_OBJETIVA, REDACAO, BANCA_HETERO, etc.</div>
+        <div class="config-card"><strong>Obrigatoriedade</strong> (15): regras data-driven com <code>regra_codigo</code> + avaliador</div>
+        <div class="config-card"><strong>PercentualIbge</strong> (2): PARA_2022, PARA_2010 (insumos cálculo cotas)</div>
+        <div class="config-card"><strong>CascataRemanejamento</strong> (3): PORTARIA_MEC_704_2025, PSIQ_RES_532, PSE_EDUCACAO_CAMPO</div>
+        <div class="config-card"><strong>EstrategiaBalanceamento</strong> (5): PERMITE_ESTOURO, REDUZIR_AC, REDUZIR_PPI_PROP, REDUZIR_EP_DEPOIS_AC, REDUZIR_EP_PROP</div>
+        <div class="config-card"><strong>CriterioDesempate</strong> (9): IDOSO_60, MAIOR_NOTA_*, MAIOR_IDADE, PROFESSOR_RURAL, MENOR_RENDA</div>
+        <div class="config-card"><strong>TipoDeficiencia</strong> (11): catálogo PcD LBI + Resolução 64/2015 CONSEPE</div>
+        <div class="config-card"><strong>CondicaoAtendimentoEspecializado</strong> (10): item 4.2.1 Edital ENEM 52/2025</div>
+        <div class="config-card"><strong>RecursoAcessibilidade</strong> (17): item 4.2.2 Edital ENEM 52/2025 + extensões locais</div>
+        <div class="config-card"><strong>TipoDocumento</strong> (18): RG, CPF, histórico, declarações, laudos</div>
+      </div>
+      <p class="rodape-explicativo">Todas <strong>editáveis por admin sem deploy</strong>. Cada uma com base legal documentada.</p>
+    </section>
+
+    <!-- 2.5 — LocalOferta + OfertaCurso (F3) -->
+    <section>
+      <h2>2.5 LocalOferta + OfertaCurso (propostas F3)</h2>
+      <div class="mermaid">
+erDiagram
+    Curso ||--o{ OfertaCurso : "1:N"
+    LocalOferta ||--o{ OfertaCurso : "1:N"
+    Unidade ||--o{ OfertaCurso : "FK unidade_ofertante (faculdade)"
+    Cidade ||--o{ LocalOferta : "1:N"
+    LocalOferta ||--o{ LocalOferta : "campus_responsavel_id (opcional)"
+    Edital ||--o{ EditalOferta : "1:N"
+    OfertaCurso ||--o{ EditalOferta : "junction"
+
+    Curso {
+        uuid id PK
+        string codigo
+        string nome "Engenharia Civil"
+        enum grau
+        string e_mec_codigo
+        int carga_horaria_total
+        text descricao_curricular
+    }
+    LocalOferta {
+        uuid id PK
+        string codigo
+        string nome
+        enum tipo "CAMPUS_SEDE|CAMPUS_FORA_DE_SEDE|CURSO_FORA_DE_SEDE|POLO_EAD|CONVENIO_INTERIORIZACAO|OUTRO"
+        uuid cidade_id FK
+        uuid campus_responsavel_id FK "auto-FK opcional"
+        string endereco
+        string ato_regulatorio_mec
+        date vigencia_inicio
+    }
+    OfertaCurso {
+        uuid id PK
+        string codigo
+        uuid curso_id FK
+        uuid local_oferta_id FK
+        uuid unidade_ofertante_id FK
+        enum modalidade "REGULAR|FORMA_PARA|PARFOR|PARFOR_EQUIDADE|PRONERA|PEPETI|INTENSIVO"
+        enum formato_pedagogico "PRESENCIAL|SEMIPRESENCIAL|EAD"
+        int vagas_anuais_autorizadas
+        string ato_autorizacao_mec
+    }
+    EditalOferta {
+        uuid edital_id FK
+        uuid oferta_curso_id FK
+        int vagas_ofertadas
+        json distribuicao_modalidades
+    }
+      </div>
+      <p class="rodape-explicativo">Resolve granularidade mista: "Engenharia Civil" Marabá (IGE) ≠ Engenharia Civil Santana (IEA) — mesmo Curso, OfertaCursos diferentes.</p>
+    </section>
+
+    <!-- 2.6 — DER Atendimento Especializado -->
+    <section>
+      <h2>2.6 DER — Atendimento Especializado (Opção C aninhamento)</h2>
+      <div class="mermaid">
+erDiagram
+    Edital ||--|| AtendimentoEspecializadoOferta : "1:1"
+    AtendimentoEspecializadoOferta ||--o{ CondicaoAtendimento : "N:M condicoes_aceitas"
+    AtendimentoEspecializadoOferta ||--o| DetalhesPcd : "1 para 0 ou 1 (opcional)"
+    DetalhesPcd ||--o{ TipoDeficiencia : "N:M tipos_deficiencia"
+    AtendimentoEspecializadoOferta ||--o{ RecursoAcessibilidade : "N:M recursos_oferecidos"
+
+    AtendimentoEspecializadoOferta {
+        uuid edital_id FK
+        array condicoes_aceitas
+        json detalhes_pcd "null se PCD não aceito"
+        array recursos_oferecidos
+    }
+    CondicaoAtendimento {
+        string codigo PK "PCD|DISLEXIA|TDAH|DISCALCULIA|DIABETES|CLASSE_HOSPITALAR|GESTANTE|LACTANTE|IDOSO|OUTRA"
+        string nome
+        boolean exige_laudo
+        string base_legal
+    }
+    DetalhesPcd {
+        array tipos_deficiencia "1 ou mais quando presente"
+    }
+    TipoDeficiencia {
+        string codigo PK "BAIXA_VISAO|CEGUEIRA|SURDEZ|TEA|FISICA|..."
+        enum categoria_lbi
+        boolean exige_laudo
+        string base_legal "Lei 13.146/2015"
+    }
+    RecursoAcessibilidade {
+        string codigo PK "PROVA_AMPLIADA|PROVA_BRAILE|TRADUTOR_LIBRAS|TEMPO_ADICIONAL|..."
+        enum origem "INEP|UNIFESSPA_LOCAL"
+        string fonte_normativa
+    }
+      </div>
+      <p class="rodape-explicativo">Invariante: <code>PCD presente em condicoes_aceitas se e somente se detalhes_pcd.tipos_deficiencia tem 1+ entradas</code>. Estado inválido inalcançável estruturalmente.</p>
+    </section>
+
+    <!-- 2.7 — Snapshot RN08 -->
+    <section>
+      <h2>2.7 Snapshot RN08 — canonicalização determinística</h2>
+      <div class="codigo-explica">
+        <div class="codigo-lado">
+          <pre><code class="language-javascript">// 1. Denormaliza configurações referenciadas
+function buildSnapshot(state) {
+  return {
+    versao_snapshot: 1,
+    edital_uuid: state.id,
+    tipo: denormSingle(Keys.TIPOS_EDITAL, ...),
+    modalidades: denormMany(Keys.MODALIDADES, ...),
+    etapas: ...,
+    vagas: ...,
+    obrigatoriedades_avaliadas: validate(state).aplicaveis
+  };
+}
+
+// 2. Ordenação determinística por código
+function denormMany(key, predicate) {
+  return items.filter(predicate)
+    .map(omitMeta)
+    .sort((a, b) =&gt; {            // byte-sort puro
+      if (a.codigo &lt; b.codigo) return -1;
+      if (a.codigo &gt; b.codigo) return 1;
+      return 0;
+    });
+}
+
+// 3. Hash SHA-256 sobre serialização canônica
+async function computeHash(snapshot) {
+  const canonical = canonicalStringify(snapshot);
+  const buffer = new TextEncoder().encode(canonical);
+  const hashBuf = await crypto.subtle
+                    .digest('SHA-256', buffer);
+  return hex(hashBuf);
+}</code></pre>
+        </div>
+        <div class="codigo-explicacao">
+          <h4>Propriedades garantidas</h4>
+          <ul>
+            <li><strong>Determinismo cross-engine</strong>: byte-sort (não <code>localeCompare</code>) — mesmo resultado em Node, Chrome, Firefox</li>
+            <li><strong>Ordem de chaves determinística</strong>: <code>canonicalStringify</code> ordena recursivamente</li>
+            <li><strong>Metadados voláteis omitidos</strong>: <code>omitMeta</code> remove <code>id</code>, <code>criadoEm</code>, <code>atualizadoEm</code>, <code>ativo</code></li>
+            <li><strong>Fallback literal para FKs</strong>: ex. <code>unidade_ofertante_sigla</code> congelada — se Unidade for deletada depois, snapshot preserva</li>
+            <li><strong>Mesmo edital → sempre mesmo hash</strong>: dois admins editando configuração sem mudar conteúdo do edital não alteram hash</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2.8 — Obrigatoriedades data-driven -->
+    <section>
+      <h2>2.8 Obrigatoriedades data-driven (ADR-0058)</h2>
+      <p>Regras legais são <strong>dado</strong>, não <strong>código</strong>. Admin edita configuração quando a lei muda — sem deploy.</p>
+      <div class="codigo-explica">
+        <div class="codigo-lado">
+          <pre><code class="language-json">// seed-obrigatoriedades.json (excerto)
+{
+  "tipo_edital_codigo": "PSIQ",
+  "categoria": "ETAPA",
+  "regra_codigo": "ETAPA_OBRIGATORIA",
+  "parametros": {
+    "tipo_etapa": "BANCA_HETEROIDENTIFICACAO"
+  },
+  "descricao": "Editais PSIQ devem ter banca de heteroidentificação.",
+  "base_legal": "IN MGI 23/2023; Resolução Unifesspa 532/2021",
+  "data_vigencia_inicio": "2021-06-01",
+  "data_vigencia_fim": null
+}</code></pre>
+        </div>
+        <div class="codigo-lado">
+          <pre><code class="language-javascript">// validator.js — avaliador correspondente
+const AVALIADORES = {
+  ETAPA_OBRIGATORIA: (state, p) =&gt; {
+    const etapas = state.edital.etapas || [];
+    return etapas.some(e =&gt;
+      e.tipoEtapaCodigo === p.tipo_etapa);
+  },
+  CONCORRENCIA_DUPLA_OBRIGATORIA: ...,
+  ATENDIMENTO_PCD_DISPONIVEL: (state, p) =&gt; {
+    // Gate: regra não-aplicável se prova não-presencial
+    if (!state.edital.tipo?.exige_prova_presencial)
+      return true;
+    return checkRecursos(state, p);
+  },
+  // ... +12 avaliadores
+};</code></pre>
+        </div>
+      </div>
+      <p class="rodape-explicativo">15 regras hoje. Adicionar nova regra = 1 entrada no JSON + (opcional) 1 avaliador no JS. Zero migração de schema.</p>
+    </section>
+
+    <!-- 2.9 — Permissionamento OIDC -->
+    <section>
+      <h2>2.9 Permissionamento OIDC (v3.3.2)</h2>
+      <div class="oidc-modelo">
+        <h3>Arquitetura PBAC + ABAC contextual</h3>
+        <ul>
+          <li><strong>PBAC</strong> (Policy-Based): permissões granulares por recurso × ação (ex.: <code>selecao:edital:publicar</code>, <code>configuracoes:modalidade:editar</code>)</li>
+          <li><strong>ABAC contextual</strong>: contexto de Unidade (UnidadeDona, UnidadesAdministradas) limita escopo</li>
+          <li><strong>Sem herança automática (R8)</strong>: PROEG (pai) não vê CEPS (filha) por default — auditoria sempre explícita</li>
+          <li><strong>IAuthorizationDecisionService</strong>: contrato formal; todo command/query sensível passa por aqui</li>
+          <li><strong>EscopoAuditoria</strong>: concessão temporária com vigência + justificativa + base legal LGPD</li>
+        </ul>
+      </div>
+      <div class="oidc-fluxo">
+        <h3>Fluxo de decisão</h3>
+        <div class="mermaid">
+flowchart LR
+    A[Request] --&gt; B[OIDC Token<br/>Keycloak]
+    B --&gt; C[PermissionRequirement<br/>declarado no endpoint]
+    C --&gt; D[IAuthorizationDecisionService]
+    D --&gt; E{ResourceContext<br/>+ Permissões<br/>+ Escopos<br/>+ Vigência}
+    E --&gt;|allow| F[Handler executa<br/>+ AuditLog]
+    E --&gt;|deny| G[AuthorizationDecision<br/>com DenyReason auditável]
+        </div>
+      </div>
+    </section>
+
+    <!-- 2.10 — Matriz de Permissões -->
+    <section>
+      <h2>2.10 Matriz de permissões granular</h2>
+      <table class="tabela-permissoes">
+        <thead>
+          <tr>
+            <th rowspan="2">Recurso</th>
+            <th rowspan="2">Ação</th>
+            <th colspan="6" class="atores-header">Atores</th>
+          </tr>
+          <tr>
+            <th>Admin Plataforma</th>
+            <th>Admin CEPS</th>
+            <th>Admin CRCA</th>
+            <th>Equipe Processo</th>
+            <th>Auditor</th>
+            <th>Candidato</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td rowspan="4"><strong>Edital</strong></td><td>criar rascunho</td><td>✅ global</td><td>✅ por UnidadeDona</td><td>✅ por UnidadeDona</td><td>—</td><td>—</td><td>—</td></tr>
+          <tr><td>editar rascunho</td><td>✅ global</td><td>✅ se UnidadeDona ∈ admin</td><td>✅ se UnidadeDona ∈ admin</td><td>✅ se atribuído</td><td>—</td><td>—</td></tr>
+          <tr><td>publicar (gera snapshot)</td><td>✅ global</td><td>✅ P.O. CEPS</td><td>✅ P.O. CRCA</td><td>—</td><td>—</td><td>—</td></tr>
+          <tr><td>visualizar publicado</td><td>✅</td><td>✅</td><td>✅</td><td>✅ se atribuído</td><td>✅ com EscopoAuditoria</td><td>✅ público</td></tr>
+
+          <tr><td rowspan="3"><strong>Unidade</strong></td><td>cadastrar</td><td>✅</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
+          <tr><td>editar hierarquia</td><td>✅</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
+          <tr><td>listar</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td><td>—</td></tr>
+
+          <tr><td rowspan="2"><strong>Configurações de regra</strong><br/>(modalidades, percentuais IBGE, cascatas, obrigatoriedades)</td><td>editar</td><td>✅</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
+          <tr><td>listar</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td><td>—</td></tr>
+
+          <tr><td rowspan="2"><strong>Snapshot RN08</strong></td><td>exportar JSON</td><td>✅</td><td>✅ por UnidadeDona</td><td>✅ por UnidadeDona</td><td>—</td><td>✅ com EscopoAuditoria</td><td>✅ público</td></tr>
+          <tr><td>validar hash</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td></tr>
+
+          <tr><td rowspan="2"><strong>EscopoAuditoria</strong></td><td>conceder</td><td>✅ com dupla aprovação</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
+          <tr><td>listar próprios</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td><td>—</td></tr>
+
+          <tr><td rowspan="2"><strong>Dados sensíveis</strong><br/>(CPF, raça, deficiência, renda)</td><td>visualizar mascarado</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td><td>—</td><td>—</td></tr>
+          <tr><td>visualizar não-mascarado</td><td>✅ com EscopoAuditoria + base legal</td><td>✅ com escopo explícito + base legal</td><td>✅ com escopo explícito + base legal</td><td>—</td><td>✅ com EscopoAuditoria</td><td>—</td></tr>
+        </tbody>
+      </table>
+      <p class="rodape-explicativo"><strong>Toda visualização não-mascarada é auditada</strong> (LGPD by-design). Concessão de EscopoAuditoria sem base legal documentada é bloqueada estruturalmente.</p>
+    </section>
+
+    <!-- 2.11 — Regras de autorização -->
+    <section>
+      <h2>2.11 Regras de autorização — invariantes binding</h2>
+      <div class="regras-autorizacao">
+        <div class="regra-card regra-r8">
+          <h4>R8 — Sem herança automática</h4>
+          <p>PROEG (pai de CEPS no organograma) <strong>não tem acesso</strong> a editais CEPS por default. Hierarquia institucional é para organograma e cadastro, não para autorização.</p>
+        </div>
+        <div class="regra-card">
+          <h4>Auditoria sempre explícita</h4>
+          <p>Acesso de auditor a dado sensível exige <code>EscopoAuditoria</code> com: <code>(usuario, modulo, unidadeCodigo?, processoId?, validoDe, validoAte, concedidoPor, justificativa, baseLegal)</code>.</p>
+        </div>
+        <div class="regra-card">
+          <h4>Expiração obrigatória</h4>
+          <p>Toda concessão de exceção/escopo de auditoria tem <code>validoAte</code> obrigatório. "Indefinido" só para grupos base com recertificação semestral.</p>
+        </div>
+        <div class="regra-card">
+          <h4>Dupla aprovação para concessões poderosas</h4>
+          <p>Conceder <code>IsPlataformaAdmin</code>, criar <code>EscopoAuditoria</code> global ou exportar dados sensíveis exige aprovação de 2 admins distintos.</p>
+        </div>
+        <div class="regra-card">
+          <h4>X-On-Behalf-Of-Unidade não é confiável</h4>
+          <p>Atuação em nome de outra unidade exige <code>AtuacaoInstitucional</code> + <code>EscopoDelegacao</code> em banco — header HTTP é falsificável.</p>
+        </div>
+        <div class="regra-card">
+          <h4>Auditoria no limite do caso de uso</h4>
+          <p>Não auditar "cada SELECT" (inviável). Auditar: visualizar detalhe sensível, listar conjunto, exportar, alterar escopo, break-glass.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2.12 — LGPD by-design -->
+    <section>
+      <h2>2.12 LGPD by-design — matriz de dados sensíveis (parcial)</h2>
+      <table class="tabela-lgpd">
+        <thead>
+          <tr><th>Campo</th><th>Classificação</th><th>Finalidade</th><th>Base legal LGPD</th><th>Masking padrão</th><th>Retenção</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>CPF</td><td>Identificação</td><td>Identificação inequívoca do candidato</td><td>Cumprimento obrigação legal (art. 7º, II)</td><td><code>***.***.***-XX</code></td><td>Indeterminada (vínculo ativo)</td></tr>
+          <tr><td>Nome civil</td><td>Identificação</td><td>Identificação interna</td><td>Cumprimento obrigação legal</td><td>Visível só para admin com EscopoAuditoria</td><td>Vínculo ativo</td></tr>
+          <tr><td>Nome social</td><td>Identificação pública (Decreto 8.727/2016)</td><td>Tratamento prioritário em listas públicas</td><td>Direito do titular (art. 18)</td><td><strong>Sem masking</strong> — prioridade absoluta</td><td>Vínculo ativo</td></tr>
+          <tr><td>Raça/cor</td><td>Dado sensível (art. 5º, II)</td><td>Validação de cota PPI</td><td>Política pública (art. 11, II, "a")</td><td>Visível apenas em homologação</td><td>5 anos pós-conclusão</td></tr>
+          <tr><td>Deficiência (tipo + laudo)</td><td>Dado sensível de saúde</td><td>Validação de cota PcD + atendimento especializado</td><td>Política pública + tutela da saúde</td><td>Visível apenas para banca biopsicossocial</td><td>5 anos pós-conclusão</td></tr>
+          <tr><td>Renda familiar</td><td>Dado sensível</td><td>Validação de cota LB_*</td><td>Política pública</td><td>Faixa, não valor exato</td><td>5 anos pós-conclusão</td></tr>
+          <tr><td>Endereço residência</td><td>Dado pessoal</td><td>Bônus regional, ensalamento</td><td>Cumprimento obrigação legal</td><td>Cidade visível; logradouro masking</td><td>5 anos pós-conclusão</td></tr>
+          <tr><td>Notas individuais</td><td>Dado pessoal</td><td>Classificação, recursos</td><td>Cumprimento obrigação legal</td><td>Visível para candidato + admin</td><td>10 anos (audit)</td></tr>
+        </tbody>
+      </table>
+      <p class="rodape-explicativo">Matriz completa entra em F3 como ADR formal. Inclui também: SolicitacaoAtendimentoEspecializado, documentos comprobatórios (S3/MinIO), audit logs.</p>
+    </section>
+
+    <!-- 2.13 — Roadmap -->
+    <section>
+      <h2>2.13 Roadmap das fases</h2>
+      <div class="roadmap">
+        <div class="fase-card fase-concluida">
+          <h4>F0 — Diagnóstico ✅</h4>
+          <p>Aprovada 17-19/05. Revelações binding: Unidade (R5), Configuração (R6), vocabulário OIDC (R7), sem herança (R8).</p>
+        </div>
+        <div class="fase-card fase-proxima">
+          <h4>F1 — Escopo MVP</h4>
+          <p>Confirmar fronteiras MVP × pós-MVP. Atendimento à demo Jairo aqui.</p>
+        </div>
+        <div class="fase-card fase-proxima">
+          <h4>F2 — Vocabulário</h4>
+          <p>Glossário formal. Decisões pendentes: Opção C aninhamento PCD/TipoDeficiencia, "Configuração" canônico.</p>
+        </div>
+        <div class="fase-card fase-proxima">
+          <h4>F3 — Modelo conceitual</h4>
+          <p>UML classes + 3 sequências. Decisões binding pendentes: LocalOferta hierárquico (sub-campi Marabá), OfertaCurso 3-níveis, Faculdade como entidade.</p>
+        </div>
+        <div class="fase-card fase-futura">
+          <h4>F4 — Modelo de dados</h4>
+          <p>ER detalhado. Migração ~690 unidades reais. PostGIS para georef.</p>
+        </div>
+        <div class="fase-card fase-futura">
+          <h4>F5 — Plano de entrega</h4>
+          <p>Backlog reordenado por Story. Sprints planejadas.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2.14 — Fechamento Técnico -->
+    <section>
+      <h2>2.14 Fechamento — Trilha Técnica</h2>
+      <div class="fechamento-grid">
+        <div class="fechamento-card">
+          <h4>Para arquitetos</h4>
+          <p>3 modelos novos em F3 (LocalOferta, OfertaCurso, ADR-0065 OIDC) com propostas materializadas (~1.500 linhas de pesquisa comparativa). Snapshot RN08 determinístico cross-engine.</p>
+        </div>
+        <div class="fechamento-card">
+          <h4>Para desenvolvedores</h4>
+          <p>Regras como dado (ADR-0058) reduz acoplamento e elimina deploy por mudança de lei. PBAC + ABAC + EscopoAuditoria dá controle fino sem matriz N×M proliferar.</p>
+        </div>
+        <div class="fechamento-card">
+          <h4>Para DevOps</h4>
+          <p>Snapshot RN08 + Kafka como overlay futuro = arquitetura preparada para sync SIGAA sem reescrever núcleo.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================ -->
+    <!-- APÊNDICES                                     -->
+    <!-- ============================================ -->
+    <section class="slide-divisor slide-apendice-cor">
+      <div class="divisor-conteudo">
+        <p class="divisor-numero">Apêndices</p>
+        <h1>Dicionário de dados e referências</h1>
+      </div>
+    </section>
+
+    <!-- A.1 — Dicionário de dados (cadastros institucionais) -->
+    <section>
+      <h2>A.1 Dicionário — Cadastros institucionais</h2>
+      <table class="tabela-dicionario">
+        <thead><tr><th>Entidade</th><th>Campos canônicos</th><th>Cardinalidade no MVP</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Unidade</strong></td><td>id, codigo, nome, sigla, parent_id, tipo (enum 11), unidade_academica, ativo</td><td>~690 (migráveis dos legados)</td></tr>
+          <tr><td><strong>Cidade</strong></td><td>id, codigo, nome, uf, ibge_id, ddd, latitude, longitude, regiao (enum 5), mesorregiao, microrregiao, populacao_residente, densidade_demografica, area_territorial_km2</td><td>~5570 (dataset IBGE)</td></tr>
+          <tr><td><strong>Campus</strong></td><td>id, codigo, nome, cidade_id, endereco, cep, latitude, longitude</td><td>5 sede + N convênios</td></tr>
+          <tr><td><strong>Curso</strong></td><td>id, codigo, nome, grau (enum 4), campus_id, unidade_ofertante_id, turno, e_mec_codigo, duracao_semestres</td><td>~50 currículos únicos</td></tr>
+          <tr><td><strong>LocalOferta</strong> (F3)</td><td>id, codigo, nome, tipo (enum 6), cidade_id, campus_responsavel_id, endereco, cep, lat/long, ato_regulatorio_mec, vigencia</td><td>~30 (5 sede + ~25 convênios/polos)</td></tr>
+          <tr><td><strong>OfertaCurso</strong> (F3)</td><td>id, codigo, curso_id, local_oferta_id, unidade_ofertante_id, modalidade (enum 9), formato_pedagogico (enum 3), vagas_anuais_autorizadas, ato_autorizacao_mec</td><td>~120 (combinações reais)</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- A.2 — Dicionário de dados (configurações) -->
+    <section>
+      <h2>A.2 Dicionário — Configurações de regra</h2>
+      <table class="tabela-dicionario">
+        <thead><tr><th>Configuração</th><th>Campos canônicos</th><th>Base legal</th></tr></thead>
+        <tbody>
+          <tr><td>TipoEdital</td><td>codigo, nome, defaults (etapas/fórmula/modalidades/desempate), exige_prova_presencial, vagas_suplementares</td><td>Resoluções Unifesspa por tipo</td></tr>
+          <tr><td>Modalidade</td><td>codigo, nome, criterios_cumulativos, exige_heteroidentificacao, exige_comprovacao_renda, exige_laudo_pcd, acao_quando_indeferido</td><td>Lei 12.711/14.723</td></tr>
+          <tr><td>TipoEtapa</td><td>codigo, nome, categoria (ADMIN/AVAL/IMPORT), escala (0-10 / 0-1000), tipo_correcao, modalidade_aplicacao, exige_anonimizacao, num_corretores, permite_recurso</td><td>Resoluções CEPS/CONSEPE</td></tr>
+          <tr><td>Obrigatoriedade</td><td>tipo_edital_codigo (ou "*"), categoria, regra_codigo (mapeia avaliador), parametros (JSON), descricao, base_legal, vigencia_inicio/fim</td><td>Variável por norma</td></tr>
+          <tr><td>PercentualIbge</td><td>codigo, uf, ano_censo, ppi%, q%, pcd%, fonte</td><td>Lei 12.711/14.723</td></tr>
+          <tr><td>CascataRemanejamento</td><td>codigo, nome, fallback_codigo, ordens (mapa origem → [destinos])</td><td>Portaria MEC 704/2025 + resoluções específicas</td></tr>
+          <tr><td>EstrategiaBalanceamento</td><td>codigo, estrategia (3 motores canônicos), parametros_campos</td><td>Decisão institucional</td></tr>
+          <tr><td>CriterioDesempate</td><td>codigo, nome, requer_etapa_referencia, versao</td><td>Estatuto Idoso, resoluções</td></tr>
+          <tr><td>TipoDeficiencia</td><td>codigo, nome, categoria_lbi, exige_laudo, validade_laudo_dias, base_legal</td><td>Lei 13.146/2015 + Res 64/2015 CONSEPE</td></tr>
+          <tr><td>CondicaoAtendimentoEspecializado</td><td>codigo, nome, exige_laudo, exige_tipos_deficiencia (true só para PCD), base_legal</td><td>Edital ENEM 52/2025 item 4.2.1</td></tr>
+          <tr><td>RecursoAcessibilidade</td><td>codigo, nome, origem (INEP/UNIFESSPA_LOCAL), fonte_normativa</td><td>Edital ENEM 52/2025 item 4.2.2</td></tr>
+          <tr><td>TipoDocumento</td><td>codigo, nome, formatos_aceitos, tamanho_maximo_mb, validade_dias, exige_assinatura_digital, exige_liderancas, categoria</td><td>Variável por documento</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- A.3 — Glossário -->
+    <section>
+      <h2>A.3 Glossário de termos canônicos</h2>
+      <div class="glossario-grid">
+        <div class="termo-item"><dt>Atendimento Especializado</dt><dd>Conjunto de adaptações na prova (INEP, Edital ENEM 52/2025)</dd></div>
+        <div class="termo-item"><dt>Cascata de Remanejamento</dt><dd>Política de redirecionamento de vagas não preenchidas entre modalidades</dd></div>
+        <div class="termo-item"><dt>Concorrência Dupla</dt><dd>Cotista concorre simultaneamente em AC e na cota (Lei 14.723/2023)</dd></div>
+        <div class="termo-item"><dt>Configuração</dt><dd>Domínio: parâmetro editável por admin sem deploy (substitui "Parametrização")</dd></div>
+        <div class="termo-item"><dt>EscopoAuditoria</dt><dd>Concessão temporária e auditada de acesso a dado sensível</dd></div>
+        <div class="termo-item"><dt>LocalOferta</dt><dd>Entidade técnica unificadora: câmpus sede, curso fora de sede, polo EaD, convênio</dd></div>
+        <div class="termo-item"><dt>OfertaCurso</dt><dd>Tupla (Curso × LocalOferta × Modalidade × FormatoPedagogico)</dd></div>
+        <div class="termo-item"><dt>RN08</dt><dd>Regra: snapshot do edital congelado na publicação; mudanças não retroagem</dd></div>
+        <div class="termo-item"><dt>SHA-256 canônico</dt><dd>Hash determinístico do snapshot via byte-sort + JSON canonicalizado</dd></div>
+        <div class="termo-item"><dt>Tratamento pelo Nome Social</dt><dd>Categoria INEP separada de Atendimento Especializado (Decreto 8.727/2016)</dd></div>
+        <div class="termo-item"><dt>Unidade</dt><dd>Entidade hierárquica institucional Unifesspa (substitui "Área")</dd></div>
+        <div class="termo-item"><dt>UnidadesAdministradas</dt><dd>Claim OIDC: lista de Unidades sob escopo administrativo do usuário</dd></div>
+      </div>
+    </section>
+
+    <!-- A.4 — Referências -->
+    <section>
+      <h2>A.4 Referências (legislação)</h2>
+      <ul class="referencias-list">
+        <li><a href="https://www.planalto.gov.br/ccivil_03/_ato2015-2018/2015/lei/l13146.htm">Lei 13.146/2015 — Estatuto da Pessoa com Deficiência (LBI)</a></li>
+        <li><a href="https://www.planalto.gov.br/ccivil_03/_ato2019-2022/2021/lei/l14129.htm">Lei 14.129/2021 — Governo Digital</a></li>
+        <li><a href="http://www.planalto.gov.br/ccivil_03/_ato2015-2018/2018/lei/L13709.htm">Lei 13.709/2018 — LGPD</a></li>
+        <li><a href="https://www.planalto.gov.br/ccivil_03/_ato2023-2026/2023/lei/l14723.htm">Lei 14.723/2023 — Lei de Cotas atualizada</a></li>
+        <li><a href="http://www.planalto.gov.br/ccivil_03/_ato2015-2018/2017/decreto/d9235.htm">Decreto 9.235/2017 — Regulação Educação Superior</a></li>
+        <li><a href="https://download.inep.gov.br/enem/edital_52_de_23_de_maio_de_2025.pdf">Edital INEP nº 52/2025 — ENEM 2025</a></li>
+        <li><a href="https://www.gov.br/inep/pt-br/centrais-de-conteudo/noticias/enem/saiba-como-solicitar-atendimento-especializado-no-enem">INEP — Atendimento Especializado no ENEM</a></li>
+        <li><a href="https://www.semesp.org.br/legislacao/portaria-mec-no-506-de-10-de-julho-de-2025/">Portaria MEC 506/2025 — Formatos EaD</a></li>
+      </ul>
+    </section>
+
+    <!-- A.5 — Referências institucionais Unifesspa -->
+    <section>
+      <h2>A.5 Referências institucionais</h2>
+      <ul class="referencias-list">
+        <li><a href="https://www.unifesspa.edu.br/">Portal Unifesspa</a></li>
+        <li><a href="https://www.unifesspa.edu.br/noticias/4925-forma-para-unifesspa-garante-apoio-para-oferta-de-cursos-em-cidades-onde-nao-possui-campus">Programa Forma Pará na Unifesspa</a></li>
+        <li><a href="https://editais.unifesspa.edu.br/tags/forma-par%C3%A1">Portal de Editais Unifesspa — Forma Pará</a></li>
+        <li><a href="https://crca.unifesspa.edu.br/perguntas-frequentes_discente.html">CRCA Unifesspa — FAQ</a></li>
+        <li><a href="https://cdn.cebraspe.org.br/vestibulares/vestunb_25/arquivos/ED_1_VESTUNB_2025_ABERTURA.PDF">Edital UnB Vestibular 2025 (Cebraspe)</a></li>
+        <li><a href="https://www.fuvest.br/wp-content/uploads/fuvest2024_guia_inclusao_acessibilidade.pdf">Fuvest — Guia Inclusão e Acessibilidade 2024</a></li>
+        <li><a href="https://ifpr.edu.br/acesso-a-informacao/perguntas-frequentes/campus-fora-de-sede-e-cursos-fora-de-sede/">IFPR — FAQ Câmpus fora de sede</a></li>
+      </ul>
+    </section>
+
+    <!-- A.6 — Artefatos internos -->
+    <section>
+      <h2>A.6 Artefatos internos (.compozy/governanca)</h2>
+      <p>Disponíveis em <code>.compozy/governanca/configuracao-edital-mvp/fase-0-diagnostico/</code>:</p>
+      <ul class="artefatos-list">
+        <li><strong>RELATORIO-FINAL-SESSAO-AUTONOMA-2026-05-19.md</strong> — Consolidação executiva</li>
+        <li><strong>analise-prototipo-cadastro-edital.md</strong> — Anexo F0 binding (11 seções)</li>
+        <li><strong>visao-servico-endereco-georef.md</strong> — Roadmap Cidade enriquecida + DNE/Distrito/Bairro/Logradouro</li>
+        <li><strong>fonte-cursos-unifesspa-real.md</strong> — Mapa real Curso → Faculdade → Instituto extraído da API Unifesspa</li>
+        <li><strong>propostas-f2-f3/proposta-overlap-pcd-tipodeficiencia.md</strong> (467 linhas) — Opção C aninhamento PCD</li>
+        <li><strong>propostas-f2-f3/proposta-local-oferta.md</strong> (~440 linhas) — Entidade unificadora + sub-campi Marabá</li>
+        <li><strong>propostas-f2-f3/proposta-oferta-curso.md</strong> (~538 linhas) — Modelo 3-níveis Curso → OfertaCurso → Turma</li>
+        <li><strong>feedback-codex-round{1..4}.md + feedback-claude-opus-round{1..3}.md</strong> — 7 rodadas de revisão crítica independente</li>
+        <li><strong>dossie-revisao-2026-05-18.md + dossie-revisao-round3-2026-05-18.md</strong> — Consolidações intermediárias</li>
+      </ul>
+    </section>
+
+    <!-- Encerramento -->
+    <section class="slide-encerramento">
+      <h1>Obrigado</h1>
+      <p class="encerramento-tagline">Universidade Federal do Sul e Sudeste do Pará</p>
+      <p class="encerramento-creditos">
+        <strong>Construído pelo CTIC</strong> com a colaboração do CEPS e CRCA<br>
+        <em>Sessão <code>configuracao-edital-mvp</code> · Fase 0 aprovada · 2026-05-19</em>
+      </p>
+      <p class="encerramento-perguntas">Perguntas, contribuições, críticas: bem-vindas.</p>
+    </section>
+
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reveal.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/plugin/notes/notes.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/plugin/highlight/highlight.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11.4.1/dist/mermaid.min.js"></script>
+<script src="js/presentation.js"></script>
+
+</body>
+</html>
