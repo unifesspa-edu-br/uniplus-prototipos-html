@@ -80,6 +80,22 @@ const AVALIADORES = {
     return requeridos.every((r) => oferecidos.includes(r));
   },
 
+  // Valida invariante Opção C: PCD ∈ condicoes_aceitas ⟺ detalhes_pcd.tipos_deficiencia.length ≥ 1
+  // Detecta dois estados inválidos:
+  //   (a) PCD marcado sem tipos de deficiência → admin precisa completar ou remover PCD.
+  //   (b) Tipos de deficiência presentes sem PCD marcado → inconsistência estrutural.
+  OBRIGATORIEDADE_PCD_COERENTE: (state) => {
+    const oferta = state.edital.atendimentoEspecializado?.oferta || {};
+    const temPCD = (oferta.condicoes_aceitas || []).includes('PCD');
+    const temDetalhes = (oferta.detalhes_pcd?.tipos_deficiencia || []).length > 0;
+    // Estado válido A: PCD marcado + tipos declarados
+    if (temPCD && temDetalhes) return true;
+    // Estado válido B: PCD não marcado + sem tipos (null/ausente)
+    if (!temPCD && !temDetalhes) return true;
+    // Estado inválido: divergência entre PCD e tipos
+    return false;
+  },
+
   ATENDIMENTO_GESTANTE_OBRIGATORIO: (state, p) => {
     // mesma lógica: exige que todos os recursos requeridos estejam oferecidos.
     // O gate de `exige_prova_presencial` está em `ATENDIMENTO_PCD_DISPONIVEL`.

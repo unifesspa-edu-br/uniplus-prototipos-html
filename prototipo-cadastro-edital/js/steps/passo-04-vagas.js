@@ -1,5 +1,7 @@
-// Passo 4: Vagas — quadro de vagas do edital, com cursos referenciados pela
-// configuração `cursos`. Cada linha = (cursoCodigo, vagas).
+// Passo 4: Vagas — quadro de vagas do edital, com Ofertas de Curso referenciadas.
+// Refactor 3: cada linha = (ofertaCursoCodigo, vagas).
+// Compat retroativa: aceita `cursoCodigo` legado (pré-Refactor 3) — lido como `ofertaCursoCodigo`
+// (os códigos são idênticos por decisão de slugging).
 // Aparece depois de Modalidades (passo 3).
 
 import { Collection, Keys } from '../storage.js';
@@ -13,23 +15,44 @@ const TURNO_LABEL = {
   NOTURNO: 'Noturno',
   INTEGRAL: 'Integral',
 };
+const MODALIDADE_LABEL = {
+  REGULAR: 'Regular',
+  FORMA_PARA: 'Forma Pará',
+  PARFOR: 'PARFOR',
+  PARFOR_EQUIDADE: 'PARFOR Equidade',
+  PRONERA: 'PRONERA',
+  PEPETI: 'Pepeti',
+  PSIQ: 'PSIQ',
+  CONVENIO_OUTRO: 'Convênio',
+  OUTRO: 'Outro',
+};
 
-/** Constrói o label legível de uma entrada de Cursos. */
-function rotuloCurso(curso, campusPorCodigo) {
-  const campus = campusPorCodigo[curso.campus_codigo]?.nome || curso.campus_codigo;
-  return `${curso.nome} — ${GRAU_ABREV[curso.grau] || curso.grau} — ${campus} — ${TURNO_LABEL[curso.turno] || curso.turno}`;
+/** Constrói o label legível de uma OfertaCurso. */
+function rotuloOferta(oferta, cursoPorCodigo, localPorCodigo) {
+  const cursoNome = cursoPorCodigo[oferta.curso_codigo]?.nome || oferta.curso_codigo;
+  const cursoGrau = cursoPorCodigo[oferta.curso_codigo]?.grau;
+  const local = localPorCodigo[oferta.local_oferta_codigo]?.nome || oferta.local_oferta_codigo;
+  const turno = oferta.turno ? (TURNO_LABEL[oferta.turno] || oferta.turno) : null;
+  const modalidade = oferta.modalidade && oferta.modalidade !== 'REGULAR'
+    ? ` [${MODALIDADE_LABEL[oferta.modalidade] || oferta.modalidade}]`
+    : '';
+  const turnoSeg = turno ? ` — ${turno}` : '';
+  return `${cursoNome}${modalidade} — ${GRAU_ABREV[cursoGrau] || cursoGrau} — ${local}${turnoSeg}`;
 }
 
-/** Resolve um cursoCodigo no shape denormalizado que a matriz consome. */
-function denormalizar(curso, campusPorCodigo) {
-  if (!curso) return null;
-  const campus = campusPorCodigo[curso.campus_codigo]?.nome || curso.campus_codigo;
+/** Resolve ofertaCursoCodigo no shape denormalizado que a matriz de distribuição consome. */
+function denormalizarOferta(oferta, cursoPorCodigo, localPorCodigo) {
+  if (!oferta) return null;
+  const cursoNome = cursoPorCodigo[oferta.curso_codigo]?.nome || oferta.curso_codigo;
+  const cursoGrau = cursoPorCodigo[oferta.curso_codigo]?.grau || null;
+  const local = localPorCodigo[oferta.local_oferta_codigo]?.nome || oferta.local_oferta_codigo;
   return {
-    codigo: curso.codigo,
-    curso: curso.nome,
-    grau: curso.grau,
-    campus,
-    turno: TURNO_LABEL[curso.turno] || curso.turno,
+    codigo: oferta.codigo,
+    curso: cursoNome,
+    grau: cursoGrau,
+    campus: local,
+    turno: TURNO_LABEL[oferta.turno] || oferta.turno,
+    modalidade: oferta.modalidade || 'REGULAR',
   };
 }
 
@@ -38,19 +61,54 @@ export async function render(container, ctx) {
   const v = state.edital.vagas;
   const dm = state.edital.distribuicaoModalidades;
 
-  const cursosDisponiveis = new Collection(Keys.CURSOS).list({ includeInactive: false });
+  // Refactor 3: lista OfertasCurso; fallback a Cursos se OfertasCurso estiver vazio (compat).
+  const ofertasDisponiveis = new Collection(Keys.OFERTAS_CURSO).list({ includeInactive: false });
+  const cursoPorCodigo = Object.fromEntries(
+    new Collection(Keys.CURSOS).list({ includeInactive: true }).map((c) => [c.codigo, c])
+  );
+  // LocalOferta com fallback CAMPUS (compat retroativa Refactor 2).
+  const localList = new Collection(Keys.LOCAL_OFERTA).list({ includeInactive: true });
+  const localPorCodigo = Object.fromEntries(localList.map((l) => [l.codigo, l]));
+  // Compat: combina com CAMPUS para slugs legados (ex.: CANAA_CONVENIO).
   const campusList = new Collection(Keys.CAMPUS).list({ includeInactive: true });
-  const campusPorCodigo = Object.fromEntries(campusList.map((c) => [c.codigo, c]));
-  const cursoPorCodigo = Object.fromEntries(cursosDisponiveis.map((c) => [c.codigo, c]));
+  for (const c of campusList) {
+    if (!localPorCodigo[c.codigo]) localPorCodigo[c.codigo] = c;
+  }
 
-  // Opções do select, ordenadas por campus + nome
-  const opcoes = [...cursosDisponiveis]
+  // Compat pré-Refactor 3: se lista de ofertas estiver vazia, constrói virtualmente
+  // a partir de seed-cursos antigo (que ainda pode estar em cache do localStorage).
+  const listaEfetiva = ofertasDisponiveis.length > 0
+    ? ofertasDisponiveis
+    : new Collection(Keys.CURSOS).list({ includeInactive: false }).map((c) => ({
+        codigo: c.codigo,
+        curso_codigo: c.codigo,
+        local_oferta_codigo: c.campus_codigo || null,
+        unidade_ofertante_codigo: c.unidade_ofertante_codigo || null,
+        modalidade: 'REGULAR',
+        formato_pedagogico: 'PRESENCIAL',
+        turno: c.turno || 'INTEGRAL',
+      }));
+
+  const ofertaPorCodigo = Object.fromEntries(listaEfetiva.map((o) => [o.codigo, o]));
+
+  // key canônica do estado: ofertaCursoCodigo (compat: lê cursoCodigo se ofertaCursoCodigo ausente).
+  function getKey(linha) {
+    return linha.ofertaCursoCodigo ?? linha.cursoCodigo ?? null;
+  }
+  function setKey(val) {
+    return { ofertaCursoCodigo: val, cursoCodigo: val };
+  }
+
+  // Opções do select, ordenadas por local + nome do curso
+  const opcoes = [...listaEfetiva]
     .sort((a, b) => {
-      const ca = campusPorCodigo[a.campus_codigo]?.nome || a.campus_codigo;
-      const cb = campusPorCodigo[b.campus_codigo]?.nome || b.campus_codigo;
-      return ca.localeCompare(cb, 'pt-BR') || a.nome.localeCompare(b.nome, 'pt-BR');
+      const la = localPorCodigo[a.local_oferta_codigo]?.nome || a.local_oferta_codigo || '';
+      const lb = localPorCodigo[b.local_oferta_codigo]?.nome || b.local_oferta_codigo || '';
+      const na = cursoPorCodigo[a.curso_codigo]?.nome || a.curso_codigo || '';
+      const nb = cursoPorCodigo[b.curso_codigo]?.nome || b.curso_codigo || '';
+      return la.localeCompare(lb, 'pt-BR') || na.localeCompare(nb, 'pt-BR');
     })
-    .map((c) => ({ value: c.codigo, label: rotuloCurso(c, campusPorCodigo) }));
+    .map((o) => ({ value: o.codigo, label: rotuloOferta(o, cursoPorCodigo, localPorCodigo) }));
 
   function updateVagas(patch) {
     updateState({ vagas: { ...v, ...patch } });
@@ -74,7 +132,7 @@ export async function render(container, ctx) {
   }
 
   function adicionarLinha() {
-    updateVagas({ cursos: [...v.cursos, { cursoCodigo: null, vagas: 0 }] });
+    updateVagas({ cursos: [...v.cursos, { ofertaCursoCodigo: null, cursoCodigo: null, vagas: 0 }] });
     render(container, ctx);
   }
 
@@ -85,18 +143,18 @@ export async function render(container, ctx) {
     el(
       'p',
       { class: 'text-muted text-small mb-2' },
-      'Cada linha referencia uma entrada de ',
-      el('a', { href: 'configuracao.html?slug=cursos' }, 'Cursos'),
-      ' — combinação única de nome × grau × campus × turno. Para cadastrar um curso novo, vá na configuração antes.'
+      'Cada linha referencia uma ',
+      el('a', { href: 'configuracao.html?slug=ofertas-curso' }, 'Oferta de Curso'),
+      ' — combinação de curso × local de oferta × turno × modalidade. Para cadastrar uma oferta nova, vá na configuração antes.'
     )
   );
 
-  if (cursosDisponiveis.length === 0) {
+  if (listaEfetiva.length === 0) {
     container.appendChild(
       el(
         'div',
         { class: 'tag tag-warning', style: 'padding: 0.75rem; display: block; margin-bottom: 0.75rem' },
-        'A configuração de Cursos está vazia. Cadastre antes em Configurações › Cursos.'
+        'A configuração de Ofertas de Curso está vazia. Cadastre antes em Configurações › Ofertas de Curso.'
       )
     );
   }
@@ -110,7 +168,7 @@ export async function render(container, ctx) {
       el(
         'tr',
         {},
-        el('th', {}, 'Curso'),
+        el('th', {}, 'Oferta de Curso'),
         el('th', { style: 'width: 100px' }, 'Vagas'),
         el('th', { class: 'actions' }, 'Ações')
       )
@@ -119,6 +177,7 @@ export async function render(container, ctx) {
   const tbody = el('tbody');
   for (let idx = 0; idx < v.cursos.length; idx++) {
     const linha = v.cursos[idx];
+    const linhaKey = getKey(linha);
     tbody.appendChild(
       el(
         'tr',
@@ -127,10 +186,10 @@ export async function render(container, ctx) {
           'td',
           {},
           select(
-            linha.cursoCodigo,
+            linhaKey,
             opcoes,
-            (val) => atualizarLinha(idx, { cursoCodigo: val }),
-            { placeholder: '— selecione um curso —' }
+            (val) => atualizarLinha(idx, setKey(val)),
+            { placeholder: '— selecione uma oferta de curso —' }
           )
         ),
         el(
@@ -165,9 +224,9 @@ export async function render(container, ctx) {
         type: 'button',
         class: 'btn btn-secondary mt-2',
         on: { click: adicionarLinha },
-        ...(cursosDisponiveis.length === 0 ? { disabled: true } : {}),
+        ...(listaEfetiva.length === 0 ? { disabled: true } : {}),
       },
-      '+ Adicionar curso'
+      '+ Adicionar oferta de curso'
     )
   );
 
@@ -190,11 +249,13 @@ export async function render(container, ctx) {
     ? new Collection(Keys.ESTRATEGIAS_BALANCEAMENTO).byCodigo(dm.estrategiaBalanceamentoCodigo)
     : null;
 
-  // Denormaliza cursos para a matriz (mesmo shape do snapshot publicado)
+  // Denormaliza ofertas para a matriz (mesmo shape do snapshot publicado).
+  // Compat: resolve pelo código efetivo (ofertaCursoCodigo ou cursoCodigo legado).
   const cursosDenorm = v.cursos
     .map((linha) => {
-      const curso = cursoPorCodigo[linha.cursoCodigo];
-      const dn = denormalizar(curso, campusPorCodigo);
+      const key = getKey(linha);
+      const oferta = ofertaPorCodigo[key];
+      const dn = denormalizarOferta(oferta, cursoPorCodigo, localPorCodigo);
       if (!dn) return null;
       return { ...dn, vagas: linha.vagas || 0 };
     })

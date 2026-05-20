@@ -97,8 +97,7 @@ function montarPseEducacaoCampo() {
       },
       vagas: {
         cursos: [
-          { cursoCodigo: 'MARABA-EDUCACAO-CAMPO-LIC', vagas: 30 },
-          { cursoCodigo: 'RONDON-EDUCACAO-CAMPO-LIC', vagas: 25 },
+          { ofertaCursoCodigo: 'MARABA-EDUCACAO-CAMPO-LIC', vagas: 30 },
         ],
       },
       distribuicaoModalidades: {
@@ -195,22 +194,20 @@ function montarPseEducacaoCampo() {
         doc({ codigo: 'LAUDO_MEDICO_PCD', modalidades: ['V'], etapasObrigatorias: ['INSCRICAO_CANDIDATOS', 'HOMOLOGACAO_INSCRICOES'] }),
         doc({ codigo: 'FOTO_3X4', modalidades: ['AC', 'V'], etapasObrigatorias: ['INSCRICAO_CANDIDATOS'] }),
       ],
-      // Em Marabá faz prova só para o curso de Marabá; idem Rondon. Capacidades realistas
-      // baseadas no histórico do campus.
+      // Educação do Campo ofertada apenas em Marabá (campus sede) neste ciclo.
       cidades: [
         { cidadeCodigo: 'MARABA', cursoCodigos: ['MARABA-EDUCACAO-CAMPO-LIC'], capacidadeMaxima: 120 },
-        { cidadeCodigo: 'RONDON', cursoCodigos: ['RONDON-EDUCACAO-CAMPO-LIC'], capacidadeMaxima: 80 },
       ],
-      // No novo modelo, o edital separa três listas:
+      // Modelagem Opção C (binding TL 2026-05-19):
       //   - oferta.condicoes_aceitas: quais CondicaoAtendimentoEspecializado o edital aceita
-      //   - oferta.deficiencias_aceitas: dentre as PcD (TipoDeficiencia), quais são reconhecidas
+      //   - oferta.detalhes_pcd: { tipos_deficiencia: [...] } | null — sub-detalhamento de PCD (LBI)
       //   - oferta.recursos_oferecidos: quais RecursoAcessibilidade o edital provê
       // A SolicitacaoAtendimentoEspecializado (workflow de candidato) é decisão de F3 —
       // não está modelada neste protótipo.
       atendimentoEspecializado: {
         oferta: {
           condicoes_aceitas: ['PCD', 'DEFICIT_ATENCAO', 'GESTANTE', 'LACTANTE'],
-          deficiencias_aceitas: ['BAIXA_VISAO', 'DEFICIENCIA_FISICA', 'AUTISMO_ASPERGER_RETT'],
+          detalhes_pcd: { tipos_deficiencia: ['BAIXA_VISAO', 'DEFICIENCIA_FISICA', 'AUTISMO_ASPERGER_RETT'] },
           recursos_oferecidos: [
             'SALA_FACIL_ACESSO',
             'MESA_SEM_BRACO',
@@ -253,9 +250,9 @@ function montarPsConveniosCanaa() {
       },
       vagas: {
         cursos: [
-          { cursoCodigo: 'CANAA-ENG-MINAS-BACH', vagas: 50 },
-          { cursoCodigo: 'CANAA-GEOLOGIA-BACH', vagas: 30 },
-          { cursoCodigo: 'CANAA-SI-BACH', vagas: 40 },
+          { ofertaCursoCodigo: 'CANAA-ENG-CIVIL-BACH-PEPETI', vagas: 50 },
+          { ofertaCursoCodigo: 'CANAA-ENG-MECANICA-BACH-PEPETI', vagas: 30 },
+          { ofertaCursoCodigo: 'CANAA-ENG-ELETRICA-BACH-PEPETI', vagas: 40 },
         ],
       },
       distribuicaoModalidades: {
@@ -354,25 +351,27 @@ function montarPsConveniosCanaa() {
         ],
       },
       documentos: gerarDocumentosPsConvenios(),
-      // Em Canaã, prova vale para os 3 cursos do edital.
+      // Em Canaã, prova vale para os 3 cursos Pepeti do edital.
       cidades: [
         {
           cidadeCodigo: 'CANAA',
-          cursoCodigos: ['CANAA-ENG-MINAS-BACH', 'CANAA-GEOLOGIA-BACH', 'CANAA-SI-BACH'],
+          cursoCodigos: ['CANAA-ENG-CIVIL-BACH-PEPETI', 'CANAA-ENG-MECANICA-BACH-PEPETI', 'CANAA-ENG-ELETRICA-BACH-PEPETI'],
           capacidadeMaxima: 400,
         },
       ],
       atendimentoEspecializado: {
         oferta: {
           condicoes_aceitas: ['PCD', 'DISLEXIA', 'DEFICIT_ATENCAO', 'DISCALCULIA', 'GESTANTE', 'LACTANTE', 'IDOSO'],
-          deficiencias_aceitas: [
-            'BAIXA_VISAO',
-            'CEGUEIRA',
-            'SURDEZ',
-            'DEFICIENCIA_FISICA',
-            'DEFICIENCIA_AUDITIVA',
-            'AUTISMO_ASPERGER_RETT',
-          ],
+          detalhes_pcd: {
+            tipos_deficiencia: [
+              'BAIXA_VISAO',
+              'CEGUEIRA',
+              'SURDEZ',
+              'DEFICIENCIA_FISICA',
+              'DEFICIENCIA_AUDITIVA',
+              'AUTISMO_ASPERGER_RETT',
+            ],
+          },
           recursos_oferecidos: [
             'SALA_FACIL_ACESSO',
             'MESA_SEM_BRACO',
@@ -416,54 +415,55 @@ function gerarDocumentosPsConvenios() {
 // Fonte: notícia "Unifesspa oferta 1.345 vagas em cursos de graduação por meio do SiSU 2026"
 // publicada em 23/12/2025 — quadro de vagas extraído do PDF oficial.
 // =====================================================
-// Referências para entradas da configuração `cursos`. Mantém só (cursoCodigo, vagas)
+// Referências às entradas de OfertaCurso (Refactor 3). Mantém só (ofertaCursoCodigo, vagas)
 // — nome/grau/campus/turno vêm da configuração, denormalizados pelo snapshot.
+// Baseado no Edital 26/2025-CEPS (Anexo I real, 1.315 vagas / 40 cursos / 5 campi).
 const CURSOS_SISU_2026 = [
   // Marabá (27 cursos / 890 vagas)
-  { cursoCodigo: 'MARABA-FISICA-LIC', vagas: 40 },
-  { cursoCodigo: 'MARABA-MATEMATICA-LIC', vagas: 40 },
-  { cursoCodigo: 'MARABA-CIENCIAS-NATURAIS-LIC', vagas: 30 },
-  { cursoCodigo: 'MARABA-QUIMICA-LIC', vagas: 40 },
-  { cursoCodigo: 'MARABA-CIENCIAS-SOCIAIS-BACH', vagas: 25 },
-  { cursoCodigo: 'MARABA-CIENCIAS-SOCIAIS-LIC', vagas: 25 },
-  { cursoCodigo: 'MARABA-GEOGRAFIA-BACH', vagas: 40 },
-  { cursoCodigo: 'MARABA-HISTORIA-LIC', vagas: 40 },
-  { cursoCodigo: 'MARABA-PEDAGOGIA-LIC', vagas: 40 },
-  { cursoCodigo: 'MARABA-DIREITO-BACH', vagas: 40 },
-  { cursoCodigo: 'MARABA-CIENCIAS-ECONOMICAS-BACH', vagas: 30 },
-  { cursoCodigo: 'MARABA-AGRONOMIA-BACH', vagas: 30 },
-  { cursoCodigo: 'MARABA-CIENCIAS-BIOLOGICAS-BACH', vagas: 30 },
-  { cursoCodigo: 'MARABA-SAUDE-COLETIVA-BACH', vagas: 30 },
-  { cursoCodigo: 'MARABA-PSICOLOGIA-BACH', vagas: 30 },
-  { cursoCodigo: 'MARABA-SI-BACH', vagas: 40 },
-  { cursoCodigo: 'MARABA-GEOLOGIA-BACH', vagas: 30 },
-  { cursoCodigo: 'MARABA-ENG-MATERIAIS-BACH', vagas: 30 },
-  { cursoCodigo: 'MARABA-ENG-MINAS-BACH', vagas: 30 },
-  { cursoCodigo: 'MARABA-ENG-COMPUTACAO-BACH', vagas: 30 },
-  { cursoCodigo: 'MARABA-ENG-ELETRICA-BACH', vagas: 30 },
-  { cursoCodigo: 'MARABA-ENG-QUIMICA-BACH', vagas: 30 },
-  { cursoCodigo: 'MARABA-ENG-MECANICA-BACH', vagas: 30 },
-  { cursoCodigo: 'MARABA-ENG-CIVIL-BACH', vagas: 30 },
-  { cursoCodigo: 'MARABA-LETRAS-PORTUGUES-LIC', vagas: 40 },
-  { cursoCodigo: 'MARABA-ARTES-VISUAIS-LIC', vagas: 30 },
-  { cursoCodigo: 'MARABA-LETRAS-INGLES-LIC', vagas: 30 },
+  { ofertaCursoCodigo: 'MARABA-FISICA-LIC', vagas: 40 },
+  { ofertaCursoCodigo: 'MARABA-MATEMATICA-LIC', vagas: 40 },
+  { ofertaCursoCodigo: 'MARABA-CIENCIAS-NATURAIS-LIC', vagas: 30 },
+  { ofertaCursoCodigo: 'MARABA-QUIMICA-LIC', vagas: 40 },
+  { ofertaCursoCodigo: 'MARABA-CIENCIAS-SOCIAIS-BACH', vagas: 25 },
+  { ofertaCursoCodigo: 'MARABA-CIENCIAS-SOCIAIS-LIC', vagas: 25 },
+  { ofertaCursoCodigo: 'MARABA-GEOGRAFIA-BACH', vagas: 40 },
+  { ofertaCursoCodigo: 'MARABA-HISTORIA-LIC', vagas: 40 },
+  { ofertaCursoCodigo: 'MARABA-PEDAGOGIA-LIC', vagas: 40 },
+  { ofertaCursoCodigo: 'MARABA-DIREITO-BACH', vagas: 40 },
+  { ofertaCursoCodigo: 'MARABA-CIENCIAS-ECONOMICAS-BACH', vagas: 30 },
+  { ofertaCursoCodigo: 'MARABA-AGRONOMIA-BACH', vagas: 30 },
+  { ofertaCursoCodigo: 'MARABA-CIENCIAS-BIOLOGICAS-BACH', vagas: 30 },
+  { ofertaCursoCodigo: 'MARABA-SAUDE-COLETIVA-BACH', vagas: 30 },
+  { ofertaCursoCodigo: 'MARABA-PSICOLOGIA-BACH', vagas: 30 },
+  { ofertaCursoCodigo: 'MARABA-SI-BACH', vagas: 40 },
+  { ofertaCursoCodigo: 'MARABA-GEOLOGIA-BACH', vagas: 30 },
+  { ofertaCursoCodigo: 'MARABA-ENG-MATERIAIS-BACH', vagas: 30 },
+  { ofertaCursoCodigo: 'MARABA-ENG-MINAS-BACH', vagas: 30 },
+  { ofertaCursoCodigo: 'MARABA-ENG-COMPUTACAO-BACH', vagas: 30 },
+  { ofertaCursoCodigo: 'MARABA-ENG-ELETRICA-BACH', vagas: 30 },
+  { ofertaCursoCodigo: 'MARABA-ENG-QUIMICA-BACH', vagas: 30 },
+  { ofertaCursoCodigo: 'MARABA-ENG-MECANICA-BACH', vagas: 30 },
+  { ofertaCursoCodigo: 'MARABA-ENG-CIVIL-BACH', vagas: 30 },
+  { ofertaCursoCodigo: 'MARABA-LETRAS-PORTUGUES-LIC', vagas: 40 },
+  { ofertaCursoCodigo: 'MARABA-ARTES-VISUAIS-LIC', vagas: 30 },
+  { ofertaCursoCodigo: 'MARABA-LETRAS-INGLES-LIC', vagas: 30 },
   // Rondon do Pará (3 cursos / 120 vagas)
-  { cursoCodigo: 'RONDON-ADMINISTRACAO-BACH', vagas: 40 },
-  { cursoCodigo: 'RONDON-CIENCIAS-CONTABEIS-BACH', vagas: 40 },
-  { cursoCodigo: 'RONDON-JORNALISMO-BACH', vagas: 40 },
+  { ofertaCursoCodigo: 'RONDON-ADMINISTRACAO-BACH', vagas: 40 },
+  { ofertaCursoCodigo: 'RONDON-CIENCIAS-CONTABEIS-BACH', vagas: 40 },
+  { ofertaCursoCodigo: 'RONDON-JORNALISMO-BACH', vagas: 40 },
   // São Félix do Xingu (3 cursos / 90 vagas)
-  { cursoCodigo: 'SAO_FELIX-LETRAS-PORTUGUES-LIC', vagas: 30 },
-  { cursoCodigo: 'SAO_FELIX-CIENCIAS-BIOLOGICAS-LIC', vagas: 30 },
-  { cursoCodigo: 'SAO_FELIX-ENG-FLORESTAL-BACH', vagas: 30 },
+  { ofertaCursoCodigo: 'SAO-FELIX-LETRAS-LINGUA-PORTUGUESA-LIC', vagas: 30 },
+  { ofertaCursoCodigo: 'SAO-FELIX-CIENCIAS-BIOLOGICAS-LIC', vagas: 30 },
+  { ofertaCursoCodigo: 'SAO-FELIX-ENG-FLORESTAL-BACH', vagas: 30 },
   // Santana do Araguaia (3 cursos / 100 vagas)
-  { cursoCodigo: 'SANTANA-MATEMATICA-LIC', vagas: 40 },
-  { cursoCodigo: 'SANTANA-ENG-CIVIL-BACH', vagas: 30 },
-  { cursoCodigo: 'SANTANA-ARQUITETURA-BACH', vagas: 30 },
+  { ofertaCursoCodigo: 'SANTANA-MATEMATICA-LIC', vagas: 40 },
+  { ofertaCursoCodigo: 'SANTANA-ENG-CIVIL-BACH', vagas: 30 },
+  { ofertaCursoCodigo: 'SANTANA-ARQUITETURA-BACH', vagas: 30 },
   // Xinguara (4 cursos / 145 vagas)
-  { cursoCodigo: 'XINGUARA-HISTORIA-LIC', vagas: 40 },
-  { cursoCodigo: 'XINGUARA-GEOGRAFIA-LIC', vagas: 40 },
-  { cursoCodigo: 'XINGUARA-ZOOTECNIA-BACH', vagas: 35 },
-  { cursoCodigo: 'XINGUARA-MED-VETERINARIA-BACH', vagas: 30 },
+  { ofertaCursoCodigo: 'XINGUARA-HISTORIA-LIC', vagas: 40 },
+  { ofertaCursoCodigo: 'XINGUARA-GEOGRAFIA-LIC', vagas: 40 },
+  { ofertaCursoCodigo: 'XINGUARA-ZOOTECNIA-BACH', vagas: 35 },
+  { ofertaCursoCodigo: 'XINGUARA-MED-VETERINARIA-BACH', vagas: 30 },
 ];
 
 function gerarDocumentosSisu2026() {
@@ -575,7 +575,7 @@ function montarSisu2026() {
       // não escolhe cidade na inscrição — habilitação é documental no CRCA dos 5 campi.
       cidades: [],
       atendimentoEspecializado: {
-        oferta: { condicoes_aceitas: [], deficiencias_aceitas: [], recursos_oferecidos: [] },
+        oferta: { condicoes_aceitas: [], detalhes_pcd: null, recursos_oferecidos: [] },
       },
     },
   };

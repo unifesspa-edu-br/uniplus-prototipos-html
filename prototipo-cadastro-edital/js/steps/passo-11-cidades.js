@@ -23,17 +23,43 @@ export async function render(container, ctx) {
   const { state, updateState, setStepStatus } = ctx;
 
   const cidadesDisponiveis = new Collection(Keys.CIDADES).list({ includeInactive: false });
-  const cursosCatalogo = new Collection(Keys.CURSOS).list({ includeInactive: true });
-  const campusList = new Collection(Keys.CAMPUS).list({ includeInactive: true });
-  const campusPorCodigo = Object.fromEntries(campusList.map((c) => [c.codigo, c]));
   const cidadesPorCodigo = Object.fromEntries(cidadesDisponiveis.map((c) => [c.codigo, c]));
-  const cursoPorCodigo = Object.fromEntries(cursosCatalogo.map((c) => [c.codigo, c]));
 
-  // Cursos do edital (referenciados em passo 4)
-  const cursosDoEdital = (state.edital.vagas?.cursos || [])
-    .map((linha) => cursoPorCodigo[linha.cursoCodigo])
+  // Refactor 3: usa OfertasCurso para resolver nome/grau/local; fallback a Cursos legado.
+  const ofertasCatalogo = new Collection(Keys.OFERTAS_CURSO).list({ includeInactive: true });
+  const cursosCatalogo = new Collection(Keys.CURSOS).list({ includeInactive: true });
+  const cursoPorCodigo = Object.fromEntries(cursosCatalogo.map((c) => [c.codigo, c]));
+  const ofertaPorCodigo = Object.fromEntries(ofertasCatalogo.map((o) => [o.codigo, o]));
+  // LocalOferta + CAMPUS fallback
+  const localList = new Collection(Keys.LOCAL_OFERTA).list({ includeInactive: true });
+  const campusList = new Collection(Keys.CAMPUS).list({ includeInactive: true });
+  const localPorCodigo = Object.fromEntries([...campusList, ...localList].map((l) => [l.codigo, l]));
+
+  /** Resolve o nome display de uma oferta de curso (código pode ser de oferta ou curso legado). */
+  function resolverNomeOferta(codigo) {
+    const oferta = ofertaPorCodigo[codigo];
+    if (oferta) {
+      const cursoNome = cursoPorCodigo[oferta.curso_codigo]?.nome || oferta.curso_codigo;
+      const cursoGrau = cursoPorCodigo[oferta.curso_codigo]?.grau;
+      const local = localPorCodigo[oferta.local_oferta_codigo]?.nome || oferta.local_oferta_codigo;
+      const GRAU = { BACHARELADO: 'Bach.', LICENCIATURA: 'Lic.', TECNOLOGO: 'Tecn.' };
+      return `${cursoNome} — ${GRAU[cursoGrau] || cursoGrau} — ${local}`;
+    }
+    // Fallback curso legado
+    const curso = cursoPorCodigo[codigo];
+    if (curso) {
+      const local = localPorCodigo[curso.campus_codigo]?.nome || curso.campus_codigo || '';
+      const GRAU = { BACHARELADO: 'Bach.', LICENCIATURA: 'Lic.', TECNOLOGO: 'Tecn.' };
+      return `${curso.nome} — ${GRAU[curso.grau] || curso.grau} — ${local}`;
+    }
+    return codigo;
+  }
+
+  // Ofertas/cursos do edital (referenciados em passo 4).
+  // Aceita tanto ofertaCursoCodigo (Refactor 3) quanto cursoCodigo (legado).
+  const codigosCursosEdital = (state.edital.vagas?.cursos || [])
+    .map((linha) => linha.ofertaCursoCodigo ?? linha.cursoCodigo)
     .filter(Boolean);
-  const codigosCursosEdital = cursosDoEdital.map((c) => c.codigo);
 
   function getCidades() {
     return state.edital.cidades || [];
@@ -95,13 +121,7 @@ export async function render(container, ctx) {
     setCursosDaCidade(cidadeCodigo, novos);
   }
 
-  function rotuloCurso(curso) {
-    const campus = campusPorCodigo[curso.campus_codigo];
-    const campusNome = campus?.nome || curso.campus_codigo;
-    const cidadeNome = campus ? cidadesPorCodigo[campus.cidade_codigo]?.nome : null;
-    const local = cidadeNome ? `${campusNome} · ${cidadeNome}` : campusNome;
-    return `${curso.nome} — ${GRAU_ABREV[curso.grau] || curso.grau} — ${local} — ${TURNO_LABEL[curso.turno] || curso.turno}`;
-  }
+  // Não mais usado: rotuloCurso foi substituído por resolverNomeOferta (Refactor 3).
 
   container.innerHTML = '';
 
@@ -132,7 +152,7 @@ export async function render(container, ctx) {
     return;
   }
 
-  if (cursosDoEdital.length === 0) {
+  if (codigosCursosEdital.length === 0) {
     container.appendChild(
       el(
         'div',
@@ -190,7 +210,7 @@ export async function render(container, ctx) {
       box.appendChild(capacidadeLinha);
     }
 
-    if (marcada && cursosDoEdital.length > 0) {
+    if (marcada && codigosCursosEdital.length > 0) {
       const selecionados = entry.cursoCodigos || [];
 
       const acoes = el(
@@ -199,7 +219,7 @@ export async function render(container, ctx) {
         el(
           'span',
           { class: 'text-small text-muted' },
-          `${selecionados.length} de ${cursosDoEdital.length} curso(s)`
+          `${selecionados.length} de ${codigosCursosEdital.length} oferta(s)`
         ),
         el(
           'a',
@@ -239,16 +259,16 @@ export async function render(container, ctx) {
             'max-height: 220px; overflow-y: auto; padding: 0.5rem; font-weight: 400; background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: 4px; margin-top: 0.25rem',
         }
       );
-      for (const curso of cursosDoEdital) {
-        const marcado = selecionados.includes(curso.codigo);
+      for (const ofertaCodigo of codigosCursosEdital) {
+        const marcado = selecionados.includes(ofertaCodigo);
         lista.appendChild(
           el(
             'div',
             { style: 'padding: 0.125rem 0' },
             checkbox(
-              rotuloCurso(curso),
+              resolverNomeOferta(ofertaCodigo),
               marcado,
-              (val) => toggleCursoNaCidade(cidade.codigo, curso.codigo, val)
+              (val) => toggleCursoNaCidade(cidade.codigo, ofertaCodigo, val)
             )
           )
         );

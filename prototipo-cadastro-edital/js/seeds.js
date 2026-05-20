@@ -8,7 +8,9 @@ const SEEDS = [
   { url: 'data/seed-modalidades.json', key: Keys.MODALIDADES },
   { url: 'data/seed-tipos-etapa.json', key: Keys.TIPOS_ETAPA },
   { url: 'data/seed-cidades.json', key: Keys.CIDADES },
-  { url: 'data/seed-campus.json', key: Keys.CAMPUS },
+  // Refactor 2: seed-local-oferta.json substitui seed-campus.json (13 entradas vs 6).
+  // seed-campus.json mantido no disco para compat retroativa com builds antigos.
+  { url: 'data/seed-local-oferta.json', key: Keys.LOCAL_OFERTA },
   { url: 'data/seed-tipos-deficiencia.json', key: Keys.TIPOS_DEFICIENCIA },
   { url: 'data/seed-condicoes-atendimento-especializado.json', key: Keys.CONDICOES_ATENDIMENTO_ESPECIALIZADO },
   { url: 'data/seed-recursos-acessibilidade.json', key: Keys.RECURSOS_ACESSIBILIDADE },
@@ -19,6 +21,8 @@ const SEEDS = [
   { url: 'data/seed-estrategias-balanceamento.json', key: Keys.ESTRATEGIAS_BALANCEAMENTO },
   { url: 'data/seed-cascatas-remanejamento.json', key: Keys.CASCATAS_REMANEJAMENTO },
   { url: 'data/seed-cursos.json', key: Keys.CURSOS },
+  // Refactor 3: OfertaCurso — instâncias regulatórias (Curso × LocalOferta × Modalidade).
+  { url: 'data/seed-oferta-curso.json', key: Keys.OFERTAS_CURSO },
 ];
 
 /**

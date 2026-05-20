@@ -458,7 +458,11 @@ function renderField(field, value) {
     case 'ref': {
       const refDef = getConfiguracao(field.refKey);
       const refColl = refDef ? new Collection(refDef.key) : null;
-      const refItems = refColl ? refColl.list({ includeInactive: false }) : [];
+      let refItems = refColl ? refColl.list({ includeInactive: false }) : [];
+      // Filtro opcional por campo (ex.: só unidades acadêmicas em unidade_ofertante).
+      if (field.refFilterField && Array.isArray(field.refFilterValues)) {
+        refItems = refItems.filter((r) => field.refFilterValues.includes(r[field.refFilterField]));
+      }
       input = el('select', { id, name: field.campo, class: 'form-select' });
       input.appendChild(el('option', { value: '' }, '— selecione —'));
       if (field.permiteCoringa) {
@@ -588,7 +592,35 @@ function buildItemFromForm(form) {
   if (currentSlug === 'unidades') {
     validarUnidade(item);
   }
+  // FIX 5 (P2): base_legal obrigatório quando modalidade != REGULAR.
+  if (currentSlug === 'ofertas-curso') {
+    validarOfertaCurso(item);
+  }
   return item;
+}
+
+// Modalidades de OfertaCurso que exigem base_legal (FIX 5).
+// REGULAR dispensa declaração — é o padrão. Todas as demais modalidades têm
+// base legal específica (programa federal, convênio, portaria) e devem declará-la.
+const MODALIDADES_EXIGEM_BASE_LEGAL = new Set([
+  'FORMA_PARA', 'PARFOR', 'PARFOR_EQUIDADE', 'PRONERA', 'PEPETI',
+  'PSIQ', 'CONVENIO_OUTRO', 'OUTRO',
+]);
+
+/**
+ * Valida regras específicas de OfertaCurso:
+ *   - base_legal obrigatório quando modalidade ≠ REGULAR.
+ * Lança Error com mensagem humanizada (não vaza stack).
+ */
+function validarOfertaCurso(item) {
+  if (MODALIDADES_EXIGEM_BASE_LEGAL.has(item.modalidade)) {
+    if (!item.base_legal || String(item.base_legal).trim() === '') {
+      throw new Error(
+        `Base legal é obrigatória para modalidade "${item.modalidade}". ` +
+        'Informe o programa, portaria ou convênio que autoriza esta oferta.'
+      );
+    }
+  }
 }
 
 // `TIPOS_UNIDADE_VALIDOS` é importada de `vocabulario-unidades.js` (fonte única).

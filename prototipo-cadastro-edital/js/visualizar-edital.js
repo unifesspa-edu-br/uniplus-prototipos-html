@@ -245,7 +245,7 @@ function renderVagasModalidades(snapshot) {
             v.unidade_ofertante_sigla ||
             el('span', { class: 'text-muted' }, '—'),
         },
-        { label: 'Campus', key: 'campus' },
+        { label: 'Local de oferta', key: 'campus' },
         { label: 'Turno', key: 'turno' },
         { label: 'Vagas', key: 'vagas', width: '80px' },
       ],
@@ -631,26 +631,39 @@ function renderCidades(snapshot) {
 
 function renderAtendimento(snapshot) {
   const atendimento = snapshot.atendimento_especializado || {};
-  // Compatibilidade em camadas:
-  //   1. Formato canônico: `atendimento_especializado.oferta.{...}`.
-  //   2. Formato intermediário: `atendimento_especializado.{...}` (listas no topo).
-  //   3. Formato legado pré-C7: `snapshot.atendimento_especial` array. Mostrado
-  //      como aviso defensivo — não há mapeamento automático para a configuração nova.
+  // Compatibilidade em camadas (Opção C binding, TL 2026-05-19):
+  //   1. Formato canônico Opção C: `atendimento_especializado.oferta.{condicoes_aceitas, detalhes_pcd, recursos_oferecidos}`.
+  //      `detalhes_pcd = { tipos_deficiencia: [...objetos denormalizados ou códigos...] } | null`.
+  //   2. Formato intermediário pós-C7 (pré-Opção C): `atendimento_especializado.oferta.deficiencias_aceitas`.
+  //      Convertido em `detalhes_pcd` para display; PCD em condicoes_aceitas é pré-condição.
+  //   3. Formato intermediário sem `oferta`: listas no topo de `atendimento_especializado`.
+  //   4. Formato legado pré-C7: `snapshot.atendimento_especial` array — aviso defensivo, sem migração.
   const oferta = atendimento.oferta || {
     condicoes_aceitas: atendimento.condicoes_aceitas || [],
-    deficiencias_aceitas: atendimento.deficiencias_aceitas || [],
     recursos_oferecidos: atendimento.recursos_oferecidos || [],
   };
   const condicoes = oferta.condicoes_aceitas || [];
-  const deficiencias = oferta.deficiencias_aceitas || [];
   const recursos = oferta.recursos_oferecidos || [];
+
+  // Resolve tipos de deficiência: formato canônico (`detalhes_pcd`) ou legado (`deficiencias_aceitas`).
+  const detalhesPcdFonte =
+    oferta.detalhes_pcd?.tipos_deficiencia ||
+    oferta.deficiencias_aceitas ||
+    (atendimento.deficiencias_aceitas) ||
+    [];
+  // Suporta tanto objetos denormalizados { codigo, nome, ... } quanto strings de código puro.
+  const tiposDeficienciaItems = detalhesPcdFonte.map((d) =>
+    typeof d === 'string' ? { codigo: d, nome: d } : d
+  );
+
+  const temPCD = condicoes.some((c) => (typeof c === 'string' ? c : c?.codigo) === 'PCD');
   const legadoArr = Array.isArray(snapshot.atendimento_especial)
     ? snapshot.atendimento_especial
     : null;
 
   if (
     condicoes.length === 0 &&
-    deficiencias.length === 0 &&
+    tiposDeficienciaItems.length === 0 &&
     recursos.length === 0 &&
     (!legadoArr || legadoArr.length === 0)
   ) {
@@ -664,22 +677,29 @@ function renderAtendimento(snapshot) {
     el(
       'div',
       { style: 'display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 0.5rem; margin-bottom: 1rem' },
-      ...items.map((d) =>
-        el(
+      ...items.map((d) => {
+        const nome = typeof d === 'string' ? d : (d.nome || d.codigo);
+        const descricao = typeof d === 'object' ? d.descricao : null;
+        const baseLegal = typeof d === 'object' ? d.base_legal : null;
+        const categoriaLbi = typeof d === 'object' ? d.categoria_lbi : null;
+        return el(
           'div',
           {
             style:
               'background: var(--color-secondary-01); padding: 0.5rem 0.75rem; border-radius: 4px; border-left: 3px solid var(--primary)',
           },
-          el('div', { style: 'font-weight: 600; font-size: 0.875rem' }, d.nome || d.codigo),
-          d.descricao
-            ? el('div', { class: 'text-small text-muted', style: 'margin-top: 0.125rem' }, d.descricao)
+          el('div', { style: 'font-weight: 600; font-size: 0.875rem' }, nome),
+          categoriaLbi
+            ? el('div', { class: 'text-small text-muted', style: 'margin-top: 0.125rem' }, `LBI: ${categoriaLbi}`)
             : null,
-          d.base_legal
-            ? el('div', { class: 'text-small text-muted', style: 'margin-top: 0.125rem; font-style: italic' }, d.base_legal)
+          descricao
+            ? el('div', { class: 'text-small text-muted', style: 'margin-top: 0.125rem' }, descricao)
+            : null,
+          baseLegal
+            ? el('div', { class: 'text-small text-muted', style: 'margin-top: 0.125rem; font-style: italic' }, baseLegal)
             : null
-        )
-      )
+        );
+      })
     );
 
   // Aviso defensivo para snapshots pré-C7 (formato legado `atendimento_especial`).
@@ -705,6 +725,32 @@ function renderAtendimento(snapshot) {
         )
       : null;
 
+  // Sub-bloco PcD: aparece apenas se PCD estiver em condicoes_aceitas (Opção C).
+  const subBlocoPcd =
+    temPCD
+      ? [
+          el(
+            'div',
+            {
+              style:
+                'margin: 0.5rem 0 0.75rem 1rem; padding: 0.5rem 0.75rem; border-left: 3px solid var(--color-highlight-02, #9055a2); border-radius: 0 4px 4px 0; background: var(--color-secondary-01)',
+            },
+            el(
+              'div',
+              { style: 'font-size: 0.8125rem; font-weight: 600; margin-bottom: 0.375rem; color: var(--color-highlight-02, #9055a2)' },
+              '↳ Tipos de deficiência reconhecidos (LBI — Lei 13.146/2015)'
+            ),
+            tiposDeficienciaItems.length === 0
+              ? el(
+                  'p',
+                  { class: 'text-muted text-small', style: 'margin: 0' },
+                  '⚠️ PcD marcada mas nenhum tipo de deficiência declarado — inconsistência estrutural.'
+                )
+              : cardLista(tiposDeficienciaItems)
+          ),
+        ]
+      : [];
+
   return section(
     el('span', {}, iconNode('img/Accessibility_logo.svg'), ' Atendimento especializado'),
     el(
@@ -718,11 +764,7 @@ function renderAtendimento(snapshot) {
     condicoes.length === 0
       ? el('p', { class: 'text-muted text-small mb-4' }, 'Nenhuma condição selecionada.')
       : cardLista(condicoes),
-
-    el('h3', { style: 'font-size: 0.875rem; font-weight: 600; margin: 0 0 0.5rem' }, 'Deficiências reconhecidas (PcD)'),
-    deficiencias.length === 0
-      ? el('p', { class: 'text-muted text-small mb-4' }, 'Nenhuma deficiência selecionada.')
-      : cardLista(deficiencias),
+    ...subBlocoPcd,
 
     el('h3', { style: 'font-size: 0.875rem; font-weight: 600; margin: 0 0 0.5rem' }, 'Recursos de acessibilidade oferecidos (item 4.2.2)'),
     recursos.length === 0

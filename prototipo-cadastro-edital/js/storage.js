@@ -190,6 +190,10 @@ export const Keys = {
   MODALIDADES: 'configuracao.modalidades',
   TIPOS_ETAPA: 'configuracao.tipos-etapa',
   CIDADES: 'configuracao.cidades',
+  // LOCAL_OFERTA substitui CAMPUS (Refactor 2 — LocalOferta binding TL 2026-05-19).
+  // CAMPUS mantido como alias para compat retroativa com snapshots publicados que
+  // ainda guardam campos `campus_snap` / `campus_codigo`.
+  LOCAL_OFERTA: 'configuracao.local-oferta',
   CAMPUS: 'configuracao.campus',
   TIPOS_DEFICIENCIA: 'configuracao.tipos-deficiencia',
   CONDICOES_ATENDIMENTO_ESPECIALIZADO: 'configuracao.condicoes-atendimento-especializado',
@@ -201,6 +205,8 @@ export const Keys = {
   ESTRATEGIAS_BALANCEAMENTO: 'configuracao.estrategias-balanceamento',
   CASCATAS_REMANEJAMENTO: 'configuracao.cascatas-remanejamento',
   CURSOS: 'configuracao.cursos',
+  // Refactor 3: OfertaCurso = instância regulatória (Curso × LocalOferta × Modalidade).
+  OFERTAS_CURSO: 'configuracao.ofertas-curso',
 
   // Domínio
   EDITAIS_RASCUNHOS: 'editais.rascunhos',
@@ -209,5 +215,5 @@ export const Keys = {
 
   // App
   PREFERENCES: 'app.preferences',
-  SEEDS_LOADED: 'app.seeds-loaded-v15',
+  SEEDS_LOADED: 'app.seeds-loaded-v16',
 };

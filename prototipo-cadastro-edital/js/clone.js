@@ -38,11 +38,17 @@ export function snapshotToWizardState(snapshot, options = {}) {
             unidadeDonaCodigo: snapshot.unidade_dona?.codigo ?? null,
           },
       vagas: {
-        // Round-trip via `codigo` da entrada Curso. Sem manterVagas, descarta tudo.
+        // Round-trip via `codigo` da entrada OfertaCurso (Refactor 3).
+        // Campo duplo (ofertaCursoCodigo + cursoCodigo) mantém compat retroativa
+        // para editais clonados de snapshots pré-Refactor 3.
         cursos: options.manterVagas
           ? (snapshot.vagas || [])
               .filter((v) => v.codigo)
-              .map((v) => ({ cursoCodigo: v.codigo, vagas: v.vagas }))
+              .map((v) => ({
+                ofertaCursoCodigo: v.codigo,
+                cursoCodigo: v.codigo,
+                vagas: v.vagas,
+              }))
           : [],
       },
       distribuicaoModalidades: {
@@ -95,13 +101,11 @@ export function snapshotToWizardState(snapshot, options = {}) {
           capacidadeMaxima: c.capacidade_maxima ?? null,
         })),
       atendimentoEspecializado: (() => {
-        // Compatibilidade em camadas:
-        //   1. Formato canônico atual: `atendimento_especializado.oferta.{...}`.
-        //   2. Formato intermediário: `atendimento_especializado.{...}` (sem `oferta`).
-        //   3. Formato legado pré-C7 (rodada anterior): `atendimento_especial[]` —
-        //      array de objetos `{ necessidade: { codigo } }`. Sem mapeamento direto
-        //      para a configuração nova (RecursoAcessibilidade); preserva-se como
-        //      observação para o usuário ver e re-cadastrar manualmente.
+        // Compatibilidade em camadas (Opção C, binding TL 2026-05-19):
+        //   1. Formato canônico Opção C: `atendimento_especializado.oferta.detalhes_pcd.tipos_deficiencia`.
+        //   2. Formato pós-C7 com `deficiencias_aceitas`: migrado em passo-12-atendimento.js.
+        //   3. Formato intermediário: `atendimento_especializado.{...}` (sem `oferta`).
+        //   4. Formato legado pré-C7: `atendimento_especial[]` — preserva como observação.
         const fonte =
           snapshot.atendimento_especializado?.oferta ||
           snapshot.atendimento_especializado ||
@@ -112,16 +116,30 @@ export function snapshotToWizardState(snapshot, options = {}) {
         const observacoesMigracao = legadoArr && legadoArr.length > 0
           ? `Snapshot legado pré-C7: ${legadoArr.length} item(ns) em "atendimento_especial" não foram migrados automaticamente. Re-cadastre no passo 12.`
           : null;
+
+        // Reconstrói detalhes_pcd:
+        //   - Formato Opção C: `fonte.detalhes_pcd.tipos_deficiencia` (array de objetos ou strings)
+        //   - Formato legado: `fonte.deficiencias_aceitas` (array de objetos ou strings)
+        let detalhesPcd = null;
+        const tiposRaw =
+          (fonte.detalhes_pcd?.tipos_deficiencia) ||
+          (fonte.deficiencias_aceitas) ||
+          [];
+        const tiposCodigos = tiposRaw
+          .map((d) => (typeof d === 'string' ? d : d?.codigo))
+          .filter(Boolean);
+        if (tiposCodigos.length > 0) {
+          detalhesPcd = { tipos_deficiencia: tiposCodigos };
+        }
+
         return {
           oferta: {
             condicoes_aceitas: (fonte.condicoes_aceitas || [])
-              .map((c) => c?.codigo)
+              .map((c) => (typeof c === 'string' ? c : c?.codigo))
               .filter(Boolean),
-            deficiencias_aceitas: (fonte.deficiencias_aceitas || [])
-              .map((d) => d?.codigo)
-              .filter(Boolean),
+            detalhes_pcd: detalhesPcd,
             recursos_oferecidos: (fonte.recursos_oferecidos || [])
-              .map((r) => r?.codigo)
+              .map((r) => (typeof r === 'string' ? r : r?.codigo))
               .filter(Boolean),
           },
           ...(observacoesMigracao ? { observacoes_migracao: observacoesMigracao } : {}),

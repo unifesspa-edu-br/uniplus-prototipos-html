@@ -54,6 +54,67 @@ function omitMeta(item) {
   return rest;
 }
 
+// Denormaliza LocalOferta com todos os campos relevantes para auditoria (RN08).
+// Refactor 2: lookup tenta Keys.LOCAL_OFERTA primeiro; fallback para Keys.CAMPUS
+// para compat retroativa com editais publicados com campus_snap.
+// `cidade` é aninhada e enriquecida pelo helper `denormalizeCidadeFull`.
+function denormalizeLocalOfertaFull(cursoDef) {
+  if (!cursoDef?.campus_codigo) return null;
+  // Tenta LocalOferta novo primeiro; se não encontrar, usa Campus legado.
+  let localRaw = denormSingle(Keys.LOCAL_OFERTA, (l) => l.codigo === cursoDef.campus_codigo);
+  const colecaoUsada = localRaw ? Keys.LOCAL_OFERTA : Keys.CAMPUS;
+  if (!localRaw) {
+    localRaw = denormSingle(Keys.CAMPUS, (c) => c.codigo === cursoDef.campus_codigo);
+  }
+  if (!localRaw) return null;
+  const cidadeRaw = localRaw.cidade_codigo
+    ? denormSingle(Keys.CIDADES, (c) => c.codigo === localRaw.cidade_codigo)
+    : null;
+  // FIX 7 (P2): incluir campus_responsavel_codigo e objeto campus_responsavel
+  // resolvido de forma determinística (lookup por código). Necessário para
+  // Jacundá/Parauapebas/Canaã: tipo CONVENIO_INTERIORIZACAO vinculado a Marabá-UI.
+  // Preserva auditoria RN08 — campo congelado na publicação.
+  const campusRespCodigo = localRaw.campus_responsavel_codigo ?? null;
+  const campusRespRaw = campusRespCodigo
+    ? denormSingle(Keys.LOCAL_OFERTA, (l) => l.codigo === campusRespCodigo) ??
+      denormSingle(Keys.CAMPUS, (c) => c.codigo === campusRespCodigo)
+    : null;
+  const campusRespCidadeRaw = campusRespRaw?.cidade_codigo
+    ? denormSingle(Keys.CIDADES, (c) => c.codigo === campusRespRaw.cidade_codigo)
+    : null;
+  const campus_responsavel = campusRespRaw
+    ? {
+        codigo: campusRespRaw.codigo,
+        nome: campusRespRaw.nome,
+        tipo: campusRespRaw.tipo ?? (campusRespRaw.tipo_campus === 'CONVENIO' ? 'CONVENIO_INTERIORIZACAO' : 'CAMPUS_SEDE'),
+        codigo_emec: campusRespRaw.codigo_emec ?? null,
+        cidade: denormalizeCidadeFull(campusRespCidadeRaw),
+      }
+    : null;
+
+  return {
+    codigo: localRaw.codigo,
+    nome: localRaw.nome,
+    // Novo: tipo regulatório (LocalOferta). Fallback a tipo_campus legado.
+    tipo: localRaw.tipo ?? (localRaw.tipo_campus === 'CONVENIO' ? 'CONVENIO_INTERIORIZACAO' : 'CAMPUS_SEDE'),
+    codigo_emec: localRaw.codigo_emec ?? null,
+    principal_em_municipio: localRaw.principal_em_municipio ?? null,
+    endereco: localRaw.endereco ?? null,
+    cep: localRaw.cep ?? null,
+    latitude: localRaw.latitude ?? null,
+    longitude: localRaw.longitude ?? null,
+    ato_regulatorio_mec: localRaw.ato_regulatorio_mec ?? null,
+    // FIX 7: campus responsável congelado (RN08) — vínculo binding para locais de interiorização.
+    campus_responsavel_codigo: campusRespCodigo,
+    campus_responsavel,
+    // Legado: tipo_campus preservado para compat com snapshots antigos.
+    tipo_campus: localRaw.tipo_campus ?? null,
+    cidade: denormalizeCidadeFull(cidadeRaw),
+    // Indica qual coleção foi usada para rastreabilidade em snapshots mixtos.
+    _fonte_colecao: colecaoUsada === Keys.LOCAL_OFERTA ? 'local-oferta' : 'campus-legado',
+  };
+}
+
 // Denormaliza Cidade com os 13 campos canônicos (12 enriquecidos + código).
 // Usado tanto na denormalização de vagas (campus → cidade) quanto na lista de
 // cidades de prova do edital, garantindo simetria entre os dois caminhos.
@@ -94,52 +155,54 @@ export function buildSnapshot(state) {
       ? denormSingle(Keys.UNIDADES, (u) => u.codigo === ed.identificacao.unidadeDonaCodigo)
       : null,
 
-    // Denormaliza cada vaga: resolve Curso → Campus → Cidade e Curso → Unidade ofertante.
-    // O snapshot congela objetos completos (Campus com endereço/CEP/lat-long/cidade enriquecida;
-    // Unidade ofertante com nome/sigla) para preservar dados na publicação (RN08) e evitar
-    // que mudanças posteriores nos cadastros retroajam.
+    // Denormaliza cada vaga: resolve OfertaCurso → Curso + LocalOferta + UnidadeOfertante.
+    // Refactors 2+3: lookup em OFERTAS_CURSO (Refactor 3) com fallback a CURSOS (legado).
+    // `denormalizeLocalOfertaFull` lida com LOCAL_OFERTA/CAMPUS transparentemente (Refactor 2).
+    // O snapshot congela objetos completos para preservar dados na publicação (RN08).
     vagas: (ed.vagas?.cursos || []).map((v) => {
-      const cursoDef = denormSingle(Keys.CURSOS, (c) => c.codigo === v.cursoCodigo);
-      const campusDefRaw = cursoDef
-        ? denormSingle(Keys.CAMPUS, (c) => c.codigo === cursoDef.campus_codigo)
+      // Compat: aceita ofertaCursoCodigo (Refactor 3) ou cursoCodigo (legado).
+      const chave = v.ofertaCursoCodigo ?? v.cursoCodigo;
+      // Tenta resolver como OfertaCurso primeiro; depois como Curso legado.
+      const ofertaDef = chave
+        ? denormSingle(Keys.OFERTAS_CURSO, (o) => o.codigo === chave)
         : null;
-      const cidadeDefRaw = campusDefRaw
-        ? denormSingle(Keys.CIDADES, (c) => c.codigo === campusDefRaw.cidade_codigo)
+      // cursoDef: usa `curso_codigo` da oferta se disponível, senão usa `chave` diretamente.
+      const cursoChave = ofertaDef?.curso_codigo ?? chave;
+      const cursoDef = cursoChave
+        ? denormSingle(Keys.CURSOS, (c) => c.codigo === cursoChave)
         : null;
-      const unidadeOfertanteDef = cursoDef?.unidade_ofertante_codigo
-        ? denormSingle(Keys.UNIDADES, (u) => u.codigo === cursoDef.unidade_ofertante_codigo)
-        : null;
-      if (!cursoDef) {
-        return { codigo: v.cursoCodigo || null, curso: '(não encontrado)', vagas: v.vagas || 0 };
+      if (!cursoDef && !ofertaDef) {
+        return { codigo: chave || null, curso: '(não encontrado)', vagas: v.vagas || 0 };
       }
-      // Sigla literal da unidade ofertante congelada no momento da publicação (RN08).
-      // Fallback defensivo: se a Unidade for deletada posteriormente, o renderer ainda
-      // pode mostrar a sigla via este campo top-level (ver `visualizar-edital.js`).
-      const unidadeOfertanteSigla =
-        unidadeOfertanteDef?.sigla || cursoDef?.unidade_ofertante_codigo || null;
-      // Campus enriquecido (com cidade aninhada e enriquecida) — preserva todos os campos
-      // relevantes para auditoria do edital publicado.
-      const campusSnap = campusDefRaw
-        ? {
-            codigo: campusDefRaw.codigo,
-            nome: campusDefRaw.nome,
-            endereco: campusDefRaw.endereco ?? null,
-            cep: campusDefRaw.cep ?? null,
-            latitude: campusDefRaw.latitude ?? null,
-            longitude: campusDefRaw.longitude ?? null,
-            tipo_campus: campusDefRaw.tipo_campus ?? null,
-            cidade: denormalizeCidadeFull(cidadeDefRaw),
-          }
+      // Stub de Curso para denormalizeLocalOfertaFull quando vem de OfertaCurso:
+      // o helper precisa de `campus_codigo` — usa `local_oferta_codigo` da oferta.
+      const cursoStub = cursoDef ?? {};
+      if (ofertaDef && !cursoStub.campus_codigo) {
+        cursoStub.campus_codigo = ofertaDef.local_oferta_codigo;
+      }
+      const localOfertaSnap = denormalizeLocalOfertaFull(cursoStub);
+      // UnidadeOfertante: usa ofertaDef se disponível, senão cursoDef (legado).
+      const unidOfCodigo = ofertaDef?.unidade_ofertante_codigo ?? cursoDef?.unidade_ofertante_codigo ?? null;
+      const unidadeOfertanteDef = unidOfCodigo
+        ? denormSingle(Keys.UNIDADES, (u) => u.codigo === unidOfCodigo)
         : null;
+      const unidadeOfertanteSigla = unidadeOfertanteDef?.sigla || unidOfCodigo || null;
       return {
-        codigo: cursoDef.codigo,
-        curso: cursoDef.nome,
-        grau: cursoDef.grau,
-        // Mantém campos de texto curtos para retrocompatibilidade com renders existentes.
-        campus: campusDefRaw?.nome || cursoDef.campus_codigo,
-        cidade_campus: cidadeDefRaw?.nome || null,
-        // Objetos completos preservam todos os dados na publicação (RN08).
-        campus_snap: campusSnap,
+        codigo: chave,
+        curso: cursoDef?.nome || ofertaDef?.curso_codigo || chave,
+        grau: cursoDef?.grau || null,
+        modalidade: ofertaDef?.modalidade ?? 'REGULAR',
+        formato_pedagogico: ofertaDef?.formato_pedagogico ?? 'PRESENCIAL',
+        // RN08 (Refactor 3): e_mec_codigo e codigo_sga pertencem à OfertaCurso (variam por campus).
+        // Congelados no snapshot no momento da publicação — não retroagem.
+        e_mec_codigo: ofertaDef?.e_mec_codigo ?? null,
+        codigo_sga: ofertaDef?.codigo_sga ?? null,
+        // Campos de texto curtos para retrocompatibilidade com renders existentes.
+        campus: localOfertaSnap?.nome || cursoStub.campus_codigo,
+        cidade_campus: localOfertaSnap?.cidade?.nome || null,
+        // Objeto completo LocalOferta (campo duplo para compat retroativa).
+        local_oferta_snap: localOfertaSnap,
+        campus_snap: localOfertaSnap,
         unidade_ofertante: unidadeOfertanteDef
           ? {
               codigo: unidadeOfertanteDef.codigo,
@@ -148,11 +211,8 @@ export function buildSnapshot(state) {
               tipo: unidadeOfertanteDef.tipo ?? null,
             }
           : null,
-        // Fallback literal top-level: preserva sigla mesmo se a Unidade for excluída
-        // após a publicação. `visualizar-edital.js` lê este campo quando `unidade_ofertante`
-        // é null.
         unidade_ofertante_sigla: unidadeOfertanteSigla,
-        turno: cursoDef.turno,
+        turno: ofertaDef?.turno ?? cursoDef?.turno ?? null,
         vagas: v.vagas || 0,
       };
     }),
@@ -245,44 +305,35 @@ export function buildSnapshot(state) {
       }),
 
     // Cidades onde o candidato pode optar por fazer a prova na inscrição, com a lista
-    // de cursos do edital que aceitam prova em cada cidade. Denormaliza Cidade completa
-    // (13 campos: ibge_id, ddd, latitude, longitude, regiao, mesorregiao, microrregiao,
-    // populacao_residente, densidade_demografica, area_territorial_km2 + nome/UF/código) e
-    // Campus completo (endereco/cep/lat/long/tipo_campus/cidade aninhada). O local exato
-    // (sala/prédio) é definido pelo módulo de ensalamento — fora do escopo.
+    // de ofertas de curso do edital que aceitam prova em cada cidade. Denormaliza Cidade
+    // completa (13 campos) e LocalOferta completo (com cidade aninhada).
+    // Refactors 2+3: lookup em OFERTAS_CURSO (fallback a CURSOS); LOCAL_OFERTA (fallback CAMPUS).
     cidades: (ed.cidades || [])
       .map((entry) => {
         const cidade = denormSingle(Keys.CIDADES, (c) => c.codigo === entry.cidadeCodigo);
         if (!cidade) return null;
         const cursos = (entry.cursoCodigos || [])
           .map((codigo) => {
-            const cursoDef = denormSingle(Keys.CURSOS, (c) => c.codigo === codigo);
-            if (!cursoDef) return null;
-            const campusCursoRaw = denormSingle(Keys.CAMPUS, (c) => c.codigo === cursoDef.campus_codigo);
-            const cidadeCursoRaw = campusCursoRaw
-              ? denormSingle(Keys.CIDADES, (c) => c.codigo === campusCursoRaw.cidade_codigo)
-              : null;
+            // Tenta OfertaCurso primeiro (Refactor 3); fallback a Curso legado.
+            const ofertaDef = denormSingle(Keys.OFERTAS_CURSO, (o) => o.codigo === codigo);
+            const cursoChave = ofertaDef?.curso_codigo ?? codigo;
+            const cursoDef = denormSingle(Keys.CURSOS, (c) => c.codigo === cursoChave);
+            if (!cursoDef && !ofertaDef) return null;
+            const cursoStub = cursoDef ?? {};
+            if (ofertaDef && !cursoStub.campus_codigo) {
+              cursoStub.campus_codigo = ofertaDef.local_oferta_codigo;
+            }
+            const localOfertaSnap = denormalizeLocalOfertaFull(cursoStub);
             return {
-              codigo: cursoDef.codigo,
-              curso: cursoDef.nome,
-              grau: cursoDef.grau,
-              campus: campusCursoRaw?.nome || cursoDef.campus_codigo,
-              cidade_campus: cidadeCursoRaw?.nome || null,
-              campus_snap: campusCursoRaw
-                ? {
-                    codigo: campusCursoRaw.codigo,
-                    nome: campusCursoRaw.nome,
-                    endereco: campusCursoRaw.endereco ?? null,
-                    cep: campusCursoRaw.cep ?? null,
-                    latitude: campusCursoRaw.latitude ?? null,
-                    longitude: campusCursoRaw.longitude ?? null,
-                    tipo_campus: campusCursoRaw.tipo_campus ?? null,
-                    // Mesmo formato (13 campos) que o utilizado em `vagas[].campus_snap.cidade`,
-                    // via helper compartilhado — garante simetria entre os dois caminhos.
-                    cidade: denormalizeCidadeFull(cidadeCursoRaw),
-                  }
-                : null,
-              turno: cursoDef.turno,
+              codigo,
+              curso: cursoDef?.nome || ofertaDef?.curso_codigo || codigo,
+              grau: cursoDef?.grau || null,
+              modalidade: ofertaDef?.modalidade ?? 'REGULAR',
+              campus: localOfertaSnap?.nome || cursoStub.campus_codigo,
+              cidade_campus: localOfertaSnap?.cidade?.nome || null,
+              local_oferta_snap: localOfertaSnap,
+              campus_snap: localOfertaSnap,
+              turno: ofertaDef?.turno ?? cursoDef?.turno ?? null,
             };
           })
           .filter(Boolean);
@@ -295,23 +346,53 @@ export function buildSnapshot(state) {
       .filter(Boolean),
 
     // RN08: a oferta de atendimento especializado é congelada na publicação.
+    // Modelagem Opção C (binding TL 2026-05-19):
     // - condicoes_aceitas: códigos de CondicaoAtendimentoEspecializado (item 4.2.1).
-    // - deficiencias_aceitas: códigos de TipoDeficiencia (PcD — LBI).
+    // - detalhes_pcd: { tipos_deficiencia: [...] } | null — só presente quando PCD ∈ condicoes_aceitas.
+    //   Denormaliza TipoDeficiencia completo (com categoria_lbi) para preservar snapshot imutável.
     // - recursos_oferecidos: códigos de RecursoAcessibilidade (item 4.2.2 + extensões locais).
     // SolicitacaoAtendimentoEspecializado (workflow do candidato) é decisão de F3 — fora do escopo aqui.
-    atendimento_especializado: {
-      oferta: {
-        condicoes_aceitas: (ed.atendimentoEspecializado?.oferta?.condicoes_aceitas || []).map((c) =>
-          denormSingle(Keys.CONDICOES_ATENDIMENTO_ESPECIALIZADO, (d) => d.codigo === c)
-        ).filter(Boolean),
-        deficiencias_aceitas: (ed.atendimentoEspecializado?.oferta?.deficiencias_aceitas || []).map((c) =>
-          denormSingle(Keys.TIPOS_DEFICIENCIA, (d) => d.codigo === c)
-        ).filter(Boolean),
-        recursos_oferecidos: (ed.atendimentoEspecializado?.oferta?.recursos_oferecidos || []).map((c) =>
-          denormSingle(Keys.RECURSOS_ACESSIBILIDADE, (r) => r.codigo === c)
-        ).filter(Boolean),
-      },
-    },
+    atendimento_especializado: (() => {
+      const ofertaEd = ed.atendimentoEspecializado?.oferta || {};
+      const condicoesAceitas = (ofertaEd.condicoes_aceitas || [])
+        .map((c) => denormSingle(Keys.CONDICOES_ATENDIMENTO_ESPECIALIZADO, (d) => d.codigo === c))
+        .filter(Boolean);
+
+      // Denormaliza detalhes_pcd: tipos_deficiencia completos (com categoria_lbi).
+      // Se PCD marcado mas tipos vazios (estado legado inválido) → null com observação.
+      //
+      // FIX 1 (P1): fallback para rascunhos pré-refactor com `deficiencias_aceitas` legado.
+      // Quando `detalhes_pcd` está ausente/vazio mas `deficiencias_aceitas` existe, usa
+      // esse campo legado como fonte dos códigos (preservando bytes, sem localeCompare).
+      // Normaliza tanto strings puras quanto objetos com `.codigo` (dois formatos legados).
+      const temPCDMarcado = (ofertaEd.condicoes_aceitas || []).includes('PCD');
+      let tiposPcdCodigos = ofertaEd.detalhes_pcd?.tipos_deficiencia || [];
+      if (tiposPcdCodigos.length === 0 && Array.isArray(ofertaEd.deficiencias_aceitas) &&
+          ofertaEd.deficiencias_aceitas.length > 0) {
+        // Normaliza: aceita string pura ('BAIXA_VISAO') ou objeto ({ codigo: 'BAIXA_VISAO' })
+        tiposPcdCodigos = ofertaEd.deficiencias_aceitas.map((d) =>
+          typeof d === 'string' ? d : (d?.codigo ?? null)
+        ).filter(Boolean);
+      }
+      let detalhesPcdSnap = null;
+      if (temPCDMarcado && tiposPcdCodigos.length > 0) {
+        detalhesPcdSnap = {
+          tipos_deficiencia: tiposPcdCodigos
+            .map((c) => denormSingle(Keys.TIPOS_DEFICIENCIA, (d) => d.codigo === c))
+            .filter(Boolean),
+        };
+      }
+
+      return {
+        oferta: {
+          condicoes_aceitas: condicoesAceitas,
+          detalhes_pcd: detalhesPcdSnap,
+          recursos_oferecidos: (ofertaEd.recursos_oferecidos || [])
+            .map((c) => denormSingle(Keys.RECURSOS_ACESSIBILIDADE, (r) => r.codigo === c))
+            .filter(Boolean),
+        },
+      };
+    })(),
 
     obrigatoriedades_avaliadas: validate(state).aplicaveis.map((r) => ({
       regra: omitMeta(r.regra),
